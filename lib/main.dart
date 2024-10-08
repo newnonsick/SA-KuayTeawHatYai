@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:kuayteawhatyai/screens/homepage.dart';
+import 'package:get/get.dart';
+import 'package:kuayteawhatyai/screens/mobile/myhomepage_mobile_layout.dart';
+import 'package:kuayteawhatyai/screens/teblet/cookpage_tablet_layout.dart';
+import 'package:kuayteawhatyai/screens/teblet/myhomepage_tablet_layout.dart';
+import 'package:kuayteawhatyai/screens/teblet/takeorderpage_tablet_layout.dart';
+import 'package:kuayteawhatyai/utils/responsive_layout.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,12 +20,33 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: const Homepage(),
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.orange,
+    return GetMaterialApp(
+      getPages: [
+        GetPage(
+            name: '/',
+            page: () => const ResponsiveLayout(
+                  mobile: MyHomePageMobileLayout(),
+                  tablet: MyHomePageTabletLayout(),
+                )),
+        GetPage(
+            name: '/takeorder',
+            page: () => const ResponsiveLayout(
+                  mobile: MyHomePageMobileLayout(),
+                  tablet: TakeOrderPageTabletLayout(),
+                )),
+        GetPage(
+            name: '/cook',
+            page: () => const ResponsiveLayout(
+                  mobile: MyHomePageMobileLayout(),
+                  tablet: CookPageTabletLayout(),
+                ))
+      ],
+      home: const ResponsiveLayout(
+        mobile: MyHomePageMobileLayout(),
+        tablet: TakeOrderPageTabletLayout(),
       ),
+      theme: ThemeData(fontFamily: 'Kanit'),
+      debugShowCheckedModeBanner: false,
     );
   }
 }

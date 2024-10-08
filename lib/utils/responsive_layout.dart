@@ -17,6 +17,12 @@ class ResponsiveLayout extends StatelessWidget {
       MediaQuery.of(context).size.width >= 600;
   // && MediaQuery.of(context).size.width < 1200;
 
+  static bool isPortrait(BuildContext context) =>
+      MediaQuery.of(context).orientation == Orientation.portrait;
+
+  static bool isLandscape(BuildContext context) =>
+      MediaQuery.of(context).orientation == Orientation.landscape;
+
   @override
   Widget build(BuildContext context) {
     if (isTablet(context)) {

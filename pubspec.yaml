@@ -35,6 +35,10 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  get: ^4.6.6
+  dio: ^5.7.0
+  toastification: ^2.3.0
+  intl: ^0.17.0
 
 dev_dependencies:
   flutter_test:
@@ -62,6 +66,8 @@ flutter:
   # assets:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/images/mock.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -85,6 +91,27 @@ flutter:
   #       - asset: fonts/TrajanPro.ttf
   #       - asset: fonts/TrajanPro_Bold.ttf
   #         weight: 700
+  fonts:
+    - family: Kanit
+      fonts:
+        - asset: assets/fonts/Kanit/Kanit-Black.ttf
+        - asset: assets/fonts/Kanit/Kanit-BlackItalic.ttf
+        - asset: assets/fonts/Kanit/Kanit-Bold.ttf
+        - asset: assets/fonts/Kanit/Kanit-BoldItalic.ttf
+        - asset: assets/fonts/Kanit/Kanit-ExtraBold.ttf
+        - asset: assets/fonts/Kanit/Kanit-ExtraBoldItalic.ttf
+        - asset: assets/fonts/Kanit/Kanit-ExtraLight.ttf
+        - asset: assets/fonts/Kanit/Kanit-ExtraLightItalic.ttf
+        - asset: assets/fonts/Kanit/Kanit-Italic.ttf
+        - asset: assets/fonts/Kanit/Kanit-Light.ttf
+        - asset: assets/fonts/Kanit/Kanit-LightItalic.ttf
+        - asset: assets/fonts/Kanit/Kanit-Medium.ttf
+        - asset: assets/fonts/Kanit/Kanit-MediumItalic.ttf
+        - asset: assets/fonts/Kanit/Kanit-Regular.ttf
+        - asset: assets/fonts/Kanit/Kanit-SemiBold.ttf
+        - asset: assets/fonts/Kanit/Kanit-SemiBoldItalic.ttf
+        - asset: assets/fonts/Kanit/Kanit-Thin.ttf
+        - asset: assets/fonts/Kanit/Kanit-ThinItalic.ttf
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
