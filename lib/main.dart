@@ -33,17 +33,19 @@ class _MyAppState extends State<MyApp> {
             page: () => const ResponsiveLayout(
                   mobile: MyHomePageMobileLayout(),
                   tablet: TakeOrderPageTabletLayout(),
-                )),
+                ),
+            transition: Transition.topLevel),
         GetPage(
             name: '/cook',
             page: () => const ResponsiveLayout(
                   mobile: MyHomePageMobileLayout(),
                   tablet: CookPageTabletLayout(),
-                ))
+                ),
+            transition: Transition.topLevel),
       ],
       home: const ResponsiveLayout(
         mobile: MyHomePageMobileLayout(),
-        tablet: TakeOrderPageTabletLayout(),
+        tablet: MyHomePageTabletLayout(),
       ),
       theme: ThemeData(fontFamily: 'Kanit'),
       debugShowCheckedModeBanner: false,

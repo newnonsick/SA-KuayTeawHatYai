@@ -20,7 +20,7 @@ class MyHomePageTabletLayout extends StatelessWidget {
                   children: [
                     InkWell(
                       onTap: () {
-                        Get.offNamed('/takeorder');
+                        Get.toNamed('/takeorder');
                       },
                       child: Container(
                         width: MediaQuery.of(context).size.width * 0.3,
@@ -50,7 +50,7 @@ class MyHomePageTabletLayout extends StatelessWidget {
                     ),
                     InkWell(
                       onTap: () {
-                        Get.offNamed('/cook');
+                        Get.toNamed('/cook');
                       },
                       child: Container(
                         width: MediaQuery.of(context).size.width * 0.3,
