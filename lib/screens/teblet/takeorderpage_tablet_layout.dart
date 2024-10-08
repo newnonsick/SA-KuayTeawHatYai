@@ -14,7 +14,30 @@ class TakeOrderPageTabletLayout extends StatefulWidget {
 
 class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
   int _selectedIndex = 0;
-  List orders = [];
+  List orders = [
+    {
+      'menu': {
+        "name": "ก๋วยเตี๋ยวต้มยำ",
+        "price": 45,
+        "imageURL": "",
+        "id": "2"
+      },
+      'quantity': 2,
+      'ingredients': ['เส้นเล็ก', 'น้ำ', 'หมู', 'ลูกชิ้น'],
+      'extraInfo': 'ไม่เอาถั่วงอก'
+    },
+    {
+      'menu': {
+        "name": "ก๋วยเตี๋ยวต้มยำ",
+        "price": 45,
+        "imageURL": "",
+        "id": "1"
+      },
+      'quantity': 2,
+      'ingredients': ['เส้นหมี่', 'น้ำ', 'เนื้อ', 'ลูกชิ้น'],
+      'extraInfo': 'ไม่เอาผัก'
+    }
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -131,15 +154,15 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.grey, width: 2),
+                        border: Border.all(color: Colors.grey, width: 1),
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Expanded(
                             flex: 3,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
                               child: Image.asset('assets/images/mock.png',
                                   fit: BoxFit.fill),
                             ),
@@ -178,7 +201,7 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                                     InkWell(
                                       onTap: () {},
                                       child: Container(
-                                          padding: const EdgeInsets.all(4),
+                                          padding: const EdgeInsets.all(2),
                                           decoration: BoxDecoration(
                                             color: const Color(0xFFF8C324),
                                             borderRadius:
@@ -186,6 +209,7 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                                           ),
                                           child: const Row(
                                             children: [
+                                              SizedBox(width: 5),
                                               FittedBox(
                                                 child: Icon(Icons.add,
                                                     color: Colors.white,
@@ -200,7 +224,8 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                                                     fontSize: 20,
                                                   ),
                                                 ),
-                                              )
+                                              ),
+                                              SizedBox(width: 5),
                                             ],
                                           )),
                                     ),
@@ -242,10 +267,15 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
           const SizedBox(height: 10),
-          const Expanded(
+          Expanded(
               child: SingleChildScrollView(
             child: Column(
-              children: [],
+              children: [
+                for (Map<String, dynamic> order in orders)
+                  _buildOrderItem(
+                    order: order,
+                  ),
+              ],
             ),
           )),
           Container(
@@ -257,15 +287,15 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
             ),
           ),
           const SizedBox(height: 10),
-          const Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Flexible(
+              const Flexible(
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Text(
                     'ราคารวม',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
                 ),
               ),
@@ -273,10 +303,10 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Text(
-                    '฿ 000',
-                    style: TextStyle(
+                    '฿ ${orders.fold(0, (sum, order) => (sum + order['menu']['price'] * order['quantity']) as int)}',
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 15,
+                      fontSize: 18,
                       color: Colors.black,
                     ),
                   ),
@@ -310,6 +340,247 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
         ],
       ),
     ));
+  }
+
+  Widget _buildOrderItem({required Map<String, dynamic> order}) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+      padding: const EdgeInsets.fromLTRB(0, 10, 0, 20),
+      decoration: const BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: Colors.grey,
+            width: 1,
+          ),
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+              child: ClipRRect(
+                  borderRadius: BorderRadius.circular(5),
+                  child: Image.asset('assets/images/mock.png'))),
+          const SizedBox(width: 5),
+          Expanded(
+              flex: ResponsiveLayout.isPortrait(context) ? 2 : 3,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            order['menu']['name'],
+                            textAlign: TextAlign.start,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      if (ResponsiveLayout.isLandscape(context))
+                        Row(
+                          children: [
+                            FittedBox(
+                              child: InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    if (order['quantity'] > 1) {
+                                      order['quantity']--;
+                                    } else {
+                                      orders.remove(order);
+                                    }
+                                  });
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[300],
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  child: const Icon(
+                                    Icons.remove,
+                                    color: Colors.black,
+                                    size: 12,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 5),
+                            FittedBox(
+                              child: Text(
+                                order['quantity'].toString(),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 5),
+                            FittedBox(
+                              child: InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    order['quantity']++;
+                                  });
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF8C324),
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  child: const Icon(
+                                    Icons.add,
+                                    color: Colors.black,
+                                    size: 12,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                    ],
+                  ),
+                  const SizedBox(height: 5),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          '฿ ${order['menu']['price']}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                            color: Color(0xFFF8C324),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                      Flexible(
+                        child: Text(
+                          '(${order['menu']['price'] * order['quantity']})',
+                          style:
+                              const TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 5),
+                  if (ResponsiveLayout.isPortrait(context))
+                    Row(
+                      children: [
+                        FittedBox(
+                          child: InkWell(
+                            onTap: () {
+                              setState(() {
+                                if (order['quantity'] > 1) {
+                                  order['quantity']--;
+                                } else {
+                                  orders.remove(order);
+                                }
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              child: const Icon(
+                                Icons.remove,
+                                color: Colors.black,
+                                size: 12,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        FittedBox(
+                          child: Text(
+                            order['quantity'].toString(),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        FittedBox(
+                          child: InkWell(
+                            onTap: () {
+                              setState(() {
+                                order['quantity']++;
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF8C324),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              child: const Icon(
+                                Icons.add,
+                                color: Colors.black,
+                                size: 12,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  if (order['ingredients'] != null)
+                    for (String ingredient in order['ingredients'])
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.circle,
+                            size: 5,
+                            color: Colors.grey,
+                          ),
+                          const SizedBox(width: 5),
+                          Flexible(
+                            child: Text(
+                              ingredient,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                  if (order['extraInfo'] != null)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          '--เพิ่มเติม--',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        Text(
+                          order['extraInfo'],
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    )
+                ],
+              ))
+        ],
+      ),
+    );
   }
 
   Widget _buildCustomNavigationRail() {
@@ -389,13 +660,18 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                 color: isSelected ? const Color(0xFFF8C324) : Colors.grey[300],
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Center(child: Icon(icon)),
+              child: Center(
+                  child: Icon(
+                icon,
+                color: Colors.black,
+                size: 25,
+              )),
             ),
             const SizedBox(height: 5),
             Text(
               label,
               style: const TextStyle(
-                fontSize: 10,
+                fontSize: 11,
                 color: Colors.black,
               ),
             ),
