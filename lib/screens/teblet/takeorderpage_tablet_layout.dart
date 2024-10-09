@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:kuayteawhatyai/models/menulist.dart';
+import 'package:kuayteawhatyai/models/menu.dart';
+import 'package:kuayteawhatyai/models/order.dart';
+import 'package:kuayteawhatyai/provider/orderprovider.dart';
 import 'package:kuayteawhatyai/screens/portraitmodepage.dart';
 import 'package:kuayteawhatyai/utils/responsive_layout.dart';
+import 'package:kuayteawhatyai/widgets/menudialog.dart';
+import 'package:provider/provider.dart';
 
 class TakeOrderPageTabletLayout extends StatefulWidget {
   const TakeOrderPageTabletLayout({super.key});
@@ -18,8 +22,9 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
     {
       'menu': {
         "name": "ก๋วยเตี๋ยวต้มยำ",
-        "price": 45,
-        "imageURL": "",
+        "price": 45.0,
+        "imageURL":
+            "https://cdn.discordapp.com/attachments/1041014713816977471/1293532972984832020/cattt.jpg?ex=6707b7f5&is=67066675&hm=f756f91093d2b2c6c90ed2d5985f6fed5b2c83723184f6c9dacbaf102f6bdb00&",
         "id": "2"
       },
       'quantity': 2,
@@ -29,13 +34,24 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
     {
       'menu': {
         "name": "ก๋วยเตี๋ยวต้มยำ",
-        "price": 45,
-        "imageURL": "",
+        "price": 45.0,
+        "imageURL":
+            "https://cdn.discordapp.com/attachments/1041014713816977471/1293532972984832020/cattt.jpg?ex=6707b7f5&is=67066675&hm=f756f91093d2b2c6c90ed2d5985f6fed5b2c83723184f6c9dacbaf102f6bdb00&",
         "id": "1"
       },
       'quantity': 2,
       'ingredients': ['เส้นหมี่', 'น้ำ', 'เนื้อ', 'ลูกชิ้น'],
       'extraInfo': 'ไม่เอาผัก'
+    },
+    {
+      'menu': {
+        "name": "แป๊ปซี่",
+        "price": 10.0,
+        "imageURL":
+            "https://cdn.discordapp.com/attachments/1041014713816977471/1293532972984832020/cattt.jpg?ex=6707b7f5&is=67066675&hm=f756f91093d2b2c6c90ed2d5985f6fed5b2c83723184f6c9dacbaf102f6bdb00&",
+        "id": "1"
+      },
+      'quantity': 2,
     }
   ];
 
@@ -135,214 +151,241 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
               ),
             ),
             const SizedBox(height: 10),
-            Expanded(
-              child: SingleChildScrollView(
-                child: GridView.builder(
-                  shrinkWrap: true,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount:
-                        ResponsiveLayout.isPortrait(context) ? 3 : 4,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    childAspectRatio: 0.8,
-                  ),
-                  itemCount: menus.length,
-                  itemBuilder: (context, index) {
-                    final menu = menus[index];
-                    return Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.grey, width: 1),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            flex: 3,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Image.asset('assets/images/mock.png',
-                                  fit: BoxFit.fill),
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Expanded(
-                              child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: FittedBox(
-                                  fit: BoxFit.cover,
-                                  child: Text(
-                                    menu.name,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    FittedBox(
-                                      child: Text(
-                                        '฿ ${menu.price}',
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 20,
-                                            color: Color(0xFFF8C324)),
-                                      ),
-                                    ),
-                                    InkWell(
-                                      onTap: () {},
-                                      child: Container(
-                                          padding: const EdgeInsets.all(2),
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFFF8C324),
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                          child: const Row(
-                                            children: [
-                                              SizedBox(width: 5),
-                                              FittedBox(
-                                                child: Icon(Icons.add,
-                                                    color: Colors.white,
-                                                    size: 13),
-                                              ),
-                                              SizedBox(width: 5),
-                                              FittedBox(
-                                                child: Text(
-                                                  'เพิ่ม',
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 20,
-                                                  ),
-                                                ),
-                                              ),
-                                              SizedBox(width: 5),
-                                            ],
-                                          )),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            ],
-                          )),
-                        ],
-                      ),
+            FutureBuilder(
+                future: _fetchMenus(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Expanded(
+                      child: Center(child: CircularProgressIndicator()),
                     );
-                  },
-                ),
-              ),
-            ),
+                  } else if (snapshot.hasError ||
+                      (snapshot.hasData &&
+                          (snapshot.data!["code"] != "success"))) {
+                    return const Expanded(child: Center(child: Text('Error')));
+                  }
+                  final data = snapshot.data as Map<String, dynamic>;
+                  List menuList = data['menus'] as List;
+                  List<Menu> menus = menuList
+                      .map(
+                          (menu) => Menu.fromJson(menu as Map<String, dynamic>))
+                      .toList();
+                  return Expanded(
+                    child: SingleChildScrollView(
+                      child: GridView.builder(
+                        shrinkWrap: true,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount:
+                              ResponsiveLayout.isPortrait(context) ? 3 : 4,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 10,
+                          childAspectRatio: 0.8,
+                        ),
+                        itemCount: menus.length,
+                        itemBuilder: (context, index) {
+                          final menu = menus[index];
+                          return _buildMenuItem(menu: menu);
+                        },
+                      ),
+                    ),
+                  );
+                })
           ],
         ),
       ),
     );
   }
 
-  Widget _buildOrderListSection() {
-    return Expanded(
-        child: Container(
-      padding: const EdgeInsets.all(20),
+  Widget _buildMenuItem({required Menu menu}) {
+    return Container(
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        border: Border(
-          left: BorderSide(
-            color: Colors.grey[400]!,
-            width: 1,
-          ),
-        ),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.grey, width: 1),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
-            'เมนูที่เลือก',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          Expanded(
+            flex: 3,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(menu.imageURL, fit: BoxFit.fitHeight),
+            ),
           ),
           const SizedBox(height: 10),
           Expanded(
-              child: SingleChildScrollView(
-            child: Column(
-              children: [
-                for (Map<String, dynamic> order in orders)
-                  _buildOrderItem(
-                    order: order,
-                  ),
-              ],
-            ),
-          )),
-          Container(
-            height: 2,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Flexible(
+              Expanded(
                 child: FittedBox(
-                  fit: BoxFit.scaleDown,
+                  fit: BoxFit.cover,
                   child: Text(
-                    'ราคารวม',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                    menu.name,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
                   ),
                 ),
               ),
-              Flexible(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    '฿ ${orders.fold(0, (sum, order) => (sum + order['menu']['price'] * order['quantity']) as int)}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                      color: Colors.black,
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    FittedBox(
+                      child: Text(
+                        '฿ ${menu.price}',
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            color: Color(0xFFF8C324)),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        showDialog(
+                            context: context,
+                            builder: (context) => MenuDialog(menu: menu));
+                      },
+                      child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF8C324),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Row(
+                            children: [
+                              SizedBox(width: 5),
+                              FittedBox(
+                                child: Icon(Icons.add,
+                                    color: Colors.white, size: 13),
+                              ),
+                              SizedBox(width: 5),
+                              FittedBox(
+                                child: Text(
+                                  'เพิ่ม',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 5),
+                            ],
+                          )),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          )),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOrderListSection() {
+    return Consumer<OrderProvider>(
+      builder: (context, orderProvider, child) {
+        return Expanded(
+            child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            border: Border(
+              left: BorderSide(
+                color: Colors.grey[400]!,
+                width: 1,
+              ),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'เมนูที่เลือก',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
+              const SizedBox(height: 10),
+              Expanded(
+                  child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    for (Order order in orderProvider.orders)
+                      _buildOrderItem(
+                        order: order,
+                      ),
+                  ],
+                ),
+              )),
+              Container(
+                height: 2,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        'ราคารวม',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                      ),
+                    ),
+                  ),
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        '฿ ${orderProvider.getTotalPrice()}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFF8C324),
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.all(15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: const Center(
+                  child: FittedBox(
+                    child: Text(
+                      'บันทึกออร์เดอร์',
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),
                     ),
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFF8C324),
-              foregroundColor: Colors.black,
-              padding: const EdgeInsets.all(15),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            child: const Center(
-              child: FittedBox(
-                child: Text(
-                  'บันทึกออร์เดอร์',
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    ));
+        ));
+      }
+    );
   }
 
-  Widget _buildOrderItem({required Map<String, dynamic> order}) {
+  Widget _buildOrderItem({required Order order}) {
     return Container(
       margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
       padding: const EdgeInsets.fromLTRB(0, 10, 0, 20),
@@ -359,7 +402,8 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
           Expanded(
               child: ClipRRect(
                   borderRadius: BorderRadius.circular(5),
-                  child: Image.asset('assets/images/mock.png'))),
+                  child: Image.network(order.menu.imageURL,
+                      fit: BoxFit.fitHeight))),
           const SizedBox(width: 5),
           Expanded(
               flex: ResponsiveLayout.isPortrait(context) ? 2 : 3,
@@ -375,7 +419,7 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                         child: FittedBox(
                           fit: BoxFit.scaleDown,
                           child: Text(
-                            order['menu']['name'],
+                            order.menu.name,
                             textAlign: TextAlign.start,
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
@@ -391,13 +435,15 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                             FittedBox(
                               child: InkWell(
                                 onTap: () {
-                                  setState(() {
-                                    if (order['quantity'] > 1) {
-                                      order['quantity']--;
-                                    } else {
-                                      orders.remove(order);
-                                    }
-                                  });
+                                  if (order.quantity > 1) {
+                                    Provider.of<OrderProvider>(context,
+                                            listen: false)
+                                        .decrementQuantity(order);
+                                  } else {
+                                    Provider.of<OrderProvider>(context,
+                                            listen: false)
+                                        .removeOrder(order);
+                                  }
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.all(4),
@@ -416,7 +462,7 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                             const SizedBox(width: 5),
                             FittedBox(
                               child: Text(
-                                order['quantity'].toString(),
+                                order.quantity.toString(),
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 15,
@@ -427,9 +473,8 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                             FittedBox(
                               child: InkWell(
                                 onTap: () {
-                                  setState(() {
-                                    order['quantity']++;
-                                  });
+                                  Provider.of<OrderProvider>(context,
+                                          listen: false).incrementQuantity(order);
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.all(4),
@@ -453,21 +498,25 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                   Row(
                     children: [
                       Flexible(
-                        child: Text(
-                          '฿ ${order['menu']['price']}',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
-                            color: Color(0xFFF8C324),
+                        child: FittedBox(
+                          child: Text(
+                            '฿ ${order.menu.price}',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                              color: Color(0xFFF8C324),
+                            ),
                           ),
                         ),
                       ),
                       const SizedBox(width: 5),
                       Flexible(
-                        child: Text(
-                          '(${order['menu']['price'] * order['quantity']})',
-                          style:
-                              const TextStyle(fontSize: 12, color: Colors.grey),
+                        child: FittedBox(
+                          child: Text(
+                            '(${order.menu.price * order.quantity})',
+                            style: const TextStyle(
+                                fontSize: 12, color: Colors.grey),
+                          ),
                         ),
                       ),
                     ],
@@ -479,13 +528,15 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                         FittedBox(
                           child: InkWell(
                             onTap: () {
-                              setState(() {
-                                if (order['quantity'] > 1) {
-                                  order['quantity']--;
+                                if (order.quantity > 1) {
+                                  Provider.of<OrderProvider>(context,
+                                        listen: false)
+                                      .decrementQuantity(order);
                                 } else {
-                                  orders.remove(order);
+                                  Provider.of<OrderProvider>(context,
+                                        listen: false)
+                                      .removeOrder(order);
                                 }
-                              });
                             },
                             child: Container(
                               padding: const EdgeInsets.all(4),
@@ -504,7 +555,7 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                         const SizedBox(width: 10),
                         FittedBox(
                           child: Text(
-                            order['quantity'].toString(),
+                            order.quantity.toString(),
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 15,
@@ -515,9 +566,8 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                         FittedBox(
                           child: InkWell(
                             onTap: () {
-                              setState(() {
-                                order['quantity']++;
-                              });
+                                Provider.of<OrderProvider>(context, listen: false)
+                                    .incrementQuantity(order);
                             },
                             child: Container(
                               padding: const EdgeInsets.all(4),
@@ -535,8 +585,8 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                         ),
                       ],
                     ),
-                  if (order['ingredients'] != null)
-                    for (String ingredient in order['ingredients'])
+                  if (order.ingredients != null)
+                    for (String ingredient in order.ingredients!)
                       Row(
                         children: [
                           const Icon(
@@ -556,7 +606,7 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                           ),
                         ],
                       ),
-                  if (order['extraInfo'] != null)
+                  if (order.extraInfo != null)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -568,7 +618,7 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                           ),
                         ),
                         Text(
-                          order['extraInfo'],
+                          order.extraInfo!,
                           style: const TextStyle(
                             fontSize: 12,
                             color: Colors.grey,
@@ -690,4 +740,63 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
       ),
     );
   }
+
+  Future<Map<String, dynamic>> _fetchMenus() async {
+    await Future.delayed(const Duration(milliseconds: 200));
+    return {
+      'code': 'success',
+      'menus': [
+        {
+          'name': 'ก๋วยเตี๋ยวน้ำใส',
+          'imageURL':
+              "https://cdn.discordapp.com/attachments/1041014713816977471/1293532972984832020/cattt.jpg?ex=6707b7f5&is=67066675&hm=f756f91093d2b2c6c90ed2d5985f6fed5b2c83723184f6c9dacbaf102f6bdb00&",
+          'price': 45,
+          'category': 'Food',
+          'id': '0'
+        },
+        {
+          'name': 'ก๋วยเตี๋ยวเส้นปลา',
+          'imageURL':
+              "https://cdn.discordapp.com/attachments/1041014713816977471/1293532972984832020/cattt.jpg?ex=6707b7f5&is=67066675&hm=f756f91093d2b2c6c90ed2d5985f6fed5b2c83723184f6c9dacbaf102f6bdb00&",
+          'price': 55,
+          'category': 'Food',
+          'id': '1'
+        },
+        {
+          'name': 'ก๋วยเตี๋ยวต้มยำ',
+          'imageURL':
+              "https://cdn.discordapp.com/attachments/1041014713816977471/1293532972984832020/cattt.jpg?ex=6707b7f5&is=67066675&hm=f756f91093d2b2c6c90ed2d5985f6fed5b2c83723184f6c9dacbaf102f6bdb00&",
+          'price': 45,
+          'category': 'Food',
+          'id': '2'
+        },
+        {
+          'name': 'ก๋วยเตี๋ยวเย็นตาโฟ',
+          'imageURL':
+              "https://cdn.discordapp.com/attachments/1041014713816977471/1293532972984832020/cattt.jpg?ex=6707b7f5&is=67066675&hm=f756f91093d2b2c6c90ed2d5985f6fed5b2c83723184f6c9dacbaf102f6bdb00&",
+          'price': 45,
+          'category': 'Food',
+          'id': '3'
+        },
+        {
+          'name': 'เกาเหลาทรงเครื่อง',
+          'imageURL':
+              "https://cdn.discordapp.com/attachments/1041014713816977471/1293532972984832020/cattt.jpg?ex=6707b7f5&is=67066675&hm=f756f91093d2b2c6c90ed2d5985f6fed5b2c83723184f6c9dacbaf102f6bdb00&",
+          'price': 55,
+          'category': 'Food',
+          'id': '4'
+        },
+        {
+          'name': 'ก๋วยเตี๋ยวน้ำตก',
+          'imageURL':
+              "https://cdn.discordapp.com/attachments/1041014713816977471/1293532972984832020/cattt.jpg?ex=6707b7f5&is=67066675&hm=f756f91093d2b2c6c90ed2d5985f6fed5b2c83723184f6c9dacbaf102f6bdb00&",
+          'price': 45,
+          'category': 'Food',
+          'id': '5'
+        },
+      ]
+    };
+  }
+
+  
 }

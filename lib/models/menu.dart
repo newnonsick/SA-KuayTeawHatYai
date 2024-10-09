@@ -19,4 +19,12 @@ class Menu {
         price = json['price'],
         category = json['category'],
         id = json['id'];
+
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'imageURL': imageURL,
+        'price': price,
+        'category': category,
+        'id': id,
+      };
 }

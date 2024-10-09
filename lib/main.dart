@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:kuayteawhatyai/provider/orderprovider.dart';
 import 'package:kuayteawhatyai/screens/mobile/myhomepage_mobile_layout.dart';
 import 'package:kuayteawhatyai/screens/teblet/cookpage_tablet_layout.dart';
 import 'package:kuayteawhatyai/screens/teblet/myhomepage_tablet_layout.dart';
 import 'package:kuayteawhatyai/screens/teblet/takeorderpage_tablet_layout.dart';
 import 'package:kuayteawhatyai/utils/responsive_layout.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -20,35 +22,40 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      getPages: [
-        GetPage(
-            name: '/',
-            page: () => const ResponsiveLayout(
-                  mobile: MyHomePageMobileLayout(),
-                  tablet: MyHomePageTabletLayout(),
-                )),
-        GetPage(
-            name: '/takeorder',
-            page: () => const ResponsiveLayout(
-                  mobile: MyHomePageMobileLayout(),
-                  tablet: TakeOrderPageTabletLayout(),
-                ),
-            transition: Transition.topLevel),
-        GetPage(
-            name: '/cook',
-            page: () => const ResponsiveLayout(
-                  mobile: MyHomePageMobileLayout(),
-                  tablet: CookPageTabletLayout(),
-                ),
-            transition: Transition.topLevel),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => OrderProvider()),
       ],
-      home: const ResponsiveLayout(
-        mobile: MyHomePageMobileLayout(),
-        tablet: MyHomePageTabletLayout(),
+      child: GetMaterialApp(
+        getPages: [
+          GetPage(
+              name: '/',
+              page: () => const ResponsiveLayout(
+                    mobile: MyHomePageMobileLayout(),
+                    tablet: MyHomePageTabletLayout(),
+                  )),
+          GetPage(
+              name: '/takeorder',
+              page: () => const ResponsiveLayout(
+                    mobile: MyHomePageMobileLayout(),
+                    tablet: TakeOrderPageTabletLayout(),
+                  ),
+              transition: Transition.topLevel),
+          GetPage(
+              name: '/cook',
+              page: () => const ResponsiveLayout(
+                    mobile: MyHomePageMobileLayout(),
+                    tablet: CookPageTabletLayout(),
+                  ),
+              transition: Transition.topLevel),
+        ],
+        home: const ResponsiveLayout(
+          mobile: MyHomePageMobileLayout(),
+          tablet: MyHomePageTabletLayout(),
+        ),
+        theme: ThemeData(fontFamily: 'Kanit'),
+        debugShowCheckedModeBanner: false,
       ),
-      theme: ThemeData(fontFamily: 'Kanit'),
-      debugShowCheckedModeBanner: false,
     );
   }
 }
