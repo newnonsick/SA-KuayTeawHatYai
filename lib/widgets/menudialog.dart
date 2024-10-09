@@ -16,14 +16,14 @@ class MenuDialog extends StatefulWidget {
 class _MenuDialogState extends State<MenuDialog> {
   Order? order;
   final TextEditingController _extraInfoController = TextEditingController();
-  final Map<String, List<String>> _selectedIngredients =
-      {}; // Group to selected options
+  final Map<String, List<String>> _selectedIngredients = {};
+  String _selectedPortion = 'ธรรมดา'; // Default to "Normal"
 
   @override
   void initState() {
     super.initState();
     order = Order(
-      menu: widget.menu,
+      menu: widget.menu.copyWith(),
       quantity: 1,
       ingredients: [],
     );
@@ -66,119 +66,103 @@ class _MenuDialogState extends State<MenuDialog> {
               const SizedBox(height: 10),
               Expanded(
                 flex: 5,
-                child: Column(
-                  children: [
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        widget.menu.name,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          widget.menu.name,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                    FutureBuilder(
-                      future: _fetchIngredients(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Expanded(
-                            child: Center(child: CircularProgressIndicator()),
-                          );
-                        } else if (snapshot.hasError ||
-                            (snapshot.hasData &&
-                                (snapshot.data!["code"] != "success"))) {
-                          return const Expanded(
-                              child: Center(child: Text('Error')));
-                        }
-                        final data = snapshot.data as Map<String, dynamic>;
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            for (var ingredient in data['ingredients'])
-                              Container(
-                                margin: const EdgeInsets.only(bottom: 20),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      ingredient['type'],
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
+                      const SizedBox(height: 10),
+                      FutureBuilder(
+                        future: _fetchIngredients(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const CircularProgressIndicator();
+                          } else if (snapshot.hasError ||
+                              (snapshot.hasData &&
+                                  (snapshot.data!["code"] != "success"))) {
+                            return const Text('Error');
+                          }
+                          final data = snapshot.data as Map<String, dynamic>;
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              for (var ingredient in data['ingredients'])
+                                Container(
+                                  margin: const EdgeInsets.only(bottom: 20),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        ingredient['type'],
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    Wrap(
-                                      spacing: 8.0,
-                                      runSpacing: 4.0,
-                                      children: [
-                                        for (var option in ingredient['options'])
-                                          GestureDetector(
-                                            onTap: option['isAvailable']
-                                                ? () {
-                                                    setState(() {
-                                                      // Initialize if not yet present
-                                                      _selectedIngredients[
-                                                          ingredient[
-                                                              'type']] ??= [];
-                                                      // Add/remove selected option
-                                                      if (_selectedIngredients[
-                                                              ingredient['type']]!
-                                                          .contains(
-                                                              option['name'])) {
+                                      const SizedBox(height: 10),
+                                      Wrap(
+                                        spacing: 8.0,
+                                        runSpacing: 4.0,
+                                        children: [
+                                          for (var option
+                                              in ingredient['options'])
+                                            GestureDetector(
+                                              onTap: option['isAvailable']
+                                                  ? () {
+                                                      setState(() {
                                                         _selectedIngredients[
+                                                            ingredient[
+                                                                'type']] ??= [];
+                                                        if (_selectedIngredients[
                                                                 ingredient[
                                                                     'type']]!
-                                                            .remove(
-                                                                option['name']);
-                                                      } else {
-                                                        _selectedIngredients[
-                                                                ingredient[
-                                                                    'type']]!
-                                                            .add(option['name']);
-                                                      }
-                                                      order = Order(
-                                                        menu: widget.menu,
-                                                        quantity: 1,
-                                                        ingredients:
+                                                            .contains(option[
+                                                                'name'])) {
+                                                          _selectedIngredients[
+                                                                  ingredient[
+                                                                      'type']]!
+                                                              .remove(option[
+                                                                  'name']);
+                                                        } else {
+                                                          _selectedIngredients[
+                                                                  ingredient[
+                                                                      'type']]!
+                                                              .add(option[
+                                                                  'name']);
+                                                        }
+
+                                                        order!.ingredients =
                                                             _selectedIngredients
                                                                 .values
-                                                                .expand((e) => e)
-                                                                .toList(),
-                                                        extraInfo:
+                                                                .expand(
+                                                                    (e) => e)
+                                                                .toList();
+                                                        order!.extraInfo =
                                                             _extraInfoController
                                                                         .text ==
                                                                     ''
                                                                 ? null
                                                                 : _extraInfoController
-                                                                    .text,
-                                                      );
-                                                    });
-                                                  }
-                                                : null,
-                                            child: Container(
-                                              padding: const EdgeInsets.symmetric(
-                                                  vertical: 5, horizontal: 10),
-                                              decoration: BoxDecoration(
-                                                color: _selectedIngredients[
-                                                                ingredient[
-                                                                    'type']] !=
-                                                            null &&
-                                                        _selectedIngredients[
-                                                                ingredient[
-                                                                    'type']]!
-                                                            .contains(
-                                                                option['name'])
-                                                    ? const Color(0xFFF8C324)
-                                                    : option['isAvailable']
-                                                        ? Colors.white
-                                                        : Colors.grey[300],
-                                                borderRadius:
-                                                    BorderRadius.circular(20),
-                                                border: Border.all(
+                                                                    .text;
+                                                      });
+                                                    }
+                                                  : null,
+                                              child: Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 5,
+                                                        horizontal: 10),
+                                                decoration: BoxDecoration(
                                                   color: _selectedIngredients[
                                                                   ingredient[
                                                                       'type']] !=
@@ -186,59 +170,169 @@ class _MenuDialogState extends State<MenuDialog> {
                                                           _selectedIngredients[
                                                                   ingredient[
                                                                       'type']]!
-                                                              .contains(
-                                                                  option['name'])
-                                                      ? Colors.orange
-                                                      : Colors.grey,
+                                                              .contains(option[
+                                                                  'name'])
+                                                      ? const Color(0xFFF8C324)
+                                                      : option['isAvailable']
+                                                          ? Colors.white
+                                                          : Colors.grey[300],
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                  border: Border.all(
+                                                    color: _selectedIngredients[
+                                                                    ingredient[
+                                                                        'type']] !=
+                                                                null &&
+                                                            _selectedIngredients[
+                                                                    ingredient[
+                                                                        'type']]!
+                                                                .contains(
+                                                                    option[
+                                                                        'name'])
+                                                        ? Colors.orange
+                                                        : Colors.grey,
+                                                  ),
                                                 ),
-                                              ),
-                                              child: Text(
-                                                option['isAvailable']
-                                                    ? option['name']
-                                                    : '${option['name']} (หมด)',
-                                                style: TextStyle(
-                                                  color: option['isAvailable']
-                                                      ? Colors.black
-                                                      : Colors.grey,
+                                                child: Text(
+                                                  option['isAvailable']
+                                                      ? option['name']
+                                                      : '${option['name']} (หมด)',
+                                                  style: TextStyle(
+                                                    color: option['isAvailable']
+                                                        ? Colors.black
+                                                        : Colors.grey,
+                                                  ),
                                                 ),
                                               ),
                                             ),
-                                          ),
-                                      ],
-                                    ),
-                                  ],
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              // Extra/Normal Section
+                              const Text(
+                                'ปริมาณ', // Portion/Amount
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
                                 ),
                               ),
-                            const SizedBox(height: 10),
-                            TextField(
-                              controller: _extraInfoController,
-                              decoration: const InputDecoration(
-                                labelText: 'ข้อมูลเพิ่มเติม',
-                                border: OutlineInputBorder(),
-                              ),
-                              onChanged: (value) {
-                                if (value == '') return;
+                              const SizedBox(height: 5),
+                              Wrap(
+                                spacing: 8.0,
+                                children: data['extraNormalOptions']['options']
+                                    .map<Widget>(
+                                  (option) {
+                                    // return ChoiceChip(
+                                    //   label: Text(option['name']),
+                                    //   selected:
+                                    //       _selectedPortion == option['name'],
+                                    //   onSelected: (bool selected) {
+                                    //     setState(() {
+                                    //       if (selected) {
+                                    //         _selectedPortion = option['name'];
+                                    //         order = Order(
+                                    //           menu: widget.menu,
+                                    //           quantity: 1,
+                                    //           ingredients: _selectedIngredients
+                                    //               .values
+                                    //               .expand((e) => e)
+                                    //               .toList(),
+                                    //           extraInfo:
+                                    //               _extraInfoController.text == ''
+                                    //                   ? null
+                                    //                   : _extraInfoController.text,
+                                    //         );
+                                    //       }
+                                    //     });
+                                    //   },
+                                    // );
+                                    return InkWell(
+                                      onTap: () {
+                                        setState(() {
+                                          if (_selectedPortion ==
+                                              option['name']) return;
 
-                                order = Order(
-                                  menu: widget.menu,
-                                  quantity: 1,
-                                  ingredients: _selectedIngredients.values
-                                      .expand((e) => e)
-                                      .toList(),
-                                  extraInfo: value,
-                                );
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                  ],
+                                          if (option['name'] == "พิเศษ") {
+                                            order!.menu.price += 10;
+                                          } else {
+                                            order!.menu.price -= 10;
+                                          }
+
+                                          _selectedPortion = option['name'];
+                                          order!.ingredients =
+                                              _selectedIngredients.values
+                                                  .expand((e) => e)
+                                                  .toList();
+                                          order!.extraInfo =
+                                              _extraInfoController.text == ''
+                                                  ? null
+                                                  : _extraInfoController.text;
+                                        });
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 5, horizontal: 10),
+                                        decoration: BoxDecoration(
+                                          color:
+                                              _selectedPortion == option['name']
+                                                  ? const Color(0xFFF8C324)
+                                                  : Colors.white,
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          border: Border.all(
+                                            color: _selectedPortion ==
+                                                    option['name']
+                                                ? Colors.orange
+                                                : Colors.grey,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          option['name'],
+                                          style: TextStyle(
+                                            color: _selectedPortion ==
+                                                    option['name']
+                                                ? Colors.black
+                                                : Colors.grey,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ).toList(),
+                              ),
+                              const SizedBox(height: 20),
+                              TextField(
+                                controller: _extraInfoController,
+                                decoration: const InputDecoration(
+                                  labelText: 'ข้อมูลเพิ่มเติม',
+                                  border: OutlineInputBorder(),
+                                ),
+                                onChanged: (value) {
+                                  if (value == '') return;
+                                  order = Order(
+                                    menu: widget.menu,
+                                    quantity: 1,
+                                    ingredients: _selectedIngredients.values
+                                        .expand((e) => e)
+                                        .toList(),
+                                    extraInfo: value,
+                                  );
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
+                  order!.ingredients!.add(_selectedPortion);
                   Provider.of<OrderProvider>(context, listen: false)
                       .addOrder(order!);
                   Get.back();
@@ -269,32 +363,39 @@ class _MenuDialogState extends State<MenuDialog> {
       ),
     );
   }
+}
 
-  Future<Map<String, dynamic>> _fetchIngredients() async {
-    await Future.delayed(const Duration(milliseconds: 200));
-    return {
-      'code': 'success',
-      'ingredients': [
-        {
-          "type": "เส้น",
-          "options": [
-            {"name": "เส้นเล็ก", "isAvailable": true},
-            {"name": "เส้นใหญ่", "isAvailable": true},
-            {"name": "เส้นหมี่", "isAvailable": true},
-            {"name": "เส้นบะหมี่", "isAvailable": true},
-            {"name": "วุ้นเส้น", "isAvailable": false},
-          ],
-        },
-        {
-          'type': 'เนื้อสัตว์',
-          'options': [
-            {'name': 'หมูชิ้น', 'isAvailable': true},
-            {'name': 'หมูเด้ง', 'isAvailable': true},
-            {'name': 'เนื้อ', 'isAvailable': true},
-            {'name': 'ไก่ฉีก', 'isAvailable': false},
-          ]
-        }
-      ],
-    };
-  }
+Future<Map<String, dynamic>> _fetchIngredients() async {
+  await Future.delayed(const Duration(milliseconds: 200));
+  return {
+    'code': 'success',
+    'ingredients': [
+      {
+        "type": "เส้น",
+        "options": [
+          {"name": "เส้นเล็ก", "isAvailable": true},
+          {"name": "เส้นใหญ่", "isAvailable": true},
+          {"name": "เส้นหมี่", "isAvailable": true},
+          {"name": "เส้นบะหมี่", "isAvailable": true},
+          {"name": "วุ้นเส้น", "isAvailable": false},
+        ],
+      },
+      {
+        'type': 'เนื้อสัตว์',
+        'options': [
+          {'name': 'หมูชิ้น', 'isAvailable': true},
+          {'name': 'หมูเด้ง', 'isAvailable': true},
+          {'name': 'เนื้อ', 'isAvailable': true},
+          {'name': 'ไก่ฉีก', 'isAvailable': false},
+        ]
+      }
+    ],
+    'extraNormalOptions': {
+      'type': 'ปริมาณ',
+      'options': [
+        {'name': 'ธรรมดา'},
+        {'name': 'พิเศษ'},
+      ]
+    }
+  };
 }

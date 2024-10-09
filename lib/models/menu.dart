@@ -27,4 +27,20 @@ class Menu {
         'category': category,
         'id': id,
       };
+
+  Menu copyWith({
+    String? name,
+    String? imageURL,
+    double? price,
+    String? category,
+    String? id,
+  }) {
+    return Menu(
+      name: name ?? this.name,
+      imageURL: imageURL ?? this.imageURL,
+      price: price ?? this.price,
+      category: category ?? this.category,
+      id: id ?? this.id,
+    );
+  }
 }
