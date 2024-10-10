@@ -18,42 +18,6 @@ class TakeOrderPageTabletLayout extends StatefulWidget {
 
 class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
   int _selectedIndex = 0;
-  List orders = [
-    {
-      'menu': {
-        "name": "ก๋วยเตี๋ยวต้มยำ",
-        "price": 45.0,
-        "imageURL":
-            "https://cdn.discordapp.com/attachments/1041014713816977471/1293532972984832020/cattt.jpg?ex=6707b7f5&is=67066675&hm=f756f91093d2b2c6c90ed2d5985f6fed5b2c83723184f6c9dacbaf102f6bdb00&",
-        "id": "2"
-      },
-      'quantity': 2,
-      'ingredients': ['เส้นเล็ก', 'น้ำ', 'หมู', 'ลูกชิ้น'],
-      'extraInfo': 'ไม่เอาถั่วงอก'
-    },
-    {
-      'menu': {
-        "name": "ก๋วยเตี๋ยวต้มยำ",
-        "price": 45.0,
-        "imageURL":
-            "https://cdn.discordapp.com/attachments/1041014713816977471/1293532972984832020/cattt.jpg?ex=6707b7f5&is=67066675&hm=f756f91093d2b2c6c90ed2d5985f6fed5b2c83723184f6c9dacbaf102f6bdb00&",
-        "id": "1"
-      },
-      'quantity': 2,
-      'ingredients': ['เส้นหมี่', 'น้ำ', 'เนื้อ', 'ลูกชิ้น'],
-      'extraInfo': 'ไม่เอาผัก'
-    },
-    {
-      'menu': {
-        "name": "แป๊ปซี่",
-        "price": 10.0,
-        "imageURL":
-            "https://cdn.discordapp.com/attachments/1041014713816977471/1293532972984832020/cattt.jpg?ex=6707b7f5&is=67066675&hm=f756f91093d2b2c6c90ed2d5985f6fed5b2c83723184f6c9dacbaf102f6bdb00&",
-        "id": "1"
-      },
-      'quantity': 2,
-    }
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -500,7 +464,7 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                       Flexible(
                         child: FittedBox(
                           child: Text(
-                            '฿ ${order.menu.price}',
+                            '฿ ${(order.portion == "พิเศษ" ? order.menu.price + 10 : order.menu.price)}',
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 15,
@@ -513,7 +477,7 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                       Flexible(
                         child: FittedBox(
                           child: Text(
-                            '(${order.menu.price * order.quantity})',
+                            '(${(order.portion == "พิเศษ" ? order.menu.price + 10 : order.menu.price) * order.quantity})',
                             style: const TextStyle(
                                 fontSize: 12, color: Colors.grey),
                           ),
@@ -617,7 +581,7 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                         const SizedBox(width: 5),
                         Flexible(
                           child: Text(
-                            order.portion,
+                            order.portion!,
                             style: const TextStyle(
                               fontSize: 12,
                               color: Colors.grey,
@@ -769,50 +733,44 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
         {
           'name': 'ก๋วยเตี๋ยวน้ำใส',
           'imageURL':
-              "https://cdn.discordapp.com/attachments/1041014713816977471/1293532972984832020/cattt.jpg?ex=6707b7f5&is=67066675&hm=f756f91093d2b2c6c90ed2d5985f6fed5b2c83723184f6c9dacbaf102f6bdb00&",
+              "https://cdn.discordapp.com/attachments/1041014713816977471/1293532972984832020/cattt.jpg?ex=670860b5&is=67070f35&hm=2eaf26149ec1b229d7a113e5d11a0e28cdc568a65edd6778214e0a92a0b09fe6&",
           'price': 45.0,
           'category': 'ก๋วยเตี๋ยว',
-          'id': '0'
         },
         {
           'name': 'ก๋วยเตี๋ยวเส้นปลา',
           'imageURL':
-              "https://cdn.discordapp.com/attachments/1041014713816977471/1293532972984832020/cattt.jpg?ex=6707b7f5&is=67066675&hm=f756f91093d2b2c6c90ed2d5985f6fed5b2c83723184f6c9dacbaf102f6bdb00&",
+              "https://cdn.discordapp.com/attachments/1041014713816977471/1293532972984832020/cattt.jpg?ex=670860b5&is=67070f35&hm=2eaf26149ec1b229d7a113e5d11a0e28cdc568a65edd6778214e0a92a0b09fe6&",
           'price': 55.0,
           'category': 'ก๋วยเตี๋ยว',
-          'id': '1'
         },
         {
           'name': 'ก๋วยเตี๋ยวต้มยำ',
           'imageURL':
-              "https://cdn.discordapp.com/attachments/1041014713816977471/1293532972984832020/cattt.jpg?ex=6707b7f5&is=67066675&hm=f756f91093d2b2c6c90ed2d5985f6fed5b2c83723184f6c9dacbaf102f6bdb00&",
+              "https://cdn.discordapp.com/attachments/1041014713816977471/1293532972984832020/cattt.jpg?ex=670860b5&is=67070f35&hm=2eaf26149ec1b229d7a113e5d11a0e28cdc568a65edd6778214e0a92a0b09fe6&",
           'price': 45.0,
           'category': 'ก๋วยเตี๋ยว',
-          'id': '2'
         },
         {
           'name': 'ก๋วยเตี๋ยวเย็นตาโฟ',
           'imageURL':
-              "https://cdn.discordapp.com/attachments/1041014713816977471/1293532972984832020/cattt.jpg?ex=6707b7f5&is=67066675&hm=f756f91093d2b2c6c90ed2d5985f6fed5b2c83723184f6c9dacbaf102f6bdb00&",
+              "https://cdn.discordapp.com/attachments/1041014713816977471/1293532972984832020/cattt.jpg?ex=670860b5&is=67070f35&hm=2eaf26149ec1b229d7a113e5d11a0e28cdc568a65edd6778214e0a92a0b09fe6&",
           'price': 45.0,
           'category': 'ก๋วยเตี๋ยว',
-          'id': '3'
         },
         {
           'name': 'เกาเหลาทรงเครื่อง',
           'imageURL':
-              "https://cdn.discordapp.com/attachments/1041014713816977471/1293532972984832020/cattt.jpg?ex=6707b7f5&is=67066675&hm=f756f91093d2b2c6c90ed2d5985f6fed5b2c83723184f6c9dacbaf102f6bdb00&",
+              "https://cdn.discordapp.com/attachments/1041014713816977471/1293532972984832020/cattt.jpg?ex=670860b5&is=67070f35&hm=2eaf26149ec1b229d7a113e5d11a0e28cdc568a65edd6778214e0a92a0b09fe6&",
           'price': 55.0,
           'category': 'ก๋วยเตี๋ยว',
-          'id': '4'
         },
         {
           'name': 'ก๋วยเตี๋ยวน้ำตก',
           'imageURL':
-              "https://cdn.discordapp.com/attachments/1041014713816977471/1293532972984832020/cattt.jpg?ex=6707b7f5&is=67066675&hm=f756f91093d2b2c6c90ed2d5985f6fed5b2c83723184f6c9dacbaf102f6bdb00&",
+              "https://cdn.discordapp.com/attachments/1041014713816977471/1293532972984832020/cattt.jpg?ex=670860b5&is=67070f35&hm=2eaf26149ec1b229d7a113e5d11a0e28cdc568a65edd6778214e0a92a0b09fe6&",
           'price': 45.0,
           'category': 'ก๋วยเตี๋ยว',
-          'id': '5'
         },
       ]
     };

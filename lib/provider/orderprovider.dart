@@ -31,7 +31,7 @@ class OrderProvider with ChangeNotifier {
   double getTotalPrice() {
     double totalPrice = 0;
     for (Order order in _orders) {
-      totalPrice += order.menu.price * order.quantity;
+      totalPrice += (order.portion == "พิเศษ" ? order.menu.price + 10 : order.menu.price) * order.quantity;
     }
     return totalPrice;
   }

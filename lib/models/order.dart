@@ -5,7 +5,7 @@ class Order {
   int quantity;
   List<String>? ingredients;
   String? extraInfo;
-  String portion;
+  String? portion;
 
   Order({
     required this.menu,

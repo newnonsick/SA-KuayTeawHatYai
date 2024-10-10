@@ -255,12 +255,6 @@ class _MenuDialogState extends State<MenuDialog> {
                                           if (_selectedPortion ==
                                               option['name']) return;
 
-                                          if (option['name'] == "พิเศษ") {
-                                            order!.menu.price += 10;
-                                          } else {
-                                            order!.menu.price -= 10;
-                                          }
-
                                           _selectedPortion = option['name'];
                                           order!.ingredients =
                                               _selectedIngredients.values
@@ -332,11 +326,9 @@ class _MenuDialogState extends State<MenuDialog> {
                     return;
                   }
 
-
                   Provider.of<OrderProvider>(context, listen: false)
                       .addOrder(order!);
 
-                  print(order!.toJson());
                   Get.back();
                 },
                 style: ElevatedButton.styleFrom(
