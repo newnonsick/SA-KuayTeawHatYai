@@ -251,102 +251,179 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
   }
 
   Widget _buildOrderListSection() {
-    return Consumer<OrderProvider>(
-      builder: (context, orderProvider, child) {
-        return Expanded(
-            child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            border: Border(
-              left: BorderSide(
-                color: Colors.grey[400]!,
-                width: 1,
-              ),
+    return Consumer<OrderProvider>(builder: (context, orderProvider, child) {
+      return Expanded(
+          child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          border: Border(
+            left: BorderSide(
+              color: Colors.grey[400]!,
+              width: 1,
             ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'เมนูที่เลือก',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'เมนูที่เลือก',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+            const SizedBox(height: 10),
+            Expanded(
+                child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  for (Order order in orderProvider.orders)
+                    _buildOrderItem(
+                      order: order,
+                    ),
+                ],
               ),
-              const SizedBox(height: 10),
-              Expanded(
-                  child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    for (Order order in orderProvider.orders)
-                      _buildOrderItem(
-                        order: order,
-                      ),
-                  ],
+            )),
+            Container(
+              height: 2,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      'ราคารวม',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                    ),
+                  ),
                 ),
-              )),
-              Container(
-                height: 2,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      '฿ ${orderProvider.getTotalPrice()}',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                if (orderProvider.orders.isEmpty) {
+                  return;
+                }
+                TextEditingController tableNumberController =
+                    TextEditingController();
+
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        backgroundColor: Colors.white,
+                        title: const Text('กรุณากรอกหมายเลขโต๊ะ'),
+                        content: TextField(
+                          controller: tableNumberController,
+                          keyboardType: TextInputType.number,
+                          cursorColor: Colors.black,
+                          onTapOutside: (event) =>
+                              FocusScope.of(context).unfocus(),
+                          onChanged: (value) {
+                            if (value.isNotEmpty) {
+                              try {
+                                int.parse(value);
+                              } catch (e) {
+                                tableNumberController.clear();
+                              }
+
+                              if (int.parse(value) > 20 ||
+                                  int.parse(value) < 1) {
+                                tableNumberController.clear();
+                              }
+                            }
+                          },
+                          decoration: const InputDecoration(
+                            fillColor: Colors.black,
+                            focusColor: Colors.black,
+                            hintText: 'หมายเลขโต๊ะ (1-20)',
+                          ),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Get.back();
+                            },
+                            child: const Text(
+                              'ยกเลิก',
+                              style: TextStyle(color: Colors.black),
+                            ),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              if (tableNumberController.text.isEmpty) {
+                                return;
+                              }
+                              int tableNumber;
+                              try {
+                                tableNumber =
+                                    int.parse(tableNumberController.text);
+                              } catch (e) {
+                                return;
+                              }
+                              if (tableNumber < 1 || tableNumber > 20) {
+                                return;
+                              }
+                              orderProvider.setTableNumber(tableNumber);
+                              print(orderProvider.toJson()); //wait for api
+                              orderProvider.clearOrder();
+                              Get.back();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFF8C324),
+                              foregroundColor: Colors.black,
+                            ),
+                            child: const Text('ยืนยัน'),
+                          ),
+                        ],
+                      );
+                    });
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFF8C324),
+                foregroundColor: Colors.black,
+                padding: const EdgeInsets.all(15),
+                shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Flexible(
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        'ราคารวม',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                      ),
-                    ),
-                  ),
-                  Flexible(
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        '฿ ${orderProvider.getTotalPrice()}',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFF8C324),
-                  foregroundColor: Colors.black,
-                  padding: const EdgeInsets.all(15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: const Center(
-                  child: FittedBox(
-                    child: Text(
-                      'บันทึกออร์เดอร์',
-                      style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white),
-                    ),
+              child: const Center(
+                child: FittedBox(
+                  child: Text(
+                    'บันทึกออร์เดอร์',
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
                   ),
                 ),
               ),
-            ],
-          ),
-        ));
-      }
-    );
+            ),
+          ],
+        ),
+      ));
+    });
   }
 
   Widget _buildOrderItem({required Order order}) {
@@ -438,7 +515,8 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                               child: InkWell(
                                 onTap: () {
                                   Provider.of<OrderProvider>(context,
-                                          listen: false).incrementQuantity(order);
+                                          listen: false)
+                                      .incrementQuantity(order);
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.all(4),
@@ -492,15 +570,15 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                         FittedBox(
                           child: InkWell(
                             onTap: () {
-                                if (order.quantity > 1) {
-                                  Provider.of<OrderProvider>(context,
+                              if (order.quantity > 1) {
+                                Provider.of<OrderProvider>(context,
                                         listen: false)
-                                      .decrementQuantity(order);
-                                } else {
-                                  Provider.of<OrderProvider>(context,
+                                    .decrementQuantity(order);
+                              } else {
+                                Provider.of<OrderProvider>(context,
                                         listen: false)
-                                      .removeOrder(order);
-                                }
+                                    .removeOrder(order);
+                              }
                             },
                             child: Container(
                               padding: const EdgeInsets.all(4),
@@ -530,8 +608,8 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                         FittedBox(
                           child: InkWell(
                             onTap: () {
-                                Provider.of<OrderProvider>(context, listen: false)
-                                    .incrementQuantity(order);
+                              Provider.of<OrderProvider>(context, listen: false)
+                                  .incrementQuantity(order);
                             },
                             child: Container(
                               padding: const EdgeInsets.all(4),
@@ -775,6 +853,4 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
       ]
     };
   }
-
-  
 }

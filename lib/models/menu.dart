@@ -17,11 +17,15 @@ class Menu {
         price = json['price'],
         category = json['category'];
 
+  // Map<String, dynamic> toJson() => {
+  //       'name': name,
+  //       'imageURL': imageURL,
+  //       'price': price,
+  //       'category': category,
+  //     };
+
   Map<String, dynamic> toJson() => {
         'name': name,
-        'imageURL': imageURL,
-        'price': price,
-        'category': category,
       };
 
   Menu copyWith({

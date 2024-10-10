@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:kuayteawhatyai/models/menu.dart';
 import 'package:kuayteawhatyai/provider/orderprovider.dart';
 import 'package:provider/provider.dart';
@@ -17,7 +18,7 @@ class _MenuDialogState extends State<MenuDialog> {
   Order? order;
   final TextEditingController _extraInfoController = TextEditingController();
   final Map<String, List<String>> _selectedIngredients = {};
-  String _selectedPortion = 'ธรรมดา'; // Default to "Normal"
+  String _selectedPortion = 'ธรรมดา'; // ธรรมดา พิเศษ
 
   @override
   void initState() {
@@ -121,6 +122,15 @@ class _MenuDialogState extends State<MenuDialog> {
                                               onTap: option['isAvailable']
                                                   ? () {
                                                       setState(() {
+                                                        if (option['name'] ==
+                                                                "น้ำ" ||
+                                                            option['name'] ==
+                                                                "แห้ง") {
+                                                          _selectedIngredients[
+                                                              ingredient[
+                                                                  'type']] = [];
+                                                        }
+
                                                         _selectedIngredients[
                                                             ingredient[
                                                                 'type']] ??= [];
@@ -225,30 +235,6 @@ class _MenuDialogState extends State<MenuDialog> {
                                 children: data['extraNormalOptions']['options']
                                     .map<Widget>(
                                   (option) {
-                                    // return ChoiceChip(
-                                    //   label: Text(option['name']),
-                                    //   selected:
-                                    //       _selectedPortion == option['name'],
-                                    //   onSelected: (bool selected) {
-                                    //     setState(() {
-                                    //       if (selected) {
-                                    //         _selectedPortion = option['name'];
-                                    //         order = Order(
-                                    //           menu: widget.menu,
-                                    //           quantity: 1,
-                                    //           ingredients: _selectedIngredients
-                                    //               .values
-                                    //               .expand((e) => e)
-                                    //               .toList(),
-                                    //           extraInfo:
-                                    //               _extraInfoController.text == ''
-                                    //                   ? null
-                                    //                   : _extraInfoController.text,
-                                    //         );
-                                    //       }
-                                    //     });
-                                    //   },
-                                    // );
                                     return InkWell(
                                       onTap: () {
                                         setState(() {
@@ -300,10 +286,25 @@ class _MenuDialogState extends State<MenuDialog> {
                               ),
                               const SizedBox(height: 20),
                               TextField(
+                                cursorColor: Colors.black,
+                                onTapOutside: (event) =>
+                                    FocusScope.of(context).unfocus(),
                                 controller: _extraInfoController,
                                 decoration: const InputDecoration(
-                                  labelText: 'ข้อมูลเพิ่มเติม',
-                                  border: OutlineInputBorder(),
+                                  labelText: 'ข้อมูลเพิ่มเติม (ถ้ามี)',
+                                  labelStyle: TextStyle(
+                                    color: Colors.black,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                    ),
+                                  ),
                                 ),
                                 onChanged: (value) {
                                   if (value == '') return;
@@ -323,6 +324,10 @@ class _MenuDialogState extends State<MenuDialog> {
                 onPressed: () {
                   if (order!.menu.category == "ก๋วยเตี๋ยว" &&
                       order!.ingredients!.isEmpty) {
+                    return;
+                  } else if (order!.menu.category == "ก๋วยเตี๋ยว" &&
+                      (!order!.ingredients!.contains("น้ำ") &&
+                          !order!.ingredients!.contains("แห้ง"))) {
                     return;
                   }
 
@@ -381,6 +386,13 @@ Future<Map<String, dynamic>> _fetchIngredients() async {
           {'name': 'หมูเด้ง', 'isAvailable': true},
           {'name': 'เนื้อ', 'isAvailable': true},
           {'name': 'ไก่ฉีก', 'isAvailable': false},
+        ]
+      },
+      {
+        'type': 'น้ำ',
+        'options': [
+          {'name': 'น้ำ', 'isAvailable': true},
+          {'name': 'แห้ง', 'isAvailable': true},
         ]
       }
     ],
