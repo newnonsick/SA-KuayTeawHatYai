@@ -26,6 +26,7 @@ class _MenuDialogState extends State<MenuDialog> {
       menu: widget.menu.copyWith(),
       quantity: 1,
       ingredients: [],
+      portion: _selectedPortion,
     );
   }
 
@@ -269,6 +270,7 @@ class _MenuDialogState extends State<MenuDialog> {
                                               _extraInfoController.text == ''
                                                   ? null
                                                   : _extraInfoController.text;
+                                          order!.portion = _selectedPortion;
                                         });
                                       },
                                       child: Container(
@@ -311,14 +313,7 @@ class _MenuDialogState extends State<MenuDialog> {
                                 ),
                                 onChanged: (value) {
                                   if (value == '') return;
-                                  order = Order(
-                                    menu: widget.menu,
-                                    quantity: 1,
-                                    ingredients: _selectedIngredients.values
-                                        .expand((e) => e)
-                                        .toList(),
-                                    extraInfo: value,
-                                  );
+                                  order!.extraInfo = value;
                                 },
                               ),
                             ],
@@ -332,9 +327,16 @@ class _MenuDialogState extends State<MenuDialog> {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  order!.ingredients!.add(_selectedPortion);
+                  if (order!.menu.category == "ก๋วยเตี๋ยว" &&
+                      order!.ingredients!.isEmpty) {
+                    return;
+                  }
+
+
                   Provider.of<OrderProvider>(context, listen: false)
                       .addOrder(order!);
+
+                  print(order!.toJson());
                   Get.back();
                 },
                 style: ElevatedButton.styleFrom(
