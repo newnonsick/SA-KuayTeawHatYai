@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kuayteawhatyai/provider/orderprovider.dart';
 import 'package:kuayteawhatyai/screens/mobile/myhomepage_mobile_layout.dart';
-import 'package:kuayteawhatyai/screens/teblet/cookpage_tablet_layout.dart';
-import 'package:kuayteawhatyai/screens/teblet/myhomepage_tablet_layout.dart';
-import 'package:kuayteawhatyai/screens/teblet/takeorderpage_tablet_layout.dart';
+import 'package:kuayteawhatyai/screens/tablet/cookpage_tablet_layout.dart';
+import 'package:kuayteawhatyai/screens/tablet/myhomepage_tablet_layout.dart';
+import 'package:kuayteawhatyai/screens/tablet/takeorderpage_tablet_layout.dart';
 import 'package:kuayteawhatyai/utils/responsive_layout.dart';
 import 'package:provider/provider.dart';
 
