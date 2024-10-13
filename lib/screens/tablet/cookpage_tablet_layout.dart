@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:kuayteawhatyai/models/ingredient.dart';
+import 'package:kuayteawhatyai/utils/responsive_layout.dart';
 
 class CookPageTabletLayout extends StatefulWidget {
   const CookPageTabletLayout({super.key});
@@ -30,30 +32,8 @@ class _CookPageTabletLayoutState extends State<CookPageTabletLayout> {
               child: IndexedStack(
                 index: _selectedIndex,
                 children: [
-                  Container(
-                    color: Colors.white,
-                    child: const Center(
-                      child: Text(
-                        'ออเดอร์',
-                        style: TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    color: Colors.white,
-                    child: const Center(
-                      child: Text(
-                        'จัดการวัตถุดิบ',
-                        style: TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
+                  _orderPage(),
+                  const _MaterialManagementPage(),
                 ],
               ),
             ),
@@ -159,5 +139,222 @@ class _CookPageTabletLayoutState extends State<CookPageTabletLayout> {
         ),
       ),
     );
+  }
+
+  //หน้าของการจัดการออเดอร์
+  Widget _orderPage() {
+    return Container(
+      color: Colors.white,
+      child: const Center(
+        child: Text(
+          'จัดการออเดอร์',
+          style: TextStyle(
+            fontSize: 30,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+  //หน้าของการจัดการวัตถุดิบ
+}
+
+class _MaterialManagementPage extends StatefulWidget {
+  const _MaterialManagementPage({super.key});
+
+  @override
+  State<_MaterialManagementPage> createState() =>
+      _MaterialManagementPageState();
+}
+
+class _MaterialManagementPageState extends State<_MaterialManagementPage> {
+  String? selectedCategory;
+  List<Ingredient> _ingredientList = [];
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 50, 16, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'จัดการวัตถุดิบ',
+            style: TextStyle(
+              fontSize: 30,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildCategoryItem(Icons.egg, 'หมวดเนื้อสัตว์'),
+                _buildCategoryItem(Icons.restaurant, 'หมวดเส้น'),
+                _buildCategoryItem(Icons.grass, 'หมวดผัก'),
+              ],
+            ),
+          ),
+          FutureBuilder(
+            future: _fetchIngredients(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+              if (snapshot.hasError ||
+                  (snapshot.hasData && (snapshot.data!["code"] != "success"))) {
+                return const Expanded(
+                    child: Center(child: Text('เกิดข้อผิดพลาด')));
+              }
+              final ingredients = snapshot.data!['ingredients'] as List;
+              _ingredientList = ingredients.map((ingredientJson) {
+                return Ingredient.fromJson(ingredientJson);
+              }).toList();
+              print(_ingredientList);
+              final filteredIngredientList = _buildFilteredFoodItems();
+              return Expanded(
+                child: GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                  ),
+                  itemCount: filteredIngredientList.length,
+                  itemBuilder: (context, index) {
+                    final ingredient = filteredIngredientList[index];
+                    return _buildFoodItem(ingredient.name, ingredient.imageURL);
+                  },
+                ),
+              );
+            },
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategoryItem(IconData icon, String label) {
+    return InkWell(
+      onTap: () {
+        setState(() {
+          selectedCategory = label;
+        });
+      },
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color:
+                  selectedCategory == label ? Colors.amber : Colors.grey[300],
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: Colors.white),
+          ),
+          const SizedBox(height: 8),
+          Text(label),
+        ],
+      ),
+    );
+  }
+
+  List<Ingredient> _buildFilteredFoodItems() {
+    if (selectedCategory == null) {
+      return _ingredientList;
+    }
+    return _ingredientList.where((ingredient) {
+      return ingredient.type == selectedCategory;
+    }).toList();
+  }
+
+  Widget _buildFoodItem(String name, String imagePath) {
+    return Card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: Image.asset(
+              imagePath,
+              fit: BoxFit.cover,
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(8),
+            child: Text(
+              name,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<Map<String, dynamic>> _fetchIngredients() async {
+    await Future.delayed(const Duration(microseconds: 1));
+    return {
+      'code': 'success',
+      "ingredients": [
+        {
+          "name": "ไข่ไก่",
+          "imageURL": "assets/images/mock.png",
+          "isAvailable": true,
+          "type": "หมวดเนื้อสัตว์"
+        },
+        {
+          "name": "เส้นก๋วยเตี๋ยว",
+          "imageURL": "assets/images/mock.png",
+          "isAvailable": true,
+          "type": "หมวดเส้น"
+        },
+        {
+          "name": "ผักชี",
+          "imageURL": "assets/images/mock.png",
+          "isAvailable": true,
+          "type": "หมวดผัก"
+        },
+        {
+          "name": "เนื้อวัว",
+          "imageURL": "assets/images/mock.png",
+          "isAvailable": true,
+          "type": "หมวดเนื้อสัตว์"
+        },
+        {
+          "name": "เส้นเล็ก",
+          "imageURL": "assets/images/mock.png",
+          "isAvailable": true,
+          "type": "หมวดเส้น"
+        },
+        {
+          "name": "ผักกาดหอม",
+          "imageURL": "assets/images/mock.png",
+          "isAvailable": true,
+          "type": "หมวดผัก"
+        },
+        {
+          "name": "เนื้อหมู",
+          "imageURL": "assets/images/mock.png",
+          "isAvailable": true,
+          "type": "หมวดเนื้อสัตว์"
+        },
+        {
+          "name": "เส้นใหญ่",
+          "imageURL": "assets/images/mock.png",
+          "isAvailable": true,
+          "type": "หมวดเส้น"
+        },
+        {
+          "name": "ผักชีลาว",
+          "imageURL": "assets/images/mock.png",
+          "isAvailable": true,
+          "type": "หมวดผัก"
+        },
+      ]
+    };
   }
 }
