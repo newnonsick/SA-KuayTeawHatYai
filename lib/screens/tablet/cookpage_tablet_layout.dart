@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kuayteawhatyai/models/ingredient.dart';
+import 'package:kuayteawhatyai/utils/responsive_layout.dart';
 
 class CookPageTabletLayout extends StatefulWidget {
   const CookPageTabletLayout({super.key});
@@ -215,8 +216,8 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
               final filteredIngredientList = _buildFilteredFoodItems();
               return Expanded(
                 child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: ResponsiveLayout.isPortrait(context) ? 4 : 5,
                     crossAxisSpacing: 10,
                     mainAxisSpacing: 10,
                   ),
