@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:kuayteawhatyai/models/menu.dart';
 import 'package:kuayteawhatyai/models/order.dart';
 import 'package:kuayteawhatyai/provider/orderprovider.dart';
-import 'package:kuayteawhatyai/screens/portraitmodepage.dart';
+import 'package:kuayteawhatyai/services/apiservice.dart';
 import 'package:kuayteawhatyai/utils/responsive_layout.dart';
 import 'package:kuayteawhatyai/widgets/menudialog.dart';
 import 'package:provider/provider.dart';
@@ -325,79 +325,73 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                 if (orderProvider.orders.isEmpty) {
                   return;
                 }
-                TextEditingController tableNumberController =
-                    TextEditingController();
-
                 showDialog(
                     context: context,
                     builder: (context) {
                       return AlertDialog(
-                        backgroundColor: Colors.white,
-                        title: const Text('กรุณากรอกหมายเลขโต๊ะ'),
-                        content: TextField(
-                          controller: tableNumberController,
-                          keyboardType: TextInputType.number,
-                          cursorColor: Colors.black,
-                          onTapOutside: (event) =>
-                              FocusScope.of(context).unfocus(),
-                          onChanged: (value) {
-                            if (value.isNotEmpty) {
-                              try {
-                                int.parse(value);
-                              } catch (e) {
-                                tableNumberController.clear();
-                              }
+                          backgroundColor: Colors.white,
+                          title: const Text(
+                            'กรุณากรอกหมายเลขโต๊ะ',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFFF8C324),
+                            ),
+                          ),
+                          content: FutureBuilder(
+                              future: _fetchTables(),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const SizedBox(
+                                    height: 200,
+                                    child: Center(
+                                      child: CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                          Color(0xFFF8C324),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                } else if (snapshot.hasError ||
+                                    (snapshot.hasData &&
+                                        (snapshot.data!["code"] !=
+                                            "success"))) {
+                                  return const Center(child: Text('Error'));
+                                }
+                                final data =
+                                    snapshot.data as Map<String, dynamic>;
+                                List tableList = data['tables'] as List;
+                                List<String> tables = tableList
+                                    .map((table) =>
+                                        table['table_number'].toString())
+                                    .toList();
+                                return SingleChildScrollView(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      for (String table in tables)
+                                        ListTile(
+                                          title: Text(table),
+                                          onTap: () async {
+                                            orderProvider.setTableNumber(table);
 
-                              if (int.parse(value) > 20 ||
-                                  int.parse(value) < 1) {
-                                tableNumberController.clear();
-                              }
-                            }
-                          },
-                          decoration: const InputDecoration(
-                            fillColor: Colors.black,
-                            focusColor: Colors.black,
-                            hintText: 'หมายเลขโต๊ะ (1-20)',
-                          ),
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Get.back();
-                            },
-                            child: const Text(
-                              'ยกเลิก',
-                              style: TextStyle(color: Colors.black),
-                            ),
-                          ),
-                          ElevatedButton(
-                            onPressed: () {
-                              if (tableNumberController.text.isEmpty) {
-                                return;
-                              }
-                              int tableNumber;
-                              try {
-                                tableNumber =
-                                    int.parse(tableNumberController.text);
-                              } catch (e) {
-                                return;
-                              }
-                              if (tableNumber < 1 || tableNumber > 20) {
-                                return;
-                              }
-                              orderProvider.setTableNumber(tableNumber);
-                              print(orderProvider.toJson()); //wait for api
-                              orderProvider.clearOrder();
-                              Get.back();
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFF8C324),
-                              foregroundColor: Colors.black,
-                            ),
-                            child: const Text('ยืนยัน'),
-                          ),
-                        ],
-                      );
+                                            final response = await ApiService()
+                                                .postData('orders/add',
+                                                    orderProvider.toJson());
+
+                                            if (response.data['code'] ==
+                                                'success') {
+                                              orderProvider.clearOrder();
+                                              Get.back();
+                                            }
+                                          },
+                                        )
+                                    ],
+                                  ),
+                                );
+                              }));
                     });
               },
               style: ElevatedButton.styleFrom(
@@ -804,53 +798,12 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
   }
 
   Future<Map<String, dynamic>> _fetchMenus() async {
-    await Future.delayed(const Duration(milliseconds: 200));
-    return {
-      'code': 'success',
-      'menus': [
-        {
-          'name': 'ก๋วยเตี๋ยวน้ำใส',
-          'imageURL':
-              "https://cdn.discordapp.com/attachments/1041014713816977471/1293532972984832020/cattt.jpg?ex=670860b5&is=67070f35&hm=2eaf26149ec1b229d7a113e5d11a0e28cdc568a65edd6778214e0a92a0b09fe6&",
-          'price': 45.0,
-          'category': 'ก๋วยเตี๋ยว',
-        },
-        {
-          'name': 'ก๋วยเตี๋ยวเส้นปลา',
-          'imageURL':
-              "https://cdn.discordapp.com/attachments/1041014713816977471/1293532972984832020/cattt.jpg?ex=670860b5&is=67070f35&hm=2eaf26149ec1b229d7a113e5d11a0e28cdc568a65edd6778214e0a92a0b09fe6&",
-          'price': 55.0,
-          'category': 'ก๋วยเตี๋ยว',
-        },
-        {
-          'name': 'ก๋วยเตี๋ยวต้มยำ',
-          'imageURL':
-              "https://cdn.discordapp.com/attachments/1041014713816977471/1293532972984832020/cattt.jpg?ex=670860b5&is=67070f35&hm=2eaf26149ec1b229d7a113e5d11a0e28cdc568a65edd6778214e0a92a0b09fe6&",
-          'price': 45.0,
-          'category': 'ก๋วยเตี๋ยว',
-        },
-        {
-          'name': 'ก๋วยเตี๋ยวเย็นตาโฟ',
-          'imageURL':
-              "https://cdn.discordapp.com/attachments/1041014713816977471/1293532972984832020/cattt.jpg?ex=670860b5&is=67070f35&hm=2eaf26149ec1b229d7a113e5d11a0e28cdc568a65edd6778214e0a92a0b09fe6&",
-          'price': 45.0,
-          'category': 'ก๋วยเตี๋ยว',
-        },
-        {
-          'name': 'เกาเหลาทรงเครื่อง',
-          'imageURL':
-              "https://cdn.discordapp.com/attachments/1041014713816977471/1293532972984832020/cattt.jpg?ex=670860b5&is=67070f35&hm=2eaf26149ec1b229d7a113e5d11a0e28cdc568a65edd6778214e0a92a0b09fe6&",
-          'price': 55.0,
-          'category': 'ก๋วยเตี๋ยว',
-        },
-        {
-          'name': 'ก๋วยเตี๋ยวน้ำตก',
-          'imageURL':
-              "https://cdn.discordapp.com/attachments/1041014713816977471/1293532972984832020/cattt.jpg?ex=670860b5&is=67070f35&hm=2eaf26149ec1b229d7a113e5d11a0e28cdc568a65edd6778214e0a92a0b09fe6&",
-          'price': 45.0,
-          'category': 'ก๋วยเตี๋ยว',
-        },
-      ]
-    };
+    final response = await ApiService().getData('menus');
+    return response.data;
+  }
+
+  Future<Map<String, dynamic>> _fetchTables() async {
+    final response = await ApiService().getData('tables');
+    return response.data;
   }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kuayteawhatyai/models/ingredient.dart';
-import 'package:kuayteawhatyai/utils/responsive_layout.dart';
 
 class CookPageTabletLayout extends StatefulWidget {
   const CookPageTabletLayout({super.key});
