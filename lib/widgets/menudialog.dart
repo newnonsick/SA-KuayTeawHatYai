@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:kuayteawhatyai/models/menu.dart';
 import 'package:kuayteawhatyai/provider/orderprovider.dart';
+import 'package:kuayteawhatyai/services/apiservice.dart';
 import 'package:provider/provider.dart';
 import '../models/order.dart';
 
@@ -83,7 +83,7 @@ class _MenuDialogState extends State<MenuDialog> {
                       ),
                       const SizedBox(height: 10),
                       FutureBuilder(
-                        future: _fetchIngredients(),
+                        future: _fetchIngredients(widget.menu.name),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
@@ -119,7 +119,7 @@ class _MenuDialogState extends State<MenuDialog> {
                                           for (var option
                                               in ingredient['options'])
                                             GestureDetector(
-                                              onTap: option['isAvailable']
+                                              onTap: option['is_available']
                                                   ? () {
                                                       setState(() {
                                                         if (option['name'] ==
@@ -184,7 +184,7 @@ class _MenuDialogState extends State<MenuDialog> {
                                                               .contains(option[
                                                                   'name'])
                                                       ? const Color(0xFFF8C324)
-                                                      : option['isAvailable']
+                                                      : option['is_available']
                                                           ? Colors.white
                                                           : Colors.grey[300],
                                                   borderRadius:
@@ -205,13 +205,14 @@ class _MenuDialogState extends State<MenuDialog> {
                                                   ),
                                                 ),
                                                 child: Text(
-                                                  option['isAvailable']
+                                                  option['is_available']
                                                       ? option['name']
                                                       : '${option['name']} (หมด)',
                                                   style: TextStyle(
-                                                    color: option['isAvailable']
-                                                        ? Colors.black
-                                                        : Colors.grey,
+                                                    color:
+                                                        option['is_available']
+                                                            ? Colors.black
+                                                            : Colors.grey,
                                                   ),
                                                 ),
                                               ),
@@ -221,9 +222,8 @@ class _MenuDialogState extends State<MenuDialog> {
                                     ],
                                   ),
                                 ),
-                              // Extra/Normal Section
                               const Text(
-                                'ปริมาณ', // Portion/Amount
+                                'ปริมาณ',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
@@ -232,8 +232,10 @@ class _MenuDialogState extends State<MenuDialog> {
                               const SizedBox(height: 5),
                               Wrap(
                                 spacing: 8.0,
-                                children: data['extraNormalOptions']['options']
-                                    .map<Widget>(
+                                children: [
+                                  {'name': 'ธรรมดา'},
+                                  {'name': 'พิเศษ'},
+                                ].map<Widget>(
                                   (option) {
                                     return InkWell(
                                       onTap: () {
@@ -241,7 +243,7 @@ class _MenuDialogState extends State<MenuDialog> {
                                           if (_selectedPortion ==
                                               option['name']) return;
 
-                                          _selectedPortion = option['name'];
+                                          _selectedPortion = option['name']!;
                                           order!.ingredients =
                                               _selectedIngredients.values
                                                   .expand((e) => e)
@@ -271,12 +273,12 @@ class _MenuDialogState extends State<MenuDialog> {
                                           ),
                                         ),
                                         child: Text(
-                                          option['name'],
+                                          option['name']!,
                                           style: TextStyle(
                                             color: _selectedPortion ==
                                                     option['name']
                                                 ? Colors.black
-                                                : Colors.grey,
+                                                : Colors.black,
                                           ),
                                         ),
                                       ),
@@ -364,44 +366,8 @@ class _MenuDialogState extends State<MenuDialog> {
   }
 }
 
-Future<Map<String, dynamic>> _fetchIngredients() async {
-  await Future.delayed(const Duration(milliseconds: 200));
-  return {
-    'code': 'success',
-    'ingredients': [
-      {
-        "type": "เส้น",
-        "options": [
-          {"name": "เส้นเล็ก", "isAvailable": true},
-          {"name": "เส้นใหญ่", "isAvailable": true},
-          {"name": "เส้นหมี่", "isAvailable": true},
-          {"name": "เส้นบะหมี่", "isAvailable": true},
-          {"name": "วุ้นเส้น", "isAvailable": false},
-        ],
-      },
-      {
-        'type': 'เนื้อสัตว์',
-        'options': [
-          {'name': 'หมูชิ้น', 'isAvailable': true},
-          {'name': 'หมูเด้ง', 'isAvailable': true},
-          {'name': 'เนื้อ', 'isAvailable': true},
-          {'name': 'ไก่ฉีก', 'isAvailable': false},
-        ]
-      },
-      {
-        'type': 'น้ำ',
-        'options': [
-          {'name': 'น้ำ', 'isAvailable': true},
-          {'name': 'แห้ง', 'isAvailable': true},
-        ]
-      }
-    ],
-    'extraNormalOptions': {
-      'type': 'ปริมาณ',
-      'options': [
-        {'name': 'ธรรมดา'},
-        {'name': 'พิเศษ'},
-      ]
-    }
-  };
+Future<Map<String, dynamic>> _fetchIngredients(String menuName) async {
+  final response =
+      await ApiService().getData('menus/ingredients?name=$menuName');
+  return response.data;
 }

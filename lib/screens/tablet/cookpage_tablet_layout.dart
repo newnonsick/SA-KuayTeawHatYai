@@ -33,9 +33,9 @@ class _CookPageTabletLayoutState extends State<CookPageTabletLayout> {
             Expanded(
               child: IndexedStack(
                 index: _selectedIndex,
-                children: [
-                  _orderPage(),
-                  const _MaterialManagementPage(),
+                children: const [
+                  _OrderPage(),
+                  _MaterialManagementPage(),
                 ],
               ),
             ),
@@ -388,3 +388,142 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
   }
 }
 
+class _OrderPage extends StatefulWidget {
+  const _OrderPage({super.key});
+
+  @override
+  State<_OrderPage> createState() => _OrderPageState();
+}
+
+class _OrderPageState extends State<_OrderPage> {
+  final List<OrderModel> orders = [
+      OrderModel(id: "#6510405466", table: "22"),
+      OrderModel(id: "#6510405491", table: "22"),
+      OrderModel(id: "#6510405440", table: "22"),
+      OrderModel(id: "#6510405466", table: "22"),
+      OrderModel(id: "#6510405466", table: "22"),
+    ];
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        _buildPendingOrderSection(),
+        _buildOrderManagerSection(),
+      ],
+    );
+  }
+
+  Widget _buildPendingOrderSection() {
+    return Expanded(
+      child: Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      child: Column(
+        children: [
+          // Header
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(color: Colors.grey[300]!),
+              ),
+            ),
+            child: const Row(
+              children: [
+                Text(
+                  'All orders',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Order list
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: orders.length,
+              itemBuilder: (context, index) {
+                final order = orders[index];
+                final isFirst = index == 0;
+                
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: isFirst ? Colors.amber : Colors.grey[100],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () {
+                        // Handle order selection
+                      },
+                      borderRadius: BorderRadius.circular(8),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'ออเดอร์${order.id}',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'โต๊ะ: ${order.table}',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    )
+    );
+  }
+  Widget _buildOrderManagerSection() {
+    return Expanded(
+      child: Container(
+        color: Colors.white,
+        child: const Column(
+          children: [
+            Text(
+              'จัดการออเดอร์',
+              style: TextStyle(
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+class OrderModel {
+  final String id;
+  final String table;
+
+  OrderModel({
+    required this.id,
+    required this.table,
+  });
+}

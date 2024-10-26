@@ -3,7 +3,7 @@ import 'package:kuayteawhatyai/models/order.dart';
 
 class OrderProvider with ChangeNotifier {
   List<Order> _orders = [];
-  int? tableNumber;
+  String? tableNumber;
 
   List<Order> get orders => _orders;
 
@@ -66,7 +66,7 @@ class OrderProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void setTableNumber(int tableNumber) {
+  void setTableNumber(String tableNumber) {
     this.tableNumber = tableNumber;
   }
 

@@ -13,7 +13,7 @@ class Menu {
 
   Menu.fromJson(Map<String, dynamic> json)
       : name = json['name'],
-        imageURL = json['imageURL'],
+        imageURL = json['image_url'],
         price = json['price'],
         category = json['category'];
 
