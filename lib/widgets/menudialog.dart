@@ -19,6 +19,7 @@ class _MenuDialogState extends State<MenuDialog> {
   final TextEditingController _extraInfoController = TextEditingController();
   final Map<String, List<String>> _selectedIngredients = {};
   String _selectedPortion = 'ธรรมดา'; // ธรรมดา พิเศษ
+  Map<String, dynamic>? _ingredientsCache;
 
   @override
   void initState() {
@@ -29,6 +30,25 @@ class _MenuDialogState extends State<MenuDialog> {
       ingredients: [],
       portion: _selectedPortion,
     );
+    _fetchAndCacheIngredients();
+  }
+
+  Future<void> _fetchAndCacheIngredients() async {
+    if (_ingredientsCache != null) return;
+
+    try {
+      final response = await ApiService()
+          .getData('menus/ingredients?name=${widget.menu.name}');
+      if (response.data['code'] == 'success') {
+        setState(() {
+          _ingredientsCache = response.data;
+        });
+      }
+    } catch (error) {
+      setState(() {
+        _ingredientsCache = {'error': true};
+      });
+    }
   }
 
   @override
@@ -82,241 +102,7 @@ class _MenuDialogState extends State<MenuDialog> {
                         ),
                       ),
                       const SizedBox(height: 10),
-                      FutureBuilder(
-                        future: _fetchIngredients(widget.menu.name),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const CircularProgressIndicator();
-                          } else if (snapshot.hasError ||
-                              (snapshot.hasData &&
-                                  (snapshot.data!["code"] != "success"))) {
-                            return const Text('Error');
-                          }
-                          final data = snapshot.data as Map<String, dynamic>;
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              for (var ingredient in data['ingredients'])
-                                Container(
-                                  margin: const EdgeInsets.only(bottom: 20),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        ingredient['type'],
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 10),
-                                      Wrap(
-                                        spacing: 8.0,
-                                        runSpacing: 4.0,
-                                        children: [
-                                          for (var option
-                                              in ingredient['options'])
-                                            GestureDetector(
-                                              onTap: option['is_available']
-                                                  ? () {
-                                                      setState(() {
-                                                        if (option['name'] ==
-                                                                "น้ำ" ||
-                                                            option['name'] ==
-                                                                "แห้ง") {
-                                                          _selectedIngredients[
-                                                              ingredient[
-                                                                  'type']] = [];
-                                                        }
-
-                                                        _selectedIngredients[
-                                                            ingredient[
-                                                                'type']] ??= [];
-                                                        if (_selectedIngredients[
-                                                                ingredient[
-                                                                    'type']]!
-                                                            .contains(option[
-                                                                'name'])) {
-                                                          _selectedIngredients[
-                                                                  ingredient[
-                                                                      'type']]!
-                                                              .remove(option[
-                                                                  'name']);
-                                                        } else {
-                                                          _selectedIngredients[
-                                                                  ingredient[
-                                                                      'type']]!
-                                                              .add(option[
-                                                                  'name']);
-                                                        }
-
-                                                        order!.ingredients =
-                                                            _selectedIngredients
-                                                                .values
-                                                                .expand(
-                                                                    (e) => e)
-                                                                .toList();
-                                                        order!.extraInfo =
-                                                            _extraInfoController
-                                                                        .text ==
-                                                                    ''
-                                                                ? null
-                                                                : _extraInfoController
-                                                                    .text;
-                                                      });
-                                                    }
-                                                  : null,
-                                              child: Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        vertical: 5,
-                                                        horizontal: 10),
-                                                decoration: BoxDecoration(
-                                                  color: _selectedIngredients[
-                                                                  ingredient[
-                                                                      'type']] !=
-                                                              null &&
-                                                          _selectedIngredients[
-                                                                  ingredient[
-                                                                      'type']]!
-                                                              .contains(option[
-                                                                  'name'])
-                                                      ? const Color(0xFFF8C324)
-                                                      : option['is_available']
-                                                          ? Colors.white
-                                                          : Colors.grey[300],
-                                                  borderRadius:
-                                                      BorderRadius.circular(20),
-                                                  border: Border.all(
-                                                    color: _selectedIngredients[
-                                                                    ingredient[
-                                                                        'type']] !=
-                                                                null &&
-                                                            _selectedIngredients[
-                                                                    ingredient[
-                                                                        'type']]!
-                                                                .contains(
-                                                                    option[
-                                                                        'name'])
-                                                        ? Colors.orange
-                                                        : Colors.grey,
-                                                  ),
-                                                ),
-                                                child: Text(
-                                                  option['is_available']
-                                                      ? option['name']
-                                                      : '${option['name']} (หมด)',
-                                                  style: TextStyle(
-                                                    color:
-                                                        option['is_available']
-                                                            ? Colors.black
-                                                            : Colors.grey,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              const Text(
-                                'ปริมาณ',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              const SizedBox(height: 5),
-                              Wrap(
-                                spacing: 8.0,
-                                children: [
-                                  {'name': 'ธรรมดา'},
-                                  {'name': 'พิเศษ'},
-                                ].map<Widget>(
-                                  (option) {
-                                    return InkWell(
-                                      onTap: () {
-                                        setState(() {
-                                          if (_selectedPortion ==
-                                              option['name']) return;
-
-                                          _selectedPortion = option['name']!;
-                                          order!.ingredients =
-                                              _selectedIngredients.values
-                                                  .expand((e) => e)
-                                                  .toList();
-                                          order!.extraInfo =
-                                              _extraInfoController.text == ''
-                                                  ? null
-                                                  : _extraInfoController.text;
-                                          order!.portion = _selectedPortion;
-                                        });
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 5, horizontal: 10),
-                                        decoration: BoxDecoration(
-                                          color:
-                                              _selectedPortion == option['name']
-                                                  ? const Color(0xFFF8C324)
-                                                  : Colors.white,
-                                          borderRadius:
-                                              BorderRadius.circular(20),
-                                          border: Border.all(
-                                            color: _selectedPortion ==
-                                                    option['name']
-                                                ? Colors.orange
-                                                : Colors.grey,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          option['name']!,
-                                          style: TextStyle(
-                                            color: _selectedPortion ==
-                                                    option['name']
-                                                ? Colors.black
-                                                : Colors.black,
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ).toList(),
-                              ),
-                              const SizedBox(height: 20),
-                              TextField(
-                                cursorColor: Colors.black,
-                                onTapOutside: (event) =>
-                                    FocusScope.of(context).unfocus(),
-                                controller: _extraInfoController,
-                                decoration: const InputDecoration(
-                                  labelText: 'ข้อมูลเพิ่มเติม (ถ้ามี)',
-                                  labelStyle: TextStyle(
-                                    color: Colors.black,
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                ),
-                                onChanged: (value) {
-                                  if (value == '') return;
-                                  order!.extraInfo = value;
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      ),
+                      _buildIngredientsSection(),
                     ],
                   ),
                 ),
@@ -324,19 +110,11 @@ class _MenuDialogState extends State<MenuDialog> {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  if (order!.menu.category == "ก๋วยเตี๋ยว" &&
-                      order!.ingredients!.isEmpty) {
-                    return;
-                  } else if (order!.menu.category == "ก๋วยเตี๋ยว" &&
-                      (!order!.ingredients!.contains("น้ำ") &&
-                          !order!.ingredients!.contains("แห้ง"))) {
-                    return;
+                  if (_isValidOrder()) {
+                    Provider.of<OrderProvider>(context, listen: false)
+                        .addOrder(order!);
+                    Get.back();
                   }
-
-                  Provider.of<OrderProvider>(context, listen: false)
-                      .addOrder(order!);
-
-                  Get.back();
                 },
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
@@ -364,10 +142,160 @@ class _MenuDialogState extends State<MenuDialog> {
       ),
     );
   }
-}
 
-Future<Map<String, dynamic>> _fetchIngredients(String menuName) async {
-  final response =
-      await ApiService().getData('menus/ingredients?name=$menuName');
-  return response.data;
+  Widget _buildIngredientsSection() {
+    if (_ingredientsCache == null) {
+      return const CircularProgressIndicator(
+        valueColor: AlwaysStoppedAnimation<Color>(
+          Color(0xFFF8C324),
+        ),
+      );
+    } else if (_ingredientsCache!['error'] == true) {
+      return const Text('Error loading ingredients');
+    }
+
+    final ingredients = _ingredientsCache!['ingredients'];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (var ingredient in ingredients)
+          Container(
+            margin: const EdgeInsets.only(bottom: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  ingredient['type'],
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 8.0,
+                  runSpacing: 4.0,
+                  children: ingredient['options']
+                      .map<Widget>((option) => _buildIngredientOption(
+                            ingredient['type'],
+                            option,
+                          ))
+                      .toList(),
+                ),
+              ],
+            ),
+          ),
+        const SizedBox(height: 10),
+        _buildPortionSelection(),
+        const SizedBox(height: 20),
+        _buildExtraInfoField(),
+      ],
+    );
+  }
+
+  Widget _buildIngredientOption(String type, Map<String, dynamic> option) {
+    final isSelected =
+        _selectedIngredients[type]?.contains(option['name']) ?? false;
+
+    return GestureDetector(
+      onTap: option['is_available']
+          ? () {
+              setState(() {
+                _toggleIngredientSelection(type, option['name']);
+              });
+            }
+          : null,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFFF8C324) : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? Colors.orange : Colors.grey,
+          ),
+        ),
+        child: Text(
+          option['is_available'] ? option['name'] : '${option['name']} (หมด)',
+          style: TextStyle(
+            color: option['is_available'] ? Colors.black : Colors.grey,
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _toggleIngredientSelection(String type, String name) {
+    _selectedIngredients[type] ??= [];
+    if (name == "น้ำ" || name == "แห้ง") {
+      _selectedIngredients[type]!.clear();
+    }
+
+    if (_selectedIngredients[type]!.contains(name)) {
+      _selectedIngredients[type]!.remove(name);
+    } else {
+      _selectedIngredients[type]!.add(name);
+    }
+    _updateOrder();
+  }
+
+  Widget _buildPortionSelection() {
+    return Wrap(
+      spacing: 8.0,
+      children: ['ธรรมดา', 'พิเศษ'].map<Widget>((option) {
+        return InkWell(
+          onTap: () {
+            setState(() {
+              _selectedPortion = option;
+              _updateOrder();
+            });
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+            decoration: BoxDecoration(
+              color: _selectedPortion == option
+                  ? const Color(0xFFF8C324)
+                  : Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: _selectedPortion == option ? Colors.orange : Colors.grey,
+              ),
+            ),
+            child: Text(option),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildExtraInfoField() {
+    return TextField(
+      cursorColor: Colors.black,
+      onTapOutside: (event) => FocusScope.of(context).unfocus(),
+      controller: _extraInfoController,
+      decoration: const InputDecoration(
+        labelText: 'ข้อมูลเพิ่มเติม (ถ้ามี)',
+        border: OutlineInputBorder(),
+      ),
+      onChanged: (value) {
+        _updateOrder();
+      },
+    );
+  }
+
+  void _updateOrder() {
+    order!.ingredients = _selectedIngredients.values.expand((e) => e).toList();
+    order!.extraInfo =
+        _extraInfoController.text.isEmpty ? null : _extraInfoController.text;
+    order!.portion = _selectedPortion;
+  }
+
+  bool _isValidOrder() {
+    if (order!.menu.category == "ก๋วยเตี๋ยว" &&
+        (order!.ingredients!.isEmpty ||
+            (!order!.ingredients!.contains("น้ำ") &&
+                !order!.ingredients!.contains("แห้ง")))) {
+      return false;
+    }
+    return true;
+  }
 }

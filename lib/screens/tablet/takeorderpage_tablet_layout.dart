@@ -34,15 +34,21 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
         child: Row(
           children: [
             _buildCustomNavigationRail(),
-            Expanded(
-              child: Row(
-                children: [_buildMenuSection(), _buildOrderListSection()],
-              ),
-            ),
+            _selectedIndex != 4
+                ? Expanded(
+                    child: Row(
+                      children: [_buildMenuSection(), _buildOrderListSection()],
+                    ),
+                  )
+                : _buildOrderManagerSection()
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildOrderManagerSection() {
+    return const SizedBox();
   }
 
   Widget _buildMenuSection() {
@@ -120,7 +126,12 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Expanded(
-                      child: Center(child: CircularProgressIndicator()),
+                      child: Center(
+                          child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Color(0xFFF8C324),
+                        ),
+                      )),
                     );
                   } else if (snapshot.hasError ||
                       (snapshot.hasData &&
@@ -707,30 +718,34 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
           children: [
             const SizedBox(height: 10),
             _buildCustomNavigationRailItem(
+              icon: Icons.home,
+              label: 'ทั้งหมด',
+              index: 0,
+            ),
+            _buildCustomNavigationRailItem(
               icon: Icons.fastfood,
               label: 'อาหาร',
-              index: 0,
+              index: 1,
             ),
             _buildCustomNavigationRailItem(
               icon: Icons.local_drink,
               label: 'เครื่องดื่ม',
-              index: 1,
+              index: 2,
             ),
             _buildCustomNavigationRailItem(
               icon: Icons.icecream,
               label: 'ของทานเล่น',
-              index: 2,
+              index: 3,
             ),
             _buildCustomNavigationRailItem(
               icon: Icons.receipt,
               label: 'จัดการออร์เดอร์',
-              index: 3,
+              index: 4,
             ),
             _buildCustomNavigationRailItem(
               icon: Icons.arrow_back_ios_new,
               label: 'กลับ',
               index: -1,
-              onTap: (_) => Get.back(),
             ),
           ],
         ),
@@ -742,19 +757,20 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
     required IconData icon,
     required String label,
     required int index,
-    ValueChanged<void>? onTap,
   }) {
     final isSelected = _selectedIndex == index;
 
     return GestureDetector(
       onTap: () {
-        if (onTap != null) {
-          onTap(null);
-        } else {
-          setState(() {
-            _selectedIndex = index;
-          });
+        if (_selectedIndex == index) {
+          return;
         }
+        if (index == -1) {
+          Get.back();
+        }
+        setState(() {
+          _selectedIndex = index;
+        });
       },
       child: Container(
         padding: const EdgeInsets.fromLTRB(5, 10, 5, 10),
@@ -798,8 +814,21 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
   }
 
   Future<Map<String, dynamic>> _fetchMenus() async {
-    final response = await ApiService().getData('menus');
+    final response = await ApiService().getData(_getFetchUrl());
     return response.data;
+  }
+
+  String _getFetchUrl() {
+    switch (_selectedIndex) {
+      case 1:
+        return 'menus?category=ก๋วยเตี๋ยว';
+      case 2:
+        return 'menus?category=เครื่องดื่ม';
+      case 3:
+        return 'menus?category=ของทานเล่น';
+      default:
+        return 'menus';
+    }
   }
 
   Future<Map<String, dynamic>> _fetchTables() async {
