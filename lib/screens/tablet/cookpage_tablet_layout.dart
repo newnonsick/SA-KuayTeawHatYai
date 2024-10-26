@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:kuayteawhatyai/entities/order.dart';
 import 'package:kuayteawhatyai/models/ingredient.dart';
-import 'package:kuayteawhatyai/provider/ingredientprovider.dart';
+import 'package:kuayteawhatyai/provider/models/ingredientprovider.dart';
+import 'package:kuayteawhatyai/services/apiservice.dart';
 import 'package:kuayteawhatyai/utils/responsive_layout.dart';
 import 'package:provider/provider.dart';
 
@@ -142,25 +144,7 @@ class _CookPageTabletLayoutState extends State<CookPageTabletLayout> {
       ),
     );
   }
-
-  //หน้าของการจัดการออเดอร์
-  Widget _orderPage() {
-    return Container(
-      color: Colors.white,
-      child: const Center(
-        child: Text(
-          'จัดการออเดอร์',
-          style: TextStyle(
-            fontSize: 30,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    );
-  }
-  //หน้าของการจัดการวัตถุดิบ
 }
-
 
 class _MaterialManagementPage extends StatefulWidget {
   const _MaterialManagementPage({super.key});
@@ -186,65 +170,65 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
     try {
       await Future.delayed(const Duration(seconds: 1));
       final data = {
-      'code': 'success',
-      "ingredients": [
-        {
-          "name": "ไข่ไก่",
-          "imageURL": "assets/images/mock.png",
-          "isAvailable": true,
-          "type": "หมวดเนื้อสัตว์"
-        },
-        {
-          "name": "เส้นก๋วยเตี๋ยว",
-          "imageURL": "assets/images/mock.png",
-          "isAvailable": true,
-          "type": "หมวดเส้น"
-        },
-        {
-          "name": "ผักชี",
-          "imageURL": "assets/images/mock.png",
-          "isAvailable": true,
-          "type": "หมวดผัก"
-        },
-        {
-          "name": "เนื้อวัว",
-          "imageURL": "assets/images/mock.png",
-          "isAvailable": true,
-          "type": "หมวดเนื้อสัตว์"
-        },
-        {
-          "name": "เส้นเล็ก",
-          "imageURL": "assets/images/mock.png",
-          "isAvailable": true,
-          "type": "หมวดเส้น"
-        },
-        {
-          "name": "ผักกาดหอม",
-          "imageURL": "assets/images/mock.png",
-          "isAvailable": true,
-          "type": "หมวดผัก"
-        },
-        {
-          "name": "เนื้อหมู",
-          "imageURL": "assets/images/mock.png",
-          "isAvailable": true,
-          "type": "หมวดเนื้อสัตว์"
-        },
-        {
-          "name": "เส้นใหญ่",
-          "imageURL": "assets/images/mock.png",
-          "isAvailable": true,
-          "type": "หมวดเส้น"
-        },
-        {
-          "name": "ผักชีลาว",
-          "imageURL": "assets/images/mock.png",
-          "isAvailable": true,
-          "type": "หมวดผัก"
-        },
-      ]
-    };
-      
+        'code': 'success',
+        "ingredients": [
+          {
+            "name": "ไข่ไก่",
+            "imageURL": "assets/images/mock.png",
+            "isAvailable": true,
+            "type": "หมวดเนื้อสัตว์"
+          },
+          {
+            "name": "เส้นก๋วยเตี๋ยว",
+            "imageURL": "assets/images/mock.png",
+            "isAvailable": true,
+            "type": "หมวดเส้น"
+          },
+          {
+            "name": "ผักชี",
+            "imageURL": "assets/images/mock.png",
+            "isAvailable": true,
+            "type": "หมวดผัก"
+          },
+          {
+            "name": "เนื้อวัว",
+            "imageURL": "assets/images/mock.png",
+            "isAvailable": true,
+            "type": "หมวดเนื้อสัตว์"
+          },
+          {
+            "name": "เส้นเล็ก",
+            "imageURL": "assets/images/mock.png",
+            "isAvailable": true,
+            "type": "หมวดเส้น"
+          },
+          {
+            "name": "ผักกาดหอม",
+            "imageURL": "assets/images/mock.png",
+            "isAvailable": true,
+            "type": "หมวดผัก"
+          },
+          {
+            "name": "เนื้อหมู",
+            "imageURL": "assets/images/mock.png",
+            "isAvailable": true,
+            "type": "หมวดเนื้อสัตว์"
+          },
+          {
+            "name": "เส้นใหญ่",
+            "imageURL": "assets/images/mock.png",
+            "isAvailable": true,
+            "type": "หมวดเส้น"
+          },
+          {
+            "name": "ผักชีลาว",
+            "imageURL": "assets/images/mock.png",
+            "isAvailable": true,
+            "type": "หมวดผัก"
+          },
+        ]
+      };
+
       if (data["code"] == "success") {
         setState(() {
           _ingredientList = (data['ingredients'] as List)
@@ -309,7 +293,8 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: selectedCategory == label ? Colors.amber : Colors.grey[300],
+              color:
+                  selectedCategory == label ? Colors.amber : Colors.grey[300],
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: Colors.white),
@@ -396,13 +381,40 @@ class _OrderPage extends StatefulWidget {
 }
 
 class _OrderPageState extends State<_OrderPage> {
-  final List<OrderModel> orders = [
-      OrderModel(id: "#6510405466", table: "22"),
-      OrderModel(id: "#6510405491", table: "22"),
-      OrderModel(id: "#6510405440", table: "22"),
-      OrderModel(id: "#6510405466", table: "22"),
-      OrderModel(id: "#6510405466", table: "22"),
-    ];
+  List<Order> _orderList = [];
+  bool _isLoading = true;
+  String? _errorMessage;
+  @override
+  void initState() {
+    super.initState();
+    _fetchOrders();
+  }
+
+  Future<void> _fetchOrders() async {
+    try {
+      final data = await ApiService().getData('orders');
+
+      if (data["code"] == "success") {
+        setState(() {
+          _orderList = (data['orders'] as List)
+              .map((orderJson) => Order.fromJson(orderJson))
+              .toList();
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _errorMessage = 'เกิดข้อผิดพลาด';
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'เกิดข้อผิดพลาด';
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -415,115 +427,279 @@ class _OrderPageState extends State<_OrderPage> {
 
   Widget _buildPendingOrderSection() {
     return Expanded(
-      child: Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey[300]!),
-      ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(color: Colors.grey[300]!),
-              ),
-            ),
-            child: const Row(
-              children: [
-                Text(
-                  'All orders',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // Order list
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: orders.length,
-              itemBuilder: (context, index) {
-                final order = orders[index];
-                final isFirst = index == 0;
-                
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  decoration: BoxDecoration(
-                    color: isFirst ? Colors.amber : Colors.grey[100],
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () {
-                        // Handle order selection
-                      },
-                      borderRadius: BorderRadius.circular(8),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'ออเดอร์${order.id}',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'โต๊ะ: ${order.table}',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    )
-    );
-  }
-  Widget _buildOrderManagerSection() {
-    return Expanded(
-      child: Container(
-        color: Colors.white,
-        child: const Column(
-          children: [
-            Text(
-              'จัดการออเดอร์',
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16, 20, 16, 0),
+            child: Text(
+              'ออเดอร์คงเหลือ',
               style: TextStyle(
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
               ),
             ),
-          ],
-        ),
+          ),
+          Expanded(
+              child: Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.grey[300]!),
+              ),
+              child: Column(
+                children: [
+                  // Header
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(color: Colors.grey[300]!),
+                      ),
+                    ),
+                    child: const Row(
+                      children: [
+                        Text(
+                          'All orders',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Order list
+                  _buildPendingOrderItem()
+                ],
+              ),
+            ),
+          )),
+        ],
       ),
     );
   }
-}
-class OrderModel {
-  final String id;
-  final String table;
 
-  OrderModel({
-    required this.id,
-    required this.table,
-  });
+  Widget _buildPendingOrderItem() {
+    if (_isLoading) {
+      return const Expanded(
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_errorMessage != null) {
+      return Expanded(
+        child: Center(child: Text(_errorMessage!)),
+      );
+    }
+
+    return Expanded(
+      child: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: _orderList.length,
+        itemBuilder: (context, index) {
+          final order = _orderList[index];
+          return Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  // Handle order selection
+                },
+                borderRadius: BorderRadius.circular(8),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'ออเดอร์${order.orderID}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'โต๊ะ: ${order.tableNumber}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildOrderManagerSection() {
+    return Expanded(
+      flex: 2,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16, 20, 16, 0),
+            child: Text(
+              'ออเดอร์ #6510405466 / โต๊ะ 22',
+              style: TextStyle(
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          Expanded(
+              child: Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.grey[300]!),
+              ),
+              child: Column(
+                children: [
+                  // Header
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(color: Colors.grey[300]!),
+                      ),
+                    ),
+                    child: const Row(
+                      children: [
+                        Text(
+                          'รายละเอียดเมนู',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Order list
+                  Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.all(10),
+                      itemCount: _orderList.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: _buildMenuItem(
+                            image: 'assets/images/mock.png',
+                            title: 'ก๋วยเตี๋ยวน้ำใส',
+                            subtitle: 'ประเภทเส้น : เส้นเล็ก',
+                            note: 'ไม่ใส่ผักดอง, ไม่เอาน้ำ',
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMenuItem({
+    required String image,
+    required String title,
+    String? subtitle,
+    String? note,
+    bool isCompleted = false,
+    bool isHighlighted = false,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: isHighlighted ? Colors.amber : Colors.white,
+        border: Border.all(color: Colors.grey[300]!),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      padding: const EdgeInsets.all(12),
+      child: Row(
+        children: [
+          // Food image
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              image: DecorationImage(
+                image: AssetImage(image),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+
+          // Menu details
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                if (subtitle != null)
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                if (note != null)
+                  Text(
+                    note,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+
+          // Completed checkmark
+          if (isCompleted)
+            Container(
+              padding: const EdgeInsets.all(4),
+              decoration: const BoxDecoration(
+                color: Colors.green,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.check,
+                color: Colors.white,
+                size: 16,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 }
