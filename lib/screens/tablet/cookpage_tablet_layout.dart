@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kuayteawhatyai/models/ingredient.dart';
+import 'package:kuayteawhatyai/provider/ingredientprovider.dart';
 import 'package:kuayteawhatyai/utils/responsive_layout.dart';
+import 'package:provider/provider.dart';
 
 class CookPageTabletLayout extends StatefulWidget {
   const CookPageTabletLayout({super.key});
@@ -159,6 +161,7 @@ class _CookPageTabletLayoutState extends State<CookPageTabletLayout> {
   //หน้าของการจัดการวัตถุดิบ
 }
 
+
 class _MaterialManagementPage extends StatefulWidget {
   const _MaterialManagementPage({super.key});
 
@@ -170,134 +173,19 @@ class _MaterialManagementPage extends StatefulWidget {
 class _MaterialManagementPageState extends State<_MaterialManagementPage> {
   String? selectedCategory;
   List<Ingredient> _ingredientList = [];
+  bool _isLoading = true;
+  String? _errorMessage;
+
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 50, 16, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'จัดการวัตถุดิบ',
-            style: TextStyle(
-              fontSize: 30,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildCategoryItem(Icons.egg, 'หมวดเนื้อสัตว์'),
-                _buildCategoryItem(Icons.restaurant, 'หมวดเส้น'),
-                _buildCategoryItem(Icons.grass, 'หมวดผัก'),
-              ],
-            ),
-          ),
-          FutureBuilder(
-            future: _fetchIngredients(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-              if (snapshot.hasError ||
-                  (snapshot.hasData && (snapshot.data!["code"] != "success"))) {
-                return const Expanded(
-                    child: Center(child: Text('เกิดข้อผิดพลาด')));
-              }
-              final ingredients = snapshot.data!['ingredients'] as List;
-              _ingredientList = ingredients.map((ingredientJson) {
-                return Ingredient.fromJson(ingredientJson);
-              }).toList();
-              print(_ingredientList);
-              final filteredIngredientList = _buildFilteredFoodItems();
-              return Expanded(
-                child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                  ),
-                  itemCount: filteredIngredientList.length,
-                  itemBuilder: (context, index) {
-                    final ingredient = filteredIngredientList[index];
-                    return _buildFoodItem(ingredient.name, ingredient.imageURL);
-                  },
-                ),
-              );
-            },
-          )
-        ],
-      ),
-    );
+  void initState() {
+    super.initState();
+    _fetchIngredients();
   }
 
-  Widget _buildCategoryItem(IconData icon, String label) {
-    return InkWell(
-      onTap: () {
-        setState(() {
-          selectedCategory = label;
-        });
-      },
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color:
-                  selectedCategory == label ? Colors.amber : Colors.grey[300],
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: Colors.white),
-          ),
-          const SizedBox(height: 8),
-          Text(label),
-        ],
-      ),
-    );
-  }
-
-  List<Ingredient> _buildFilteredFoodItems() {
-    if (selectedCategory == null) {
-      return _ingredientList;
-    }
-    return _ingredientList.where((ingredient) {
-      return ingredient.type == selectedCategory;
-    }).toList();
-  }
-
-  Widget _buildFoodItem(String name, String imagePath) {
-    return Card(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            child: Image.asset(
-              imagePath,
-              fit: BoxFit.cover,
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(8),
-            child: Text(
-              name,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<Map<String, dynamic>> _fetchIngredients() async {
-    await Future.delayed(const Duration(microseconds: 1));
-    return {
+  Future<void> _fetchIngredients() async {
+    try {
+      await Future.delayed(const Duration(seconds: 1));
+      final data = {
       'code': 'success',
       "ingredients": [
         {
@@ -356,5 +244,147 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
         },
       ]
     };
+      
+      if (data["code"] == "success") {
+        setState(() {
+          _ingredientList = (data['ingredients'] as List)
+              .map((ingredientJson) => Ingredient.fromJson(ingredientJson))
+              .toList();
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _errorMessage = 'เกิดข้อผิดพลาด';
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'เกิดข้อผิดพลาด';
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 50, 16, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'จัดการวัตถุดิบ',
+            style: TextStyle(
+              fontSize: 30,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildCategoryItem(Icons.egg, 'หมวดเนื้อสัตว์'),
+                _buildCategoryItem(Icons.restaurant, 'หมวดเส้น'),
+                _buildCategoryItem(Icons.grass, 'หมวดผัก'),
+              ],
+            ),
+          ),
+          _buildIngredientSection(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategoryItem(IconData icon, String label) {
+    return InkWell(
+      onTap: () {
+        setState(() {
+          selectedCategory = label;
+        });
+      },
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: selectedCategory == label ? Colors.amber : Colors.grey[300],
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: Colors.white),
+          ),
+          const SizedBox(height: 8),
+          Text(label),
+        ],
+      ),
+    );
+  }
+
+  List<Ingredient> _buildFilteredIngredientItems() {
+    if (selectedCategory == null) {
+      return _ingredientList;
+    }
+    return _ingredientList.where((ingredient) {
+      return ingredient.type == selectedCategory;
+    }).toList();
+  }
+
+  Widget _buildIngredientSection() {
+    if (_isLoading) {
+      return const Expanded(
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_errorMessage != null) {
+      return Expanded(
+        child: Center(child: Text(_errorMessage!)),
+      );
+    }
+
+    final filteredIngredientList = _buildFilteredIngredientItems();
+
+    return Expanded(
+      child: GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+        ),
+        itemCount: filteredIngredientList.length,
+        itemBuilder: (context, index) {
+          final ingredient = filteredIngredientList[index];
+          return _buildIngredientItem(ingredient.name, ingredient.imageURL);
+        },
+      ),
+    );
+  }
+
+  Widget _buildIngredientItem(String name, String imagePath) {
+    return Card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: Image.asset(
+              imagePath,
+              fit: BoxFit.cover,
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(8),
+            child: Text(
+              name,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
+

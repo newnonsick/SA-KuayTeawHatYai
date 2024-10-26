@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:kuayteawhatyai/provider/ingredientprovider.dart';
 import 'package:kuayteawhatyai/provider/orderprovider.dart';
 import 'package:kuayteawhatyai/screens/mobile/myhomepage_mobile_layout.dart';
 import 'package:kuayteawhatyai/screens/tablet/cookpage_tablet_layout.dart';
@@ -25,6 +26,7 @@ class _MyAppState extends State<MyApp> {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => OrderProvider()),
+        ChangeNotifierProvider(create: (context) => Ingredientprovider()),
       ],
       child: GetMaterialApp(
         getPages: [
