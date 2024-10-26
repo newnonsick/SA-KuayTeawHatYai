@@ -10,7 +10,6 @@ class Ingredient {
     required this.isAvailable,
     required this.type,
   });
-
   //from Json
   Ingredient.fromJson(Map<String, dynamic> json)
       : name = json['name'],

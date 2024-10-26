@@ -217,14 +217,15 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
               return Expanded(
                 child: GridView.builder(
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: ResponsiveLayout.isPortrait(context) ? 4 : 5,
+                    crossAxisCount:
+                        ResponsiveLayout.isPortrait(context) ? 4 : 5,
                     crossAxisSpacing: 10,
                     mainAxisSpacing: 10,
                   ),
                   itemCount: filteredIngredientList.length,
                   itemBuilder: (context, index) {
                     final ingredient = filteredIngredientList[index];
-                    return _buildFoodItem(ingredient.name, ingredient.imageURL);
+                    return _buildFoodItem(ingredient);
                   },
                 ),
               );
@@ -269,24 +270,87 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
     }).toList();
   }
 
-  Widget _buildFoodItem(String name, String imagePath) {
+  Widget _buildFoodItem(Ingredient ingredient) {
     return Card(
+      elevation: 3,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Expanded(
-            child: Image.asset(
-              imagePath,
-              fit: BoxFit.cover,
+            flex: 3, // Makes the image section larger
+            child: ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+              child: Image.asset(
+                ingredient.imageURL,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
-          Container(
-            padding: const EdgeInsets.all(8),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Text(
-              name,
+              ingredient.name,
               textAlign: TextAlign.center,
               style: const TextStyle(
+                fontSize: 16,
                 fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+            child: InkWell(
+              onTap: () {
+                setState(() {
+                  ingredient.isAvailable = !ingredient.isAvailable;
+                  print(ingredient.isAvailable);
+                });
+              },
+              child: ingredient.isAvailable ?
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDE2E42),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'ปิดวัตถุดิบ',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ) :
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E9E2A),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'เปิดวัตถุดิบ',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -294,6 +358,7 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
       ),
     );
   }
+
 
   Future<Map<String, dynamic>> _fetchIngredients() async {
     await Future.delayed(const Duration(microseconds: 1));
