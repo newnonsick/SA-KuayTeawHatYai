@@ -161,7 +161,6 @@ class _CookPageTabletLayoutState extends State<CookPageTabletLayout> {
   //หน้าของการจัดการวัตถุดิบ
 }
 
-
 class _MaterialManagementPage extends StatefulWidget {
   const _MaterialManagementPage({super.key});
 
@@ -186,65 +185,65 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
     try {
       await Future.delayed(const Duration(seconds: 1));
       final data = {
-      'code': 'success',
-      "ingredients": [
-        {
-          "name": "ไข่ไก่",
-          "imageURL": "assets/images/mock.png",
-          "isAvailable": true,
-          "type": "หมวดเนื้อสัตว์"
-        },
-        {
-          "name": "เส้นก๋วยเตี๋ยว",
-          "imageURL": "assets/images/mock.png",
-          "isAvailable": true,
-          "type": "หมวดเส้น"
-        },
-        {
-          "name": "ผักชี",
-          "imageURL": "assets/images/mock.png",
-          "isAvailable": true,
-          "type": "หมวดผัก"
-        },
-        {
-          "name": "เนื้อวัว",
-          "imageURL": "assets/images/mock.png",
-          "isAvailable": true,
-          "type": "หมวดเนื้อสัตว์"
-        },
-        {
-          "name": "เส้นเล็ก",
-          "imageURL": "assets/images/mock.png",
-          "isAvailable": true,
-          "type": "หมวดเส้น"
-        },
-        {
-          "name": "ผักกาดหอม",
-          "imageURL": "assets/images/mock.png",
-          "isAvailable": true,
-          "type": "หมวดผัก"
-        },
-        {
-          "name": "เนื้อหมู",
-          "imageURL": "assets/images/mock.png",
-          "isAvailable": true,
-          "type": "หมวดเนื้อสัตว์"
-        },
-        {
-          "name": "เส้นใหญ่",
-          "imageURL": "assets/images/mock.png",
-          "isAvailable": true,
-          "type": "หมวดเส้น"
-        },
-        {
-          "name": "ผักชีลาว",
-          "imageURL": "assets/images/mock.png",
-          "isAvailable": true,
-          "type": "หมวดผัก"
-        },
-      ]
-    };
-      
+        'code': 'success',
+        "ingredients": [
+          {
+            "name": "ไข่ไก่",
+            "imageURL": "assets/images/mock.png",
+            "isAvailable": true,
+            "type": "หมวดเนื้อสัตว์"
+          },
+          {
+            "name": "เส้นก๋วยเตี๋ยว",
+            "imageURL": "assets/images/mock.png",
+            "isAvailable": true,
+            "type": "หมวดเส้น"
+          },
+          {
+            "name": "ผักชี",
+            "imageURL": "assets/images/mock.png",
+            "isAvailable": true,
+            "type": "หมวดผัก"
+          },
+          {
+            "name": "เนื้อวัว",
+            "imageURL": "assets/images/mock.png",
+            "isAvailable": true,
+            "type": "หมวดเนื้อสัตว์"
+          },
+          {
+            "name": "เส้นเล็ก",
+            "imageURL": "assets/images/mock.png",
+            "isAvailable": true,
+            "type": "หมวดเส้น"
+          },
+          {
+            "name": "ผักกาดหอม",
+            "imageURL": "assets/images/mock.png",
+            "isAvailable": true,
+            "type": "หมวดผัก"
+          },
+          {
+            "name": "เนื้อหมู",
+            "imageURL": "assets/images/mock.png",
+            "isAvailable": true,
+            "type": "หมวดเนื้อสัตว์"
+          },
+          {
+            "name": "เส้นใหญ่",
+            "imageURL": "assets/images/mock.png",
+            "isAvailable": true,
+            "type": "หมวดเส้น"
+          },
+          {
+            "name": "ผักชีลาว",
+            "imageURL": "assets/images/mock.png",
+            "isAvailable": true,
+            "type": "หมวดผัก"
+          },
+        ]
+      };
+
       if (data["code"] == "success") {
         setState(() {
           _ingredientList = (data['ingredients'] as List)
@@ -309,7 +308,8 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: selectedCategory == label ? Colors.amber : Colors.grey[300],
+              color:
+                  selectedCategory == label ? Colors.amber : Colors.grey[300],
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: Colors.white),
@@ -355,33 +355,91 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
         itemCount: filteredIngredientList.length,
         itemBuilder: (context, index) {
           final ingredient = filteredIngredientList[index];
-          return _buildIngredientItem(ingredient.name, ingredient.imageURL);
+          return _buildIngredientItem(ingredient);
         },
       ),
     );
   }
 
-  Widget _buildIngredientItem(String name, String imagePath) {
+  Widget _buildIngredientItem(Ingredient ingredient) {
     return Card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Expanded(
-            child: Image.asset(
-              imagePath,
-              fit: BoxFit.cover,
-            ),
+          Flexible(
+            child: ingredient.isAvailable
+                ? Expanded(
+                    child: Image.asset(
+                      ingredient.imageURL,
+                      fit: BoxFit.cover,
+                      opacity: ingredient.isAvailable
+                          ? null
+                          : const AlwaysStoppedAnimation(.6),
+                    ),
+                  )
+                : Expanded(
+                    child: Stack(fit: StackFit.expand, children: [
+                      Image.asset(
+                        ingredient.imageURL,
+                        fit: BoxFit.cover,
+                        opacity: ingredient.isAvailable
+                            ? null
+                            : const AlwaysStoppedAnimation(.6),
+                      ),
+                      Center(
+                        child: Image.asset(
+                          "assets/images/out_of_stock.png",
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    ]),
+                  ),
           ),
           Container(
             padding: const EdgeInsets.all(8),
             child: Text(
-              name,
+              ingredient.name,
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
+          const SizedBox(height: 8),
+          Padding(
+              padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+              child: InkWell(
+                  onTap: () {
+                    setState(() {
+                      ingredient.isAvailable = !ingredient.isAvailable;
+                      print(ingredient.isAvailable);
+                    });
+                  },
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: ingredient.isAvailable
+                          ? const Color(0xFFDE2E42)
+                          : const Color(0xFF1E9E2A),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          ingredient.isAvailable
+                              ? 'ปิดวัตถุดิบ'
+                              : 'เปิดวัตถุดิบ',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )))
         ],
       ),
     );
@@ -397,12 +455,12 @@ class _OrderPage extends StatefulWidget {
 
 class _OrderPageState extends State<_OrderPage> {
   final List<OrderModel> orders = [
-      OrderModel(id: "#6510405466", table: "22"),
-      OrderModel(id: "#6510405491", table: "22"),
-      OrderModel(id: "#6510405440", table: "22"),
-      OrderModel(id: "#6510405466", table: "22"),
-      OrderModel(id: "#6510405466", table: "22"),
-    ];
+    OrderModel(id: "#6510405466", table: "22"),
+    OrderModel(id: "#6510405491", table: "22"),
+    OrderModel(id: "#6510405440", table: "22"),
+    OrderModel(id: "#6510405466", table: "22"),
+    OrderModel(id: "#6510405466", table: "22"),
+  ];
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -415,7 +473,7 @@ class _OrderPageState extends State<_OrderPage> {
 
   Widget _buildPendingOrderSection() {
     return Expanded(
-      child: Container(
+        child: Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
@@ -451,7 +509,7 @@ class _OrderPageState extends State<_OrderPage> {
               itemBuilder: (context, index) {
                 final order = orders[index];
                 final isFirst = index == 0;
-                
+
                 return Container(
                   margin: const EdgeInsets.only(bottom: 12),
                   decoration: BoxDecoration(
@@ -496,9 +554,9 @@ class _OrderPageState extends State<_OrderPage> {
           ),
         ],
       ),
-    )
-    );
+    ));
   }
+
   Widget _buildOrderManagerSection() {
     return Expanded(
       child: Container(
@@ -518,6 +576,7 @@ class _OrderPageState extends State<_OrderPage> {
     );
   }
 }
+
 class OrderModel {
   final String id;
   final String table;
