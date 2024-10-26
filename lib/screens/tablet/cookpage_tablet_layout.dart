@@ -5,6 +5,8 @@ import 'package:kuayteawhatyai/models/ingredient.dart';
 import 'package:kuayteawhatyai/provider/models/ingredientprovider.dart';
 import 'package:kuayteawhatyai/services/apiservice.dart';
 import 'package:kuayteawhatyai/utils/responsive_layout.dart';
+import 'package:kuayteawhatyai/widgets/customnavigationrail.dart';
+import 'package:kuayteawhatyai/widgets/customnavigationrailitem.dart';
 import 'package:provider/provider.dart';
 
 class CookPageTabletLayout extends StatefulWidget {
@@ -48,42 +50,39 @@ class _CookPageTabletLayoutState extends State<CookPageTabletLayout> {
   }
 
   Widget _buildCustomNavigationRail() {
-    return Container(
-      height: MediaQuery.of(context).size.height,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(
-          right: BorderSide(
-            color: Colors.grey[400]!,
-            width: 1,
-          ),
-        ),
+    return CustomNavigationRail(children: [
+      CustomNavigationRailItem(
+        icon: Icons.article,
+        label: 'ออเดอร์',
+        index: 0,
+        selectedIndex: _selectedIndex,
+        onItemTapped: (int value) {
+          setState(() {
+            _selectedIndex = value;
+          });
+        },
       ),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            const SizedBox(height: 10),
-            _buildCustomNavigationRailItem(
-              icon: Icons.article,
-              label: 'ออเดอร์',
-              index: 0,
-            ),
-            _buildCustomNavigationRailItem(
-              icon: Icons.edit,
-              label: 'จัดการวัตถุดิบ',
-              index: 1,
-            ),
-            _buildCustomNavigationRailItem(
-              icon: Icons.arrow_back_ios_new,
-              label: 'กลับ',
-              index: -1,
-              onTap: (_) => Get.back(),
-            ),
-          ],
-        ),
+      CustomNavigationRailItem(
+        icon: Icons.edit,
+        label: 'จัดการวัตถุดิบ',
+        index: 1,
+        selectedIndex: _selectedIndex,
+        onItemTapped: (int value) {
+          setState(() {
+            _selectedIndex = value;
+          });
+        },
       ),
-    );
+      CustomNavigationRailItem(
+        icon: Icons.arrow_back_ios_new,
+        label: 'กลับ',
+        index: -1,
+        selectedIndex: _selectedIndex,
+        onItemTapped: (int value) {
+          Get.back();
+        },
+      ),
+    ]);
   }
 
   Widget _buildCustomNavigationRailItem({
@@ -332,41 +331,99 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
 
     return Expanded(
       child: GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: ResponsiveLayout.isPortrait(context) ? 3 : 5,
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
         ),
         itemCount: filteredIngredientList.length,
         itemBuilder: (context, index) {
           final ingredient = filteredIngredientList[index];
-          return _buildIngredientItem(ingredient.name, ingredient.imageURL);
+          return _buildIngredientItem(ingredient);
         },
       ),
     );
   }
 
-  Widget _buildIngredientItem(String name, String imagePath) {
+  Widget _buildIngredientItem(Ingredient ingredient) {
     return Card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Expanded(
-            child: Image.asset(
-              imagePath,
-              fit: BoxFit.cover,
-            ),
+          Flexible(
+            child: ingredient.isAvailable
+                ? Expanded(
+                    child: Image.asset(
+                      ingredient.imageURL,
+                      fit: BoxFit.cover,
+                      opacity: ingredient.isAvailable
+                          ? null
+                          : const AlwaysStoppedAnimation(.6),
+                    ),
+                  )
+                : Expanded(
+                    child: Stack(fit: StackFit.expand, children: [
+                      Image.asset(
+                        ingredient.imageURL,
+                        fit: BoxFit.cover,
+                        opacity: ingredient.isAvailable
+                            ? null
+                            : const AlwaysStoppedAnimation(.6),
+                      ),
+                      Center(
+                        child: Image.asset(
+                          "assets/images/out_of_stock.png",
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    ]),
+                  ),
           ),
           Container(
             padding: const EdgeInsets.all(8),
             child: Text(
-              name,
+              ingredient.name,
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
+          const SizedBox(height: 8),
+          Padding(
+              padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+              child: InkWell(
+                  onTap: () {
+                    setState(() {
+                      ingredient.isAvailable = !ingredient.isAvailable;
+                      print(ingredient.isAvailable);
+                    });
+                  },
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: ingredient.isAvailable
+                          ? const Color(0xFFDE2E42)
+                          : const Color(0xFF1E9E2A),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          ingredient.isAvailable
+                              ? 'ปิดวัตถุดิบ'
+                              : 'เปิดวัตถุดิบ',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )))
         ],
       ),
     );
