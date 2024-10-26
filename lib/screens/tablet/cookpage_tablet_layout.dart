@@ -369,31 +369,37 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ingredient.isAvailable
-              ? Expanded(
+                ? Expanded(
+                  child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
                   child: Image.asset(
                     ingredient.imageURL,
                     fit: BoxFit.cover,
                     opacity: ingredient.isAvailable
-                        ? null
-                        : const AlwaysStoppedAnimation(.6),
+                      ? null
+                      : const AlwaysStoppedAnimation(.6),
+                  ),
                   ),
                 )
               : Expanded(
-                  child: Stack(fit: StackFit.expand, children: [
-                    Image.asset(
-                      ingredient.imageURL,
-                      fit: BoxFit.cover,
-                      opacity: ingredient.isAvailable
-                          ? null
-                          : const AlwaysStoppedAnimation(.6),
-                    ),
-                    Center(
-                      child: Image.asset(
-                        "assets/images/out_of_stock.png",
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Stack(fit: StackFit.expand, children: [
+                      Image.asset(
+                        ingredient.imageURL,
                         fit: BoxFit.cover,
+                        opacity: ingredient.isAvailable
+                            ? null
+                            : const AlwaysStoppedAnimation(.6),
                       ),
-                    )
-                  ]),
+                      Center(
+                        child: Image.asset(
+                          "assets/images/out_of_stock.png",
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    ]),
+                  ),
                 ),
           Container(
             padding: const EdgeInsets.all(8),
