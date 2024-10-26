@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:kuayteawhatyai/models/ingredient.dart';
 import 'package:kuayteawhatyai/provider/ingredientprovider.dart';
 import 'package:kuayteawhatyai/utils/responsive_layout.dart';
+import 'package:kuayteawhatyai/widgets/customnavigationrail.dart';
+import 'package:kuayteawhatyai/widgets/customnavigationrailitem.dart';
 import 'package:provider/provider.dart';
 
 class CookPageTabletLayout extends StatefulWidget {
@@ -46,42 +48,39 @@ class _CookPageTabletLayoutState extends State<CookPageTabletLayout> {
   }
 
   Widget _buildCustomNavigationRail() {
-    return Container(
-      height: MediaQuery.of(context).size.height,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(
-          right: BorderSide(
-            color: Colors.grey[400]!,
-            width: 1,
-          ),
-        ),
+    return CustomNavigationRail(children: [
+      CustomNavigationRailItem(
+        icon: Icons.article,
+        label: 'ออเดอร์',
+        index: 0,
+        selectedIndex: _selectedIndex,
+        onItemTapped: (int value) {
+          setState(() {
+            _selectedIndex = value;
+          });
+        },
       ),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            const SizedBox(height: 10),
-            _buildCustomNavigationRailItem(
-              icon: Icons.article,
-              label: 'ออเดอร์',
-              index: 0,
-            ),
-            _buildCustomNavigationRailItem(
-              icon: Icons.edit,
-              label: 'จัดการวัตถุดิบ',
-              index: 1,
-            ),
-            _buildCustomNavigationRailItem(
-              icon: Icons.arrow_back_ios_new,
-              label: 'กลับ',
-              index: -1,
-              onTap: (_) => Get.back(),
-            ),
-          ],
-        ),
+      CustomNavigationRailItem(
+        icon: Icons.edit,
+        label: 'จัดการวัตถุดิบ',
+        index: 1,
+        selectedIndex: _selectedIndex,
+        onItemTapped: (int value) {
+          setState(() {
+            _selectedIndex = value;
+          });
+        },
       ),
-    );
+      CustomNavigationRailItem(
+        icon: Icons.arrow_back_ios_new,
+        label: 'กลับ',
+        index: -1,
+        selectedIndex: _selectedIndex,
+        onItemTapped: (int value) {
+          Get.back();
+        },
+      ),
+    ]);
   }
 
   Widget _buildCustomNavigationRailItem({
@@ -349,8 +348,8 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
 
     return Expanded(
       child: GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: ResponsiveLayout.isPortrait(context) ? 3 : 5,
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
         ),
