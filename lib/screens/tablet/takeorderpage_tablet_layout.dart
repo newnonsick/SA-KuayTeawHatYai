@@ -5,6 +5,8 @@ import 'package:kuayteawhatyai/models/order.dart';
 import 'package:kuayteawhatyai/provider/orderprovider.dart';
 import 'package:kuayteawhatyai/services/apiservice.dart';
 import 'package:kuayteawhatyai/utils/responsive_layout.dart';
+import 'package:kuayteawhatyai/widgets/customnavigationrail.dart';
+import 'package:kuayteawhatyai/widgets/customnavigationrailitem.dart';
 import 'package:kuayteawhatyai/widgets/menudialog.dart';
 import 'package:provider/provider.dart';
 
@@ -701,116 +703,72 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
   }
 
   Widget _buildCustomNavigationRail() {
-    return Container(
-      height: MediaQuery.of(context).size.height,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(
-          right: BorderSide(
-            color: Colors.grey[400]!,
-            width: 1,
-          ),
-        ),
+    return CustomNavigationRail(children: [
+      CustomNavigationRailItem(
+        icon: Icons.home,
+        label: 'ทั้งหมด',
+        index: 0,
+        selectedIndex: _selectedIndex,
+        onItemTapped: (int value) {
+          setState(() {
+            _selectedIndex = value;
+          });
+        },
       ),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            const SizedBox(height: 10),
-            _buildCustomNavigationRailItem(
-              icon: Icons.home,
-              label: 'ทั้งหมด',
-              index: 0,
-            ),
-            _buildCustomNavigationRailItem(
-              icon: Icons.fastfood,
-              label: 'อาหาร',
-              index: 1,
-            ),
-            _buildCustomNavigationRailItem(
-              icon: Icons.local_drink,
-              label: 'เครื่องดื่ม',
-              index: 2,
-            ),
-            _buildCustomNavigationRailItem(
-              icon: Icons.icecream,
-              label: 'ของทานเล่น',
-              index: 3,
-            ),
-            _buildCustomNavigationRailItem(
-              icon: Icons.receipt,
-              label: 'จัดการออร์เดอร์',
-              index: 4,
-            ),
-            _buildCustomNavigationRailItem(
-              icon: Icons.arrow_back_ios_new,
-              label: 'กลับ',
-              index: -1,
-            ),
-          ],
-        ),
+      CustomNavigationRailItem(
+        icon: Icons.fastfood,
+        label: 'อาหาร',
+        index: 1,
+        selectedIndex: _selectedIndex,
+        onItemTapped: (int value) {
+          setState(() {
+            _selectedIndex = value;
+          });
+        },
       ),
-    );
-  }
-
-  Widget _buildCustomNavigationRailItem({
-    required IconData icon,
-    required String label,
-    required int index,
-  }) {
-    final isSelected = _selectedIndex == index;
-
-    return GestureDetector(
-      onTap: () {
-        if (_selectedIndex == index) {
-          return;
-        }
-        if (index == -1) {
+      CustomNavigationRailItem(
+        icon: Icons.local_drink,
+        label: 'เครื่องดื่ม',
+        index: 2,
+        selectedIndex: _selectedIndex,
+        onItemTapped: (int value) {
+          setState(() {
+            _selectedIndex = value;
+          });
+        },
+      ),
+      CustomNavigationRailItem(
+        icon: Icons.icecream,
+        label: 'ของทานเล่น',
+        index: 3,
+        selectedIndex: _selectedIndex,
+        onItemTapped: (int value) {
+          setState(() {
+            _selectedIndex = value;
+          });
+        },
+      ),
+      CustomNavigationRailItem(
+        icon: Icons.receipt,
+        label: 'จัดการออร์เดอร์',
+        index: 4,
+        selectedIndex: _selectedIndex,
+        onItemTapped: (int value) {
+          setState(() {
+            _selectedIndex = value;
+          });
+        },
+      ),
+      CustomNavigationRailItem(
+        icon: Icons.arrow_back_ios_new,
+        label: 'กลับ',
+        index: -1,
+        selectedIndex: _selectedIndex,
+        onItemTapped: (int value) {
           Get.back();
-        }
-        setState(() {
-          _selectedIndex = index;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(5, 10, 5, 10),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: isSelected ? const Color(0xFFF8C324) : Colors.grey[300],
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Center(
-                  child: Icon(
-                icon,
-                color: Colors.black,
-                size: 25,
-              )),
-            ),
-            const SizedBox(height: 5),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 11,
-                color: Colors.black,
-              ),
-            ),
-            const SizedBox(height: 15),
-            if (index != -1)
-              Container(
-                height: 2,
-                width: 20,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              )
-          ],
-        ),
+        },
       ),
-    );
+    ]);
   }
 
   Future<Map<String, dynamic>> _fetchMenus() async {
