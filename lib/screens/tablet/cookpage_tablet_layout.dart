@@ -300,7 +300,9 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
     return InkWell(
       onTap: () {
         setState(() {
-          selectedCategory = label;
+          selectedCategory == null
+              ? selectedCategory = label
+              : selectedCategory = null;
         });
       },
       child: Column(

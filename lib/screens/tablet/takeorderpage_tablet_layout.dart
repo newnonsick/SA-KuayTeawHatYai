@@ -727,6 +727,11 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
               index: 3,
             ),
             _buildCustomNavigationRailItem(
+              icon: Icons.history,
+              label: 'ประวัติ',
+              index: 4,
+            ),
+            _buildCustomNavigationRailItem(
               icon: Icons.arrow_back_ios_new,
               label: 'กลับ',
               index: -1,
