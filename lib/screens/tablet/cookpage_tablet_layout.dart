@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:getwidget/getwidget.dart';
 import 'package:kuayteawhatyai/models/ingredient.dart';
 import 'package:kuayteawhatyai/provider/ingredientprovider.dart';
 import 'package:kuayteawhatyai/utils/responsive_layout.dart';
@@ -349,10 +350,10 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
     return Expanded(
       child: GridView.builder(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: ResponsiveLayout.isPortrait(context) ? 3 : 5,
+          crossAxisCount: ResponsiveLayout.isPortrait(context) ? 3 : 4,
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
-          childAspectRatio: 0.75,
+          childAspectRatio: 0.7811,
         ),
         itemCount: filteredIngredientList.length,
         itemBuilder: (context, index) {
@@ -368,23 +369,61 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ingredient.isAvailable
-                ? Expanded(
-                  child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.asset(
-                    ingredient.imageURL,
-                    fit: BoxFit.cover,
-                    opacity: ingredient.isAvailable
-                      ? null
-                      : const AlwaysStoppedAnimation(.6),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(2),
+                  child: Text(
+                    ingredient.name,
+                    textAlign: TextAlign.left,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
+                ),
+                GFToggle(
+                  key: ValueKey(ingredient.name),
+                  onChanged: (value) {
+                    setState(() {
+                      ingredient.isAvailable = !ingredient.isAvailable;
+                    });
+                  },
+                  value: ingredient.isAvailable,
+                  enabledThumbColor: Colors.white,
+                  enabledTrackColor: Color(0xFF1E9E2A),
+                  disabledTrackColor: Color(0xFFDE2E42),
+                  type: GFToggleType.ios,
+                  duration: const Duration(milliseconds: 300),
+                ),
+              ],
+            ),
+          ),
+          ingredient.isAvailable
+              ? Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Expanded(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.asset(
+                        ingredient.imageURL,
+                        fit: BoxFit.cover,
+                        opacity: ingredient.isAvailable
+                            ? null
+                            : const AlwaysStoppedAnimation(.6),
+                      ),
+                    ),
                   ),
                 )
-              : Expanded(
+              : Padding(
+                  padding: const EdgeInsets.all(8.0),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: Stack(fit: StackFit.expand, children: [
+                    child: Stack(alignment: Alignment.center,
+                    children: [
                       Image.asset(
                         ingredient.imageURL,
                         fit: BoxFit.cover,
@@ -392,61 +431,13 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
                             ? null
                             : const AlwaysStoppedAnimation(.6),
                       ),
-                      Center(
-                        child: Image.asset(
-                          "assets/images/out_of_stock.png",
-                          fit: BoxFit.cover,
-                        ),
+                      Image.asset(
+                        "assets/images/out_of_stock.png",
+                        fit: BoxFit.cover,
                       )
                     ]),
                   ),
                 ),
-          Container(
-            padding: const EdgeInsets.all(8),
-            child: Text(
-              ingredient.name,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Padding(
-              padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-              child: InkWell(
-                  splashColor: Colors.transparent,
-                  overlayColor: WidgetStateProperty.all(Colors.transparent),
-                  onTap: () {
-                    setState(() {
-                      ingredient.isAvailable = !ingredient.isAvailable;
-                    });
-                  },
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
-                    decoration: BoxDecoration(
-                      color: ingredient.isAvailable
-                          ? const Color(0xFFDE2E42)
-                          : const Color(0xFF1E9E2A),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          ingredient.isAvailable
-                              ? 'ปิดวัตถุดิบ'
-                              : 'เปิดวัตถุดิบ',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  )))
         ],
       ),
     );
