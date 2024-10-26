@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:kuayteawhatyai/models/menu.dart';
 import 'package:kuayteawhatyai/provider/orderprovider.dart';
 import 'package:kuayteawhatyai/services/apiservice.dart';
@@ -60,30 +61,57 @@ class _MenuDialogState extends State<MenuDialog> {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 10,
+              offset: Offset(0, 4),
+            ),
+          ],
         ),
         child: Center(
           child: Column(
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  const Icon(
+                    Icons.close,
+                    color: Colors.transparent,
+                    size: 30,
+                  ),
+                  const SizedBox(height: 10),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      widget.menu.name,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 24,
+                        color: Color(0xFFF8C324),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
                   InkWell(
                     onTap: () {
                       Get.back();
                     },
                     child: const Icon(
                       Icons.close,
-                      color: Colors.grey,
-                      size: 25,
+                      color: Color(0xFFF8C324),
+                      size: 30,
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 10),
               Expanded(
-                child:
-                    Image.network(widget.menu.imageURL, fit: BoxFit.fitHeight),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.network(widget.menu.imageURL, fit: BoxFit.cover),
+                ),
               ),
               const SizedBox(height: 10),
               Expanded(
@@ -91,17 +119,6 @@ class _MenuDialogState extends State<MenuDialog> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          widget.menu.name,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
                       _buildIngredientsSection(),
                     ],
                   ),
@@ -117,19 +134,20 @@ class _MenuDialogState extends State<MenuDialog> {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50),
+                  minimumSize: const Size(double.infinity, 60),
                   backgroundColor: const Color(0xFFF8C324),
                   foregroundColor: Colors.black,
                   padding: const EdgeInsets.all(15),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(15),
                   ),
+                  elevation: 5,
                 ),
                 child: const FittedBox(
                   child: Text(
                     'เพิ่มเมนูนี้',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
@@ -145,13 +163,15 @@ class _MenuDialogState extends State<MenuDialog> {
 
   Widget _buildIngredientsSection() {
     if (_ingredientsCache == null) {
-      return const CircularProgressIndicator(
-        valueColor: AlwaysStoppedAnimation<Color>(
-          Color(0xFFF8C324),
+      return const Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFF8C324)),
         ),
       );
     } else if (_ingredientsCache!['error'] == true) {
-      return const Text('Error loading ingredients');
+      return const Center(
+          child: Text('Error loading ingredients',
+              style: TextStyle(color: Colors.red)));
     }
 
     final ingredients = _ingredientsCache!['ingredients'];
@@ -168,7 +188,8 @@ class _MenuDialogState extends State<MenuDialog> {
                   ingredient['type'],
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                    fontSize: 18,
+                    color: Color(0xFFF8C324),
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -185,9 +206,26 @@ class _MenuDialogState extends State<MenuDialog> {
               ],
             ),
           ),
+        const Text(
+          'ขนาด',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+            color: Color(0xFFF8C324),
+          ),
+        ),
         const SizedBox(height: 10),
         _buildPortionSelection(),
         const SizedBox(height: 20),
+        const Text(
+          'ข้อมูลเพิ่มเติม',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+            color: Color(0xFFF8C324),
+          ),
+        ),
+        const SizedBox(height: 10),
         _buildExtraInfoField(),
       ],
     );
@@ -206,9 +244,11 @@ class _MenuDialogState extends State<MenuDialog> {
             }
           : null,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFF8C324) : Colors.white,
+          color: isSelected
+              ? const Color.fromARGB(169, 248, 195, 36)
+              : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected ? Colors.orange : Colors.grey,
@@ -217,7 +257,7 @@ class _MenuDialogState extends State<MenuDialog> {
         child: Text(
           option['is_available'] ? option['name'] : '${option['name']} (หมด)',
           style: TextStyle(
-            color: option['is_available'] ? Colors.black : Colors.grey,
+            color: option['is_available'] ? Colors.black : Colors.red,
           ),
         ),
       ),
@@ -250,17 +290,22 @@ class _MenuDialogState extends State<MenuDialog> {
             });
           },
           child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
             decoration: BoxDecoration(
               color: _selectedPortion == option
-                  ? const Color(0xFFF8C324)
+                  ? const Color.fromARGB(169, 248, 195, 36)
                   : Colors.white,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 color: _selectedPortion == option ? Colors.orange : Colors.grey,
               ),
             ),
-            child: Text(option),
+            child: Text(
+              option,
+              style: TextStyle(
+                color: _selectedPortion == option ? Colors.black : Colors.black,
+              ),
+            ),
           ),
         );
       }).toList(),
@@ -275,6 +320,9 @@ class _MenuDialogState extends State<MenuDialog> {
       decoration: const InputDecoration(
         labelText: 'ข้อมูลเพิ่มเติม (ถ้ามี)',
         border: OutlineInputBorder(),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFFF8C324), width: 2.0),
+        ),
       ),
       onChanged: (value) {
         _updateOrder();

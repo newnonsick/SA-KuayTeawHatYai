@@ -339,73 +339,326 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                   return;
                 }
                 showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                          backgroundColor: Colors.white,
-                          title: const Text(
-                            'กรุณากรอกหมายเลขโต๊ะ',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFFF8C324),
-                            ),
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      backgroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      title: const Center(
+                        child: Text(
+                          'กรุณาเลือกหมายเลขโต๊ะ',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFFF8C324),
                           ),
-                          content: FutureBuilder(
-                              future: _fetchTables(),
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return const SizedBox(
-                                    height: 200,
-                                    child: Center(
-                                      child: CircularProgressIndicator(
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                          Color(0xFFF8C324),
+                        ),
+                      ),
+                      content: FutureBuilder(
+                        future: _fetchTables(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const SizedBox(
+                              height: 200,
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Color(0xFFF8C324),
+                                  ),
+                                ),
+                              ),
+                            );
+                          } else if (snapshot.hasError ||
+                              (snapshot.hasData &&
+                                  (snapshot.data!["code"] != "success"))) {
+                            return const Center(
+                              child: Text('Error',
+                                  style: TextStyle(color: Colors.red)),
+                            );
+                          }
+                          final data = snapshot.data as Map<String, dynamic>;
+                          List tableList = data['tables'] as List;
+                          List<String> tables = tableList
+                              .map((table) => table['table_number'].toString())
+                              .toList();
+                          return SingleChildScrollView(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                for (String table in tables)
+                                  GestureDetector(
+                                    onTap: () async {
+                                      showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return AlertDialog(
+                                              backgroundColor: Colors.white,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
+                                              ),
+                                              title: Center(
+                                                child: Text(
+                                                  'ยืนยันการสั่งอาหาร $table',
+                                                  style: const TextStyle(
+                                                    fontSize: 22,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Color(0xFFF8C324),
+                                                  ),
+                                                ),
+                                              ),
+                                              content: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  ElevatedButton(
+                                                    onPressed: () async {
+                                                      orderProvider
+                                                          .setTableNumber(
+                                                              table);
+
+                                                      final response =
+                                                          await ApiService()
+                                                              .postData(
+                                                                  'orders/add',
+                                                                  orderProvider
+                                                                      .toJson());
+
+                                                      if (response
+                                                              .data['code'] ==
+                                                          'success') {
+                                                        orderProvider
+                                                            .clearOrder();
+                                                        Get.back();
+                                                        Get.back();
+
+                                                        if (mounted) {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return AlertDialog(
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .white,
+                                                                  shape:
+                                                                      RoundedRectangleBorder(
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            15),
+                                                                  ),
+                                                                  title:
+                                                                      const Center(
+                                                                    child: Text(
+                                                                      'สั่งอาหารสำเร็จ',
+                                                                      style:
+                                                                          TextStyle(
+                                                                        fontSize:
+                                                                            22,
+                                                                        fontWeight:
+                                                                            FontWeight.bold,
+                                                                        color: Color(
+                                                                            0xFFF8C324),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  content:
+                                                                      const Column(
+                                                                    mainAxisSize:
+                                                                        MainAxisSize
+                                                                            .min,
+                                                                    children: [
+                                                                      Icon(
+                                                                        Icons
+                                                                            .check_circle,
+                                                                        color: Color(
+                                                                            0xFFF8C324),
+                                                                        size:
+                                                                            100,
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                );
+                                                              });
+                                                        }
+                                                      } else {
+                                                        Get.back();
+                                                        if (mounted) {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return AlertDialog(
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .white,
+                                                                  shape:
+                                                                      RoundedRectangleBorder(
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            15),
+                                                                  ),
+                                                                  title:
+                                                                      const Center(
+                                                                    child: Text(
+                                                                      'สั่งอาหารไม่สำเร็จ',
+                                                                      style:
+                                                                          TextStyle(
+                                                                        fontSize:
+                                                                            22,
+                                                                        fontWeight:
+                                                                            FontWeight.bold,
+                                                                        color: Color(
+                                                                            0xFFF8C324),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  content:
+                                                                      const Column(
+                                                                    mainAxisSize:
+                                                                        MainAxisSize
+                                                                            .min,
+                                                                    children: [
+                                                                      Icon(
+                                                                        Icons
+                                                                            .error_outline,
+                                                                        color: Colors
+                                                                            .red,
+                                                                        size:
+                                                                            100,
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                );
+                                                              });
+                                                        }
+                                                      }
+                                                    },
+                                                    style: ElevatedButton
+                                                        .styleFrom(
+                                                      backgroundColor:
+                                                          const Color(
+                                                              0xFFF8C324),
+                                                      foregroundColor:
+                                                          Colors.black,
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              15),
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10),
+                                                      ),
+                                                    ),
+                                                    child: const Center(
+                                                      child: FittedBox(
+                                                        child: Text(
+                                                          'ตกลง',
+                                                          style: TextStyle(
+                                                            fontSize: 18,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 20),
+                                                  ElevatedButton(
+                                                    onPressed: () {
+                                                      Get.back();
+                                                    },
+                                                    style: ElevatedButton
+                                                        .styleFrom(
+                                                      backgroundColor:
+                                                          Colors.grey,
+                                                      foregroundColor:
+                                                          Colors.white,
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              15),
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10),
+                                                      ),
+                                                    ),
+                                                    child: const Center(
+                                                      child: FittedBox(
+                                                        child: Text(
+                                                          'ยกเลิก',
+                                                          style: TextStyle(
+                                                            fontSize: 18,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          });
+                                    },
+                                    child: Container(
+                                      margin: const EdgeInsets.symmetric(
+                                          vertical: 5),
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 15),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFF8C324),
+                                        borderRadius: BorderRadius.circular(10),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.grey.withOpacity(0.3),
+                                            spreadRadius: 2,
+                                            blurRadius: 5,
+                                            offset: const Offset(0,
+                                                3), // changes position of shadow
+                                          ),
+                                        ],
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          table,
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  );
-                                } else if (snapshot.hasError ||
-                                    (snapshot.hasData &&
-                                        (snapshot.data!["code"] !=
-                                            "success"))) {
-                                  return const Center(child: Text('Error'));
-                                }
-                                final data =
-                                    snapshot.data as Map<String, dynamic>;
-                                List tableList = data['tables'] as List;
-                                List<String> tables = tableList
-                                    .map((table) =>
-                                        table['table_number'].toString())
-                                    .toList();
-                                return SingleChildScrollView(
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      for (String table in tables)
-                                        ListTile(
-                                          title: Text(table),
-                                          onTap: () async {
-                                            orderProvider.setTableNumber(table);
-
-                                            final response = await ApiService()
-                                                .postData('orders/add',
-                                                    orderProvider.toJson());
-
-                                            if (response.data['code'] ==
-                                                'success') {
-                                              orderProvider.clearOrder();
-                                              Get.back();
-                                            }
-                                          },
-                                        )
-                                    ],
                                   ),
-                                );
-                              }));
-                    });
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Get.back(); // Close the dialog
+                          },
+                          child: const Text(
+                            'ยกเลิก',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFF8C324),
