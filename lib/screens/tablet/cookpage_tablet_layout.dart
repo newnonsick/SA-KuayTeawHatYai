@@ -284,7 +284,9 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
     return InkWell(
       onTap: () {
         setState(() {
-          selectedCategory = label;
+          selectedCategory != label
+              ? selectedCategory = label
+              : selectedCategory = null;
         });
       },
       child: Column(
@@ -335,6 +337,7 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
           crossAxisCount: ResponsiveLayout.isPortrait(context) ? 3 : 5,
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
+          childAspectRatio: 0.75,
         ),
         itemCount: filteredIngredientList.length,
         itemBuilder: (context, index) {
@@ -350,35 +353,33 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Flexible(
-            child: ingredient.isAvailable
-                ? Expanded(
-                    child: Image.asset(
+          ingredient.isAvailable
+              ? Expanded(
+                  child: Image.asset(
+                    ingredient.imageURL,
+                    fit: BoxFit.cover,
+                    opacity: ingredient.isAvailable
+                        ? null
+                        : const AlwaysStoppedAnimation(.6),
+                  ),
+                )
+              : Expanded(
+                  child: Stack(fit: StackFit.expand, children: [
+                    Image.asset(
                       ingredient.imageURL,
                       fit: BoxFit.cover,
                       opacity: ingredient.isAvailable
                           ? null
                           : const AlwaysStoppedAnimation(.6),
                     ),
-                  )
-                : Expanded(
-                    child: Stack(fit: StackFit.expand, children: [
-                      Image.asset(
-                        ingredient.imageURL,
+                    Center(
+                      child: Image.asset(
+                        "assets/images/out_of_stock.png",
                         fit: BoxFit.cover,
-                        opacity: ingredient.isAvailable
-                            ? null
-                            : const AlwaysStoppedAnimation(.6),
                       ),
-                      Center(
-                        child: Image.asset(
-                          "assets/images/out_of_stock.png",
-                          fit: BoxFit.cover,
-                        ),
-                      )
-                    ]),
-                  ),
-          ),
+                    )
+                  ]),
+                ),
           Container(
             padding: const EdgeInsets.all(8),
             child: Text(
@@ -393,15 +394,16 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
           Padding(
               padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
               child: InkWell(
+                  splashColor: Colors.transparent,
+                  overlayColor: WidgetStateProperty.all(Colors.transparent),
                   onTap: () {
                     setState(() {
                       ingredient.isAvailable = !ingredient.isAvailable;
-                      print(ingredient.isAvailable);
                     });
                   },
                   child: Container(
                     padding:
-                        const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                        const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
                     decoration: BoxDecoration(
                       color: ingredient.isAvailable
                           ? const Color(0xFFDE2E42)
@@ -417,7 +419,7 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
                               : 'เปิดวัตถุดิบ',
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 16,
+                            fontSize: 12,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
