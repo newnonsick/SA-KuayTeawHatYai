@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kuayteawhatyai/models/menu.dart';
-import 'package:kuayteawhatyai/provider/orderprovider.dart';
+import 'package:kuayteawhatyai/provider/models/orderprovider.dart';
 import 'package:kuayteawhatyai/services/apiservice.dart';
 import 'package:provider/provider.dart';
 import '../models/order.dart';
