@@ -7,7 +7,7 @@ class ApiService {
   ApiService() {
     BaseOptions options = BaseOptions(
         // baseUrl: dotenv.env['APIURL']!,
-        baseUrl: 'https://kuayteawhatyai.sornchaithedev.com/',
+        baseUrl: 'http://localhost:5000/',
         connectTimeout: const Duration(seconds: 5),
         receiveTimeout: const Duration(seconds: 3),
         headers: {

@@ -12,7 +12,7 @@ class Order {
     required this.quantity,
     this.ingredients,
     this.extraInfo,
-    required this.portion,
+    this.portion,
   });
 
   Map<String, dynamic> toJson() {

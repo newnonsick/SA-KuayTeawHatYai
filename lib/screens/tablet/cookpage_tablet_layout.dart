@@ -453,9 +453,9 @@ class _OrderPageState extends State<_OrderPage> {
     try {
       final data = await ApiService().getData('orders');
 
-      if (data["code"] == "success") {
+      if (data.data["code"] == "success") {
         setState(() {
-          _orderList = (data['orders'] as List)
+          _orderList = (data.data['orders'] as List)
               .map((orderJson) => Order.fromJson(orderJson))
               .toList();
           _isLoading = false;
