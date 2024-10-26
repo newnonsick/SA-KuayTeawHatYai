@@ -1,15 +1,20 @@
+import 'package:kuayteawhatyai/provider/models/orderprovider.dart';
+
 class Order {
   DateTime? date;
   String? orderID;
   String? tableNumber;
   String? orderStatus;
-  int? totalAmount;
+  double? totalAmount;
+  OrderProvider? orderProvider;
 
   Order({
     this.date,
     this.orderID,
     this.tableNumber,
     this.totalAmount,
+    this.orderStatus,
+    this.orderProvider,
   });
 
   Order.fromJson(Map<String, dynamic> json)
