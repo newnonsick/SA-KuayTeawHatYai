@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:getwidget/getwidget.dart';
-import 'package:kuayteawhatyai/models/ingredient.dart';
 import 'package:kuayteawhatyai/entities/order.dart';
-import 'package:kuayteawhatyai/provider/models/ingredientprovider.dart';
+import 'package:kuayteawhatyai/models/menu.dart';
+import 'package:kuayteawhatyai/models/order.dart' as model;
+import 'package:kuayteawhatyai/models/ingredient.dart';
+import 'package:kuayteawhatyai/provider/models/orderprovider.dart';
 import 'package:kuayteawhatyai/services/apiservice.dart';
 import 'package:kuayteawhatyai/utils/responsive_layout.dart';
 import 'package:kuayteawhatyai/widgets/customnavigationrail.dart';
 import 'package:kuayteawhatyai/widgets/customnavigationrailitem.dart';
-import 'package:provider/provider.dart';
 
 class CookPageTabletLayout extends StatefulWidget {
   const CookPageTabletLayout({super.key});
@@ -417,6 +418,7 @@ class _OrderPageState extends State<_OrderPage> {
   List<Order> _orderList = [];
   bool _isLoading = true;
   String? _errorMessage;
+  Order? _selectedOrder;
   @override
   void initState() {
     super.initState();
@@ -424,14 +426,41 @@ class _OrderPageState extends State<_OrderPage> {
   }
 
   Future<void> _fetchOrders() async {
-    try {
-      final data = await ApiService().getData('orders');
+    try{
+      var data = await ApiService().getData('orders');
+      bool isSuccess = data.data["code"] == "success";
+      
 
-      if (data["code"] == "success") {
+      if (isSuccess) {
+        for (var item in data.data['orders']) {
+          OrderProvider orderProvider = OrderProvider();
+          var orderItemData =
+              await ApiService().getData('orders/${item['order_id']}');
+          if (orderItemData.data["code"] != "success") {
+            isSuccess = false;
+            break;
+          }
+          for (var menu in orderItemData.data['menus']) {
+            model.Order order = model.Order(
+              menu: Menu.fromJson(menu['menu']),
+              quantity: menu['quantity'],
+              ingredients: List<String>.from(menu['ingredients'] as List),
+              extraInfo: menu['extraInfo'],
+              portion: menu['portion'],
+            );
+            orderProvider.addOrder(order);
+          }
+          _orderList.add(Order(date: 
+          DateTime.parse(item['order_datetime']),
+          orderID: item['order_id'],
+          tableNumber: item['table_number'],
+          orderStatus: item['order_status'],
+          totalAmount: item['total_amount'],
+          orderProvider: orderProvider));
+        }
+      }
+      if (isSuccess) {
         setState(() {
-          _orderList = (data['orders'] as List)
-              .map((orderJson) => Order.fromJson(orderJson))
-              .toList();
           _isLoading = false;
         });
       } else {
@@ -538,14 +567,16 @@ class _OrderPageState extends State<_OrderPage> {
           return Container(
             margin: const EdgeInsets.only(bottom: 12),
             decoration: BoxDecoration(
-              color: Colors.grey[100],
+              color: _selectedOrder == order ? Colors.amber : Colors.grey[100],
               borderRadius: BorderRadius.circular(8),
             ),
             child: Material(
               color: Colors.transparent,
               child: InkWell(
                 onTap: () {
-                  // Handle order selection
+                  setState(() {
+                    _selectedOrder = order;
+                  });
                 },
                 borderRadius: BorderRadius.circular(8),
                 child: Padding(
@@ -585,15 +616,19 @@ class _OrderPageState extends State<_OrderPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(16, 20, 16, 0),
-            child: Text(
-              'ออเดอร์ #6510405466 / โต๊ะ 22',
-              style: TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+            child: _selectedOrder == null
+                ? const Text(" ",
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                    ))
+                : Text("โต๊ะ ${_selectedOrder!.tableNumber}",
+                    style: const TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                    )),
           ),
           Expanded(
               child: Padding(
@@ -631,15 +666,14 @@ class _OrderPageState extends State<_OrderPage> {
                   Expanded(
                     child: ListView.builder(
                       padding: const EdgeInsets.all(10),
-                      itemCount: _orderList.length,
+                      itemCount: _selectedOrder == null
+                          ? 0
+                          : _selectedOrder!.orderProvider!.orders.length,
                       itemBuilder: (context, index) {
                         return Padding(
                           padding: const EdgeInsets.all(5.0),
                           child: _buildMenuItem(
-                            image: 'assets/images/mock.png',
-                            title: 'ก๋วยเตี๋ยวน้ำใส',
-                            subtitle: 'ประเภทเส้น : เส้นเล็ก',
-                            note: 'ไม่ใส่ผักดอง, ไม่เอาน้ำ',
+                              _selectedOrder!.orderProvider!.orders[index]
                           ),
                         );
                       },
@@ -654,17 +688,10 @@ class _OrderPageState extends State<_OrderPage> {
     );
   }
 
-  Widget _buildMenuItem({
-    required String image,
-    required String title,
-    String? subtitle,
-    String? note,
-    bool isCompleted = false,
-    bool isHighlighted = false,
-  }) {
+  Widget _buildMenuItem(model.Order order) {
     return Container(
       decoration: BoxDecoration(
-        color: isHighlighted ? Colors.amber : Colors.white,
+        color: Colors.white,
         border: Border.all(color: Colors.grey[300]!),
         borderRadius: BorderRadius.circular(8),
       ),
@@ -678,7 +705,7 @@ class _OrderPageState extends State<_OrderPage> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
               image: DecorationImage(
-                image: AssetImage(image),
+                image: AssetImage(order.menu.imageURL),
                 fit: BoxFit.cover,
               ),
             ),
@@ -691,23 +718,23 @@ class _OrderPageState extends State<_OrderPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title,
+                  order.menu.name,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                if (subtitle != null)
+                if ( order.extraInfo != null)
                   Text(
-                    subtitle,
+                    order.extraInfo!,
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[600],
                     ),
                   ),
-                if (note != null)
+                if (order.portion != null)
                   Text(
-                    note,
+                    order.portion!,
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[600],
@@ -718,7 +745,7 @@ class _OrderPageState extends State<_OrderPage> {
           ),
 
           // Completed checkmark
-          if (isCompleted)
+          if (true)
             Container(
               padding: const EdgeInsets.all(4),
               decoration: const BoxDecoration(
