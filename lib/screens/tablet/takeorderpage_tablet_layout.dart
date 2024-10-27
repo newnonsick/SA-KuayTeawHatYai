@@ -1288,7 +1288,7 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                           ),
                         ],
                       ),
-                  if (order.menu.category == "ก๋วยเตี๋ยว")
+                  if (order.menu.category == "อาหาร")
                     Row(
                       children: [
                         const Icon(

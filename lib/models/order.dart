@@ -6,6 +6,9 @@ class Order {
   List<String>? ingredients;
   String? extraInfo;
   String? portion;
+  double? orderPrice;
+  String? orderitemStatus;
+
 
   Order({
     required this.menu,
@@ -13,6 +16,8 @@ class Order {
     this.ingredients,
     this.extraInfo,
     this.portion,
+    this.orderPrice,
+    this.orderitemStatus,
   });
 
   Map<String, dynamic> toJson() {
