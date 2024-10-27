@@ -8,6 +8,7 @@ import 'package:kuayteawhatyai/services/apiservice.dart';
 import 'package:kuayteawhatyai/utils/responsive_layout.dart';
 import 'package:kuayteawhatyai/widgets/customnavigationrail.dart';
 import 'package:kuayteawhatyai/widgets/customnavigationrailitem.dart';
+import 'package:kuayteawhatyai/widgets/manageorder.dart';
 import 'package:kuayteawhatyai/widgets/menudialog.dart';
 import 'package:kuayteawhatyai/widgets/orderhistoryitem.dart';
 import 'package:provider/provider.dart';
@@ -475,7 +476,7 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                 )),
             Expanded(
               child: DefaultTabController(
-                length: 4,
+                length: 2,
                 child: Column(
                   children: [
                     TabBar(
@@ -491,7 +492,7 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                         ),
                         Tab(
                           child: Text(
-                            'เมนูในออร์เดอร์',
+                            'เมนูรอเปลี่ยนวัตถุดิบ',
                             style: TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold),
@@ -502,9 +503,7 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                     Expanded(
                       child: TabBarView(
                         children: [
-                          Center(
-                            child: Text('Clubs'),
-                          ),
+                          ManageOrder(),
                           Center(
                             child: Text('Search'),
                           ),

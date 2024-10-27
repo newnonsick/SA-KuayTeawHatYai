@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:kuayteawhatyai/provider/entities/manageorderprovider.dart';
 import 'package:kuayteawhatyai/provider/models/ingredientprovider.dart';
 import 'package:kuayteawhatyai/provider/models/orderprovider.dart';
 import 'package:kuayteawhatyai/screens/mobile/myhomepage_mobile_layout.dart';
@@ -41,6 +42,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(
           create: (context) => entities.OrderProvider(),
         ),
+        ChangeNotifierProvider(create: (context) => ManageOrderProvider())
       ],
       child: GetMaterialApp(
         getPages: [
