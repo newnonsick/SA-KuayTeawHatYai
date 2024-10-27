@@ -164,6 +164,7 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
   List<Ingredient> _ingredientList = [];
   bool _isOrderLoading = true;
   String? _errorMessage;
+  List<String> uniqueIngredientType = [];
 
   @override
   void initState() {
@@ -173,73 +174,19 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
 
   Future<void> _fetchIngredients() async {
     try {
-      await Future.delayed(const Duration(seconds: 1));
-      final data = {
-        'code': 'success',
-        "ingredients": [
-          {
-            "name": "ไข่ไก่",
-            "imageURL": "assets/images/mock.png",
-            "isAvailable": true,
-            "type": "หมวดเนื้อสัตว์"
-          },
-          {
-            "name": "เส้นก๋วยเตี๋ยว",
-            "imageURL": "assets/images/mock.png",
-            "isAvailable": true,
-            "type": "หมวดเส้น"
-          },
-          {
-            "name": "ผักชี",
-            "imageURL": "assets/images/mock.png",
-            "isAvailable": true,
-            "type": "หมวดผัก"
-          },
-          {
-            "name": "เนื้อวัว",
-            "imageURL": "assets/images/mock.png",
-            "isAvailable": true,
-            "type": "หมวดเนื้อสัตว์"
-          },
-          {
-            "name": "เส้นเล็ก",
-            "imageURL": "assets/images/mock.png",
-            "isAvailable": true,
-            "type": "หมวดเส้น"
-          },
-          {
-            "name": "ผักกาดหอม",
-            "imageURL": "assets/images/mock.png",
-            "isAvailable": true,
-            "type": "หมวดผัก"
-          },
-          {
-            "name": "เนื้อหมู",
-            "imageURL": "assets/images/mock.png",
-            "isAvailable": true,
-            "type": "หมวดเนื้อสัตว์"
-          },
-          {
-            "name": "เส้นใหญ่",
-            "imageURL": "assets/images/mock.png",
-            "isAvailable": true,
-            "type": "หมวดเส้น"
-          },
-          {
-            "name": "ผักชีลาว",
-            "imageURL": "assets/images/mock.png",
-            "isAvailable": true,
-            "type": "หมวดผัก"
-          },
-        ]
-      };
+      var data = await ApiService().getData('ingredients');
 
-      if (data["code"] == "success") {
+      if (data.data["code"] == "success") {
         setState(() {
-          _ingredientList = (data['ingredients'] as List)
+          _ingredientList = (data.data['ingredients'] as List)
               .map((ingredientJson) => Ingredient.fromJson(ingredientJson))
               .toList();
           _isOrderLoading = false;
+          uniqueIngredientType = _ingredientList
+              .map((ingredient) => ingredient.type)
+              .toSet()
+              .toList();
+
         });
       } else {
         setState(() {
@@ -274,9 +221,9 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildCategoryItem(Icons.egg, 'หมวดเนื้อสัตว์'),
-                _buildCategoryItem(Icons.restaurant, 'หมวดเส้น'),
-                _buildCategoryItem(Icons.grass, 'หมวดผัก'),
+                _buildCategoryItem(Icons.egg, 'เนื้อสัตว์'),
+                _buildCategoryItem(Icons.restaurant, 'เส้น'),
+                _buildCategoryItem(Icons.grass, 'น้ำ'),
               ],
             ),
           ),
@@ -317,6 +264,7 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
     if (selectedCategory == null) {
       return _ingredientList;
     }
+  
     return _ingredientList.where((ingredient) {
       return ingredient.type == selectedCategory;
     }).toList();
@@ -384,8 +332,8 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
                   },
                   value: ingredient.isAvailable,
                   enabledThumbColor: Colors.white,
-                  enabledTrackColor: Color(0xFF1E9E2A),
-                  disabledTrackColor: Color(0xFFDE2E42),
+                  enabledTrackColor: const Color(0xFF1E9E2A),
+                  disabledTrackColor: const Color(0xFFDE2E42),
                   type: GFToggleType.ios,
                   duration: const Duration(milliseconds: 300),
                 ),
@@ -396,7 +344,7 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
             padding: const EdgeInsets.all(8.0),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image.asset(
+              child: Image.network(
                 ingredient.imageURL,
                 fit: BoxFit.cover,
                 opacity: ingredient.isAvailable
@@ -471,8 +419,8 @@ class _OrderPageState extends State<_OrderPage> {
 
   Future<void> _fetchOrders() async {
     try {
-      print(_errorMenuMessage);
-      var data = await ApiService().getData('orders');
+      var data = await ApiService()
+          .getData('orders?status_ne=รอเสิร์ฟ&status_ne=เสร็จสิ้น');
       if (data.data['code'] == 'success') {
         setState(() {
           _orderList = (data.data['orders'] as List)
@@ -594,13 +542,15 @@ class _OrderPageState extends State<_OrderPage> {
                 child: Material(
                   color: Colors.transparent,
                   child: InkWell(
-                    onTap: () {
-                      setState(() {
-                        _selectedOrder = order;
-                        _selectedOrderItem = null;
-                        _fetchMenus();
-                      });
-                    },
+                    onTap: _isMenuLoading
+                        ? null
+                        : () {
+                            setState(() {
+                              _selectedOrder = order;
+                              _selectedOrderItem = null;
+                              _fetchMenus();
+                            });
+                          },
                     borderRadius: BorderRadius.circular(8),
                     child: Padding(
                       padding: const EdgeInsets.all(16),
@@ -629,23 +579,23 @@ class _OrderPageState extends State<_OrderPage> {
                           ),
                           //stauts button
                           Container(
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
                               color: order.orderStatus == 'รอทำอาหาร'
-                                  ? Color(0xFFFFA629)
+                                  ? const Color(0xFFFFA629)
                                   : order.orderStatus == 'กำลังทำอาหาร'
-                                      ? Color(0xFF5FDB6A)
+                                      ? const Color(0xFF5FDB6A)
                                       : order.orderStatus == 'รอเสิร์ฟ'
-                                          ? Color(0xFF17A2B8)
+                                          ? const Color(0xFF17A2B8)
                                           : order.orderStatus == 'เสร็จสิ้น'
-                                              ? Color(0xFFFFFFFF)
+                                              ? const Color(0xFFFFFFFF)
                                               : Colors.transparent,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
                               order.orderStatus!,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.w500,
                                 fontSize: 14,
@@ -747,7 +697,7 @@ class _OrderPageState extends State<_OrderPage> {
                           ),
                         ),
                         // ปุ่มเริ่มทำอาหาร
-                        if (_selectedOrderItem == null)
+                        if (_selectedOrder!.orderStatus == "รอทำอาหาร")
                           Padding(
                             padding: const EdgeInsets.all(16.0),
                             child: SizedBox(
@@ -765,11 +715,20 @@ class _OrderPageState extends State<_OrderPage> {
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                 ),
-                                onPressed: () async {
-                                  await _selectedOrder!
-                                      .updateOrderStatus('กำลังทำอาหาร');
-                                  setState(() {});
-                                },
+                                onPressed: _selectedOrder!.orderStatus ==
+                                        "กำลังทำอาหาร"
+                                    ? null
+                                    : () async {
+                                        await _selectedOrder!
+                                            .updateOrderStatus('กำลังทำอาหาร');
+                                        _selectedOrder!
+                                            .orderItemProvider!.orderItems
+                                            .forEach((element) {
+                                          element.updateOrderItemStatus(
+                                              "กำลังทำอาหาร");
+                                        });
+                                        setState(() {});
+                                      },
                                 child: const Text(
                                   'เริ่มทำอาหาร',
                                   style: TextStyle(
@@ -783,45 +742,108 @@ class _OrderPageState extends State<_OrderPage> {
                         else
                           Padding(
                             padding: const EdgeInsets.all(16.0),
-                            child: SizedBox(
-                              width: double.infinity,
-                              height: 48,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      _selectedOrderItem!.orderItemStatus !=
-                                              "เสร็จสิ้น"
-                                          ? Colors.green
-                                          : Colors.red,
-                                  foregroundColor: Colors.black,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                // ปุ่มแรก: ใช้ logic เดิม
+                                Expanded(
+                                  child: SizedBox(
+                                    height: 48,
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            _selectedOrderItem == null
+                                                ? Colors.grey
+                                                : _selectedOrderItem!
+                                                            .orderItemStatus !=
+                                                        "เสร็จสิ้น"
+                                                    ? Colors.green
+                                                    : Colors.red,
+                                        foregroundColor: Colors.black,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                      ),
+                                      onPressed: _selectedOrderItem == null
+                                          ? null
+                                          : () async {
+                                              if (_selectedOrderItem!
+                                                      .orderItemStatus ==
+                                                  "เสร็จสิ้น") {
+                                                await _selectedOrderItem!
+                                                    .updateOrderItemStatus(
+                                                        "กำลังทำอาหาร");
+                                              } else if (_selectedOrderItem!
+                                                      .orderItemStatus ==
+                                                  "กำลังทำอาหาร") {
+                                                await _selectedOrderItem!
+                                                    .updateOrderItemStatus(
+                                                        "เสร็จสิ้น");
+                                              }
+                                              setState(() {});
+                                            },
+                                      child: Text(
+                                        _selectedOrderItem == null
+                                            ? "เมนูเสร็จสิ้น"
+                                            : _selectedOrderItem!
+                                                        .orderItemStatus ==
+                                                    "เสร็จสิ้น"
+                                                ? 'ยกเลิกเมนูเสร็จสิ้น'
+                                                : 'เมนูเสร็จสิ้น',
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ),
-                                onPressed: () async {
-                                  if (_selectedOrderItem!.orderItemStatus ==
-                                      "เสร็จสิ้น") {
-                                    await _selectedOrderItem!
-                                        .updateOrderItemStatus("กำลังทำอาหาร");
-                                  } else if (_selectedOrderItem!
-                                          .orderItemStatus ==
-                                      "กำลังทำอาหาร") {
-                                    await _selectedOrderItem!
-                                        .updateOrderItemStatus("เสร็จสิ้น");
-                                  }
-                                  setState(() {});
-                                },
-                                child: Text(
-                                  _selectedOrderItem!.orderItemStatus ==
-                                          "เสร็จสิ้น"
-                                      ? 'ยกเลิกเมนูเสร็จสิ้น'
-                                      : 'เมนูเสร็จสิ้น',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
+                                const SizedBox(
+                                    width: 16), // ระยะห่างระหว่างปุ่ม
+
+                                // ปุ่มที่สอง: เพิ่มตามต้องการ
+                                Expanded(
+                                  flex: 2,
+                                  child: SizedBox(
+                                    height: 48,
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            !_selectedOrder!.canCompleteOrder()
+                                                ? Colors.grey
+                                                : Colors.amber,
+                                        foregroundColor: Colors.black,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                      ),
+                                      onPressed:
+                                          !_selectedOrder!.canCompleteOrder()
+                                              ? null
+                                              : () async {
+                                                  await _selectedOrder!
+                                                      .updateOrderStatus(
+                                                          'รอเสิร์ฟ');
+                                                  setState(() {
+                                                    _orderList
+                                                        .remove(_selectedOrder);
+                                                    _selectedOrder = null;
+                                                    _selectedOrderItem = null;
+                                                  });
+                                                },
+                                      child: const Text(
+                                        'ออเดอร์เสร็จสิ้น',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              ),
+                              ],
                             ),
                           )
                       ],

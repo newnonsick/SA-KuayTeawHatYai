@@ -13,7 +13,7 @@ class Ingredient {
   //from Json
   Ingredient.fromJson(Map<String, dynamic> json)
       : name = json['name'],
-        imageURL = json['imageURL'],
-        isAvailable = json['isAvailable'],
-        type = json['type'];
+        imageURL = json['image_url'],
+        isAvailable = json['is_available'],
+        type = json['ingredient_type'];
 }

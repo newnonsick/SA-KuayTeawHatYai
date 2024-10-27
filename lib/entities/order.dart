@@ -31,5 +31,13 @@ class Order {
       "order_status": status,
     });
   }
+  bool canCompleteOrder() {
+    for (var orderItem in orderItemProvider!.orderItems) {
+      if (orderItem.orderItemStatus != "เสร็จสิ้น") {
+        return false;
+      }
+    }
+    return true;
+  }
 }
 
