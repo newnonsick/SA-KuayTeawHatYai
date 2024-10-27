@@ -7,7 +7,7 @@ class Order {
   String? extraInfo;
   String? portion;
   double? orderPrice;
-  String? orderitemStatus;
+  String? orderStatus;
 
 
   Order({
@@ -17,7 +17,7 @@ class Order {
     this.extraInfo,
     this.portion,
     this.orderPrice,
-    this.orderitemStatus,
+    this.orderStatus,
   });
 
   Map<String, dynamic> toJson() {

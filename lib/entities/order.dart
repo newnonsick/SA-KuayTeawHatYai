@@ -1,4 +1,5 @@
 import 'package:kuayteawhatyai/provider/entities/orderitemprovider.dart';
+import 'package:kuayteawhatyai/services/apiservice.dart';
 class Order {
   DateTime? date;
   String? orderID;
@@ -23,13 +24,12 @@ class Order {
         orderStatus = json['order_status'],
         totalAmount = json['total_amount'];
   
-  updateOrder(Order order) {
-    date = order.date;
-    orderID = order.orderID;
-    tableNumber = order.tableNumber;
-    orderStatus = order.orderStatus;
-    totalAmount = order.totalAmount;
-    orderItemProvider = order.orderItemProvider;
+  Future<void> updateOrderStatus(String status) async{
+    orderStatus = status;
+    await ApiService().putData("orders/update-status", {
+      "order_id": orderID,
+      "order_status": status,
+    });
   }
 }
 
