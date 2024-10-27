@@ -101,10 +101,10 @@ class _MenuItemCardState extends State<MenuItemCard>
       child: Container(
         decoration: orderItem.orderItemStatus == "เปลี่ยนวัตถุดิบ"
             ? BoxDecoration(
-                    color: Color.fromARGB(96, 248, 195, 36),
-                    border: Border.all(color: Color(0xFFF8C324)),
-                    borderRadius: BorderRadius.circular(8),
-                  )
+                color: Color.fromARGB(96, 248, 195, 36),
+                border: Border.all(color: Color(0xFFF8C324)),
+                borderRadius: BorderRadius.circular(8),
+              )
             : orderItem.orderItemStatus == "เสร็จสิ้น"
                 ? BoxDecoration(
                     color: Color.fromARGB(50, 30, 158, 43),
@@ -202,7 +202,7 @@ class _MenuItemCardState extends State<MenuItemCard>
                           ? Container(
                               padding: const EdgeInsets.all(4),
                               decoration: const BoxDecoration(
-                                color: Colors.yellow,
+                                color: Color.fromARGB(255, 223, 172, 4),
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
