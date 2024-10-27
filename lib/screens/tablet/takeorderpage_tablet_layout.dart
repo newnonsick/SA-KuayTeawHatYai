@@ -467,6 +467,12 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                       fontSize: 30,
                       color: Color(0xFFF8C324),
                     )),
+                Text("จัดการออร์เดอร์",
+                    style: TextStyle(
+                      fontWeight: FontWeight.normal,
+                      fontSize: 30,
+                      color: Color(0xFF000000),
+                    )),
               ],
             )));
   }
