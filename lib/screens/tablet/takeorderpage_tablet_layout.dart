@@ -24,6 +24,7 @@ class TakeOrderPageTabletLayout extends StatefulWidget {
 class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
   int _selectedIndex = 5;
   DateTime? _selectedDate;
+  bool _haveNotification = false;
 
   @override
   void initState() {
@@ -64,12 +65,22 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
 
   Widget _buildOverviewSection() {
     return Expanded(
-      child: Column(
-        children: [
-          const SizedBox(height: 20),
-          Container(
-            padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
-            child: Row(
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text("KuayTeawHatYai",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 30,
+                    color: Color(0xFFF8C324),
+                  )),
+            ),
+            const SizedBox(height: 20),
+            Row(
               children: [
                 Align(
                   alignment: Alignment.centerLeft,
@@ -107,8 +118,6 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                         );
                       },
                     );
-
-                    print(picked);
                     if (picked != null && picked != _selectedDate) {
                       setState(() {
                         _selectedDate = picked;
@@ -120,6 +129,14 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                     decoration: BoxDecoration(
                       color: const Color(0xFFF8C324),
                       borderRadius: BorderRadius.circular(50),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.3),
+                          spreadRadius: 2,
+                          blurRadius: 5,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
                     ),
                     child: const Icon(
                       Icons.calendar_today,
@@ -129,76 +146,17 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 10), // Add some spacing
-          Expanded(
-            child: Row(
-              children: [
-                Expanded(
-                  flex: 1,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 10),
-                    child: FutureBuilder<Map<String, dynamic>>(
-                      future: _fetchOrderByDate(
-                          DateFormat('yyyy-MM-dd').format(_selectedDate!)),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                            child: CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                Color(0xFFF8C324),
-                              ),
-                            ),
-                          );
-                        } else if (snapshot.hasError ||
-                            (snapshot.hasData &&
-                                snapshot.data!["code"] != "success")) {
-                          return const Center(
-                            child: Text(
-                              'Error',
-                              style: TextStyle(color: Colors.red),
-                            ),
-                          );
-                        }
-
-                        final data = snapshot.data!;
-
-                        return Container(
-                          height: double.infinity,
-                          padding: const EdgeInsets.all(15),
-                          margin: const EdgeInsets.fromLTRB(15, 0, 15, 15),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: Colors.grey, width: 1),
-                          ),
-                          child: SingleChildScrollView(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                if (data["orders"].isNotEmpty)
-                                  for (Map<String, dynamic> order
-                                      in data["orders"])
-                                    OrderHistoryItem(order: order)
-                                else
-                                  const Center(
-                                    child: Text("No Data"),
-                                  )
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 10),
-                    child: FutureBuilder<Map<String, dynamic>>(
-                        future: _fetchIncome(),
+            const SizedBox(height: 10), // Add some spacing
+            Expanded(
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: FutureBuilder<Map<String, dynamic>>(
+                        future: _fetchOrderByDate(
+                            DateFormat('yyyy-MM-dd').format(_selectedDate!)),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
@@ -221,210 +179,296 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                           }
 
                           final data = snapshot.data!;
+
                           return Container(
-                            padding: const EdgeInsets.all(20),
-                            margin: const EdgeInsets.fromLTRB(15, 0, 15, 15),
+                            height: double.infinity,
+                            padding: const EdgeInsets.all(15),
+                            margin: const EdgeInsets.fromLTRB(0, 0, 0, 15),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(10),
                               border: Border.all(color: Colors.grey, width: 1),
                             ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: Center(
-                                    child: Stack(
-                                      alignment: Alignment.center,
-                                      children: [
-                                        Text("฿${data['total_income']}",
-                                            style: const TextStyle(
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.green)),
-                                        PieChart(
-                                            swapAnimationDuration:
-                                                const Duration(
-                                                    milliseconds: 200),
-                                            swapAnimationCurve:
-                                                Curves.easeInOutQuint,
-                                            PieChartData(sections: [
-                                              for (var income in data['income'])
-                                                PieChartSectionData(
-                                                  color: _getCategoryColor(
-                                                      income['category']),
-                                                  value: income['total_income'],
-                                                  title: income['category'],
-                                                  radius: 50,
-                                                )
-                                            ])),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 25),
-                                Expanded(
-                                  flex: 2,
-                                  child: Column(
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceEvenly,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Container(
-                                                width: 30,
-                                                height: 30,
-                                                decoration: BoxDecoration(
-                                                    color: _getCategoryColor(
-                                                        "อาหาร"),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            50)),
-                                              ),
-                                              const SizedBox(width: 10),
-                                              const Text(
-                                                "อาหาร",
-                                                style: TextStyle(fontSize: 20),
-                                              )
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                              Container(
-                                                width: 30,
-                                                height: 30,
-                                                decoration: BoxDecoration(
-                                                    color: _getCategoryColor(
-                                                        "เครื่องดื่ม"),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            50)),
-                                              ),
-                                              const SizedBox(width: 10),
-                                              const Text("เครื่องดื่ม",
-                                                  style:
-                                                      TextStyle(fontSize: 20))
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                              Container(
-                                                width: 30,
-                                                height: 30,
-                                                decoration: BoxDecoration(
-                                                    color: _getCategoryColor(
-                                                        "ของทานเล่น"),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            50)),
-                                              ),
-                                              const SizedBox(width: 10),
-                                              const Text("ของทานเล่น",
-                                                  style:
-                                                      TextStyle(fontSize: 20))
-                                            ],
-                                          )
-                                        ],
-                                      ),
-                                      const SizedBox(height: 25),
-                                      for (var income in data['income'])
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 5),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            children: [
-                                              Container(
-                                                width: 90,
-                                                height: 90,
-                                                decoration: BoxDecoration(
-                                                    color: _getCategoryColor(
-                                                        income['category']),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            50)),
-                                                child: Icon(
-                                                  _getCategoryIcon(
-                                                      income['category']),
-                                                  size: 50,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                              const SizedBox(width: 10),
-                                              SizedBox(
-                                                width: 90,
-                                                child: Column(
-                                                  children: [
-                                                    Align(
-                                                      alignment:
-                                                          Alignment.centerLeft,
-                                                      child: Text(
-                                                        "${income['category']}",
-                                                        style: const TextStyle(
-                                                            fontSize: 20,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold),
-                                                      ),
-                                                    ),
-                                                    Align(
-                                                      alignment:
-                                                          Alignment.centerLeft,
-                                                      child: Text(
-                                                        "฿ ${income['total_income']}",
-                                                        textAlign:
-                                                            TextAlign.start,
-                                                        style: const TextStyle(
-                                                          fontSize: 20,
-                                                          color: Colors.black,
-                                                        ),
-                                                      ),
-                                                    )
-                                                  ],
-                                                ),
-                                              ),
-                                              const Spacer(),
-                                              Text(
-                                                "(${income['total_sales']} เซิร์ฟ)",
-                                                style: const TextStyle(
-                                                    fontSize: 20,
-                                                    color: Colors.grey),
-                                              ),
-                                              const SizedBox(width: 10),
-                                              SizedBox(
-                                                width: 80,
-                                                child: Text(
-                                                  "${(income['total_income'] / data['total_income'] * 100).toStringAsFixed(2)}%",
-                                                  style: const TextStyle(
-                                                      fontSize: 20,
-                                                      color: Colors.grey),
-                                                ),
-                                              )
-                                            ],
-                                          ),
-                                        )
-                                    ],
-                                  ),
-                                )
-                              ],
+                            child: SingleChildScrollView(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (data["orders"].isNotEmpty)
+                                    for (Map<String, dynamic> order
+                                        in data["orders"])
+                                      OrderHistoryItem(order: order)
+                                  else
+                                    const Center(
+                                      child: Text("No Data"),
+                                    )
+                                ],
+                              ),
                             ),
                           );
-                        }),
+                        },
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                  Expanded(
+                    flex: 2,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: FutureBuilder<Map<String, dynamic>>(
+                          future: _fetchIncome(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Center(
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Color(0xFFF8C324),
+                                  ),
+                                ),
+                              );
+                            } else if (snapshot.hasError ||
+                                (snapshot.hasData &&
+                                    snapshot.data!["code"] != "success")) {
+                              return const Center(
+                                child: Text(
+                                  'Error',
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                              );
+                            }
+
+                            final data = snapshot.data!;
+                            return Container(
+                              padding: const EdgeInsets.all(30),
+                              margin: const EdgeInsets.fromLTRB(15, 0, 0, 15),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                                border:
+                                    Border.all(color: Colors.grey, width: 1),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: Center(
+                                      child: Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          Text("฿${data['total_income']}",
+                                              style: const TextStyle(
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.green)),
+                                          PieChart(
+                                              swapAnimationDuration:
+                                                  const Duration(
+                                                      milliseconds: 200),
+                                              swapAnimationCurve:
+                                                  Curves.easeInOutQuint,
+                                              PieChartData(sections: [
+                                                for (var income
+                                                    in data['income'])
+                                                  PieChartSectionData(
+                                                    color: _getCategoryColor(
+                                                        income['category']),
+                                                    value:
+                                                        income['total_income'],
+                                                    title: income['category'],
+                                                    radius: 50,
+                                                  )
+                                              ])),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 25),
+                                  Expanded(
+                                    flex: ResponsiveLayout.isPortrait(context)
+                                        ? 2
+                                        : 1,
+                                    child: SingleChildScrollView(
+                                      child: Column(
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Container(
+                                                    width: 30,
+                                                    height: 30,
+                                                    decoration: BoxDecoration(
+                                                        color:
+                                                            _getCategoryColor(
+                                                                "อาหาร"),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(50)),
+                                                  ),
+                                                  const SizedBox(width: 5),
+                                                  const Text(
+                                                    "อาหาร",
+                                                    style:
+                                                        TextStyle(fontSize: 20),
+                                                  )
+                                                ],
+                                              ),
+                                              Row(
+                                                children: [
+                                                  Container(
+                                                    width: 30,
+                                                    height: 30,
+                                                    decoration: BoxDecoration(
+                                                        color:
+                                                            _getCategoryColor(
+                                                                "เครื่องดื่ม"),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(50)),
+                                                  ),
+                                                  const SizedBox(width: 5),
+                                                  const Text("เครื่องดื่ม",
+                                                      style: TextStyle(
+                                                          fontSize: 20))
+                                                ],
+                                              ),
+                                              Row(
+                                                children: [
+                                                  Container(
+                                                    width: 30,
+                                                    height: 30,
+                                                    decoration: BoxDecoration(
+                                                        color:
+                                                            _getCategoryColor(
+                                                                "ของทานเล่น"),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(50)),
+                                                  ),
+                                                  const SizedBox(width: 5),
+                                                  const Text("ของทานเล่น",
+                                                      style: TextStyle(
+                                                          fontSize: 20))
+                                                ],
+                                              )
+                                            ],
+                                          ),
+                                          const SizedBox(height: 25),
+                                          for (var income in data['income'])
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 5),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                children: [
+                                                  Container(
+                                                    width: 70,
+                                                    height: 70,
+                                                    decoration: BoxDecoration(
+                                                        color: _getCategoryColor(
+                                                            income['category']),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(50)),
+                                                    child: Icon(
+                                                      _getCategoryIcon(
+                                                          income['category']),
+                                                      size: 40,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 15),
+                                                  SizedBox(
+                                                    width: 90,
+                                                    child: Column(
+                                                      children: [
+                                                        Align(
+                                                          alignment: Alignment
+                                                              .centerLeft,
+                                                          child: Text(
+                                                            "${income['category']}",
+                                                            style: const TextStyle(
+                                                                fontSize: 20,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
+                                                          ),
+                                                        ),
+                                                        Align(
+                                                          alignment: Alignment
+                                                              .centerLeft,
+                                                          child: Text(
+                                                            "฿ ${income['total_income']}",
+                                                            textAlign:
+                                                                TextAlign.start,
+                                                            style:
+                                                                const TextStyle(
+                                                              fontSize: 20,
+                                                              color:
+                                                                  Colors.black,
+                                                            ),
+                                                          ),
+                                                        )
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  const Spacer(),
+                                                  Text(
+                                                    "(${income['total_sales']} เซิร์ฟ)",
+                                                    style: const TextStyle(
+                                                        fontSize: 20,
+                                                        color: Colors.grey),
+                                                  ),
+                                                  const SizedBox(width: 10),
+                                                  SizedBox(
+                                                    width: 80,
+                                                    child: Text(
+                                                      "${(income['total_income'] / data['total_income'] * 100).toStringAsFixed(2)}%",
+                                                      style: const TextStyle(
+                                                          fontSize: 20,
+                                                          color: Colors.grey),
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                            )
+                                        ],
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            );
+                          }),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildOrderManagerSection() {
-    return const SizedBox();
+    return Expanded(
+        child: Container(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+            child: const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("KuayTeawHatYai",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 30,
+                      color: Color(0xFFF8C324),
+                    )),
+              ],
+            )));
   }
 
   Widget _buildMenuSection() {
@@ -436,55 +480,88 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(
-                  child: TextField(
-                    onTapOutside: (event) => FocusScope.of(context).unfocus(),
-                    cursorColor: Colors.black,
-                    decoration: InputDecoration(
-                      fillColor: Colors.white,
-                      filled: true,
-                      prefixIcon: const Icon(
-                        Icons.search,
-                        size: 20,
-                        color: Color(0xFFF8C324),
-                      ),
-                      hintText: 'ค้นหาเมนู',
-                      hintStyle:
-                          const TextStyle(color: Colors.grey, fontSize: 14),
-                      contentPadding: const EdgeInsets.fromLTRB(0, 5, 40, 5),
-                      border: OutlineInputBorder(
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(30)),
-                        borderSide: BorderSide(color: Colors.grey[400]!),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(30)),
-                        borderSide: BorderSide(color: Colors.grey[400]!),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(30)),
-                        borderSide: BorderSide(color: Colors.grey[400]!),
+                // Expanded(
+                //   child: TextField(
+                //     onTapOutside: (event) => FocusScope.of(context).unfocus(),
+                //     cursorColor: Colors.black,
+                //     decoration: InputDecoration(
+                //       fillColor: Colors.white,
+                //       filled: true,
+                //       prefixIcon: const Icon(
+                //         Icons.search,
+                //         size: 20,
+                //         color: Color(0xFFF8C324),
+                //       ),
+                //       hintText: 'ค้นหาเมนู',
+                //       hintStyle:
+                //           const TextStyle(color: Colors.grey, fontSize: 14),
+                //       contentPadding: const EdgeInsets.fromLTRB(0, 5, 40, 5),
+                //       border: OutlineInputBorder(
+                //         borderRadius:
+                //             const BorderRadius.all(Radius.circular(30)),
+                //         borderSide: BorderSide(color: Colors.grey[400]!),
+                //       ),
+                //       focusedBorder: OutlineInputBorder(
+                //         borderRadius:
+                //             const BorderRadius.all(Radius.circular(30)),
+                //         borderSide: BorderSide(color: Colors.grey[400]!),
+                //       ),
+                //       enabledBorder: OutlineInputBorder(
+                //         borderRadius:
+                //             const BorderRadius.all(Radius.circular(30)),
+                //         borderSide: BorderSide(color: Colors.grey[400]!),
+                //       ),
+                //     ),
+                //   ),
+                // ),
+                const Text("KuayTeawHatYai",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 30,
+                      color: Color(0xFFF8C324),
+                    )),
+                Stack(
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          _selectedIndex = 4;
+                          _haveNotification = false;
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8C324),
+                          borderRadius: BorderRadius.circular(50),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.3),
+                              spreadRadius: 2,
+                              blurRadius: 5,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.notifications_outlined,
+                          color: Colors.black,
+                        ),
                       ),
                     ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                InkWell(
-                  onTap: () {},
-                  child: Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF8C324),
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                    child: const Icon(
-                      Icons.notifications_outlined,
-                      color: Colors.black,
-                    ),
-                  ),
+                    if (_haveNotification)
+                      const Positioned(
+                        right: 8,
+                        top: 8,
+                        child: Icon(
+                          Icons.circle,
+                          color: Colors.red,
+                          size: 15,
+                        ),
+                      ),
+                  ],
                 ),
               ],
             ),

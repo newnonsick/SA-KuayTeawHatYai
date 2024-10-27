@@ -32,7 +32,7 @@ class _OrderHistoryItemState extends State<OrderHistoryItem> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         padding: const EdgeInsets.all(16),
-        margin: const EdgeInsets.fromLTRB(10, 5, 10, 15),
+        margin: const EdgeInsets.fromLTRB(5, 5, 5, 15),
         decoration: BoxDecoration(
           color:
               _toggle ? const Color(0xFFF8C324).withOpacity(0.2) : Colors.white,
@@ -114,23 +114,51 @@ class _OrderHistoryItemState extends State<OrderHistoryItem> {
       children: _orderItemCache!["menus"].map<Widget>((data) {
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 6),
-          child: Row(
+          child: Column(
             children: [
-              const Icon(
-                Icons.circle,
-                size: 8,
-                color: Colors.grey,
+              Row(
+                children: [
+                  const Icon(
+                    Icons.circle,
+                    size: 8,
+                    color: Colors.grey,
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      "${data["menu"]["name"]} ${_getPortionText(data["portion"])} x${data["quantity"]}",
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 8),
-              Flexible(
-                child: Text(
-                  "${data["menu"]["name"]} ${_getPortionText(data["portion"])}",
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.black87,
+              for (var ingredient in data["ingredients"])
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(15, 0, 0, 0),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.circle,
+                        size: 8,
+                        color: Colors.grey,
+                      ),
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          ingredient,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.black54,
+                          ),
+                        ),
+                      ),
+                  
+                    ],  
                   ),
                 ),
-              ),
             ],
           ),
         );
