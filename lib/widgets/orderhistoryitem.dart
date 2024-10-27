@@ -9,7 +9,8 @@ class OrderHistoryItem extends StatefulWidget {
   State<OrderHistoryItem> createState() => _OrderHistoryItemState();
 }
 
-class _OrderHistoryItemState extends State<OrderHistoryItem> {
+class _OrderHistoryItemState extends State<OrderHistoryItem>
+    with SingleTickerProviderStateMixin {
   bool _toggle = false;
   Map<String, dynamic>? _orderItemCache;
 
@@ -57,7 +58,7 @@ class _OrderHistoryItemState extends State<OrderHistoryItem> {
             const SizedBox(height: 10),
             _buildOrderDetails(),
             const SizedBox(height: 10),
-            if (_toggle) _buildExpandedMenuItems(),
+            _buildExpandableMenuItems(),
             const SizedBox(height: 8),
             _buildTotalAmount(),
           ],
@@ -108,61 +109,66 @@ class _OrderHistoryItemState extends State<OrderHistoryItem> {
     );
   }
 
-  Widget _buildExpandedMenuItems() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: _orderItemCache!["menus"].map<Widget>((data) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  const Icon(
-                    Icons.circle,
-                    size: 8,
-                    color: Colors.grey,
-                  ),
-                  const SizedBox(width: 8),
-                  Flexible(
-                    child: Text(
-                      "${data["menu"]["name"]} ${_getPortionText(data["portion"])} x${data["quantity"]}",
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              for (var ingredient in data["ingredients"])
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(15, 0, 0, 0),
-                  child: Row(
+  Widget _buildExpandableMenuItems() {
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+      child: _toggle && _orderItemCache != null
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: _orderItemCache!["menus"].map<Widget>((data) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  child: Column(
                     children: [
-                      const Icon(
-                        Icons.circle,
-                        size: 8,
-                        color: Colors.grey,
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.circle,
+                            size: 8,
+                            color: Colors.grey,
+                          ),
+                          const SizedBox(width: 8),
+                          Flexible(
+                            child: Text(
+                              "${data["menu"]["name"]} ${_getPortionText(data["portion"])} x${data["quantity"]}",
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 8),
-                      Flexible(
-                        child: Text(
-                          ingredient,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.black54,
+                      for (var ingredient in data["ingredients"])
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(15, 0, 0, 0),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.circle,
+                                size: 8,
+                                color: Colors.grey,
+                              ),
+                              const SizedBox(width: 8),
+                              Flexible(
+                                child: Text(
+                                  ingredient,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                  
-                    ],  
+                    ],
                   ),
-                ),
-            ],
-          ),
-        );
-      }).toList(),
+                );
+              }).toList(),
+            )
+          : const SizedBox.shrink(),
     );
   }
 
@@ -181,9 +187,7 @@ class _OrderHistoryItemState extends State<OrderHistoryItem> {
   }
 
   String _getPortionText(dynamic portion) {
-    print(portion);
-
     if (portion == null || portion == "ธรรมดา") return "";
-    return "(${portion})";
+    return "($portion)";
   }
 }
