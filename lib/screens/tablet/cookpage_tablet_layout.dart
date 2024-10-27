@@ -186,7 +186,6 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
               .map((ingredient) => ingredient.type)
               .toSet()
               .toList();
-
         });
       } else {
         setState(() {
@@ -223,7 +222,6 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
               children: [
                 _buildCategoryItem(Icons.egg, 'เนื้อสัตว์'),
                 _buildCategoryItem(Icons.restaurant, 'เส้น'),
-                _buildCategoryItem(Icons.grass, 'น้ำ'),
               ],
             ),
           ),
@@ -264,7 +262,7 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
     if (selectedCategory == null) {
       return _ingredientList;
     }
-  
+
     return _ingredientList.where((ingredient) {
       return ingredient.type == selectedCategory;
     }).toList();
@@ -325,9 +323,10 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
                 ),
                 GFToggle(
                   key: ValueKey(ingredient.name),
-                  onChanged: (value) {
+                  onChanged: (value) async {
+                    await ingredient.updateIngredientAvailability();
                     setState(() {
-                      ingredient.isAvailable = !ingredient.isAvailable;
+                      ingredient;
                     });
                   },
                   value: ingredient.isAvailable,
@@ -561,7 +560,7 @@ class _OrderPageState extends State<_OrderPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'ออเดอร์ ${order.totalAmount}',
+                                'ออเดอร์ ${order.orderID}',
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
