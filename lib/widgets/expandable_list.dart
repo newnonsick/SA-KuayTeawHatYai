@@ -202,7 +202,7 @@ class _MenuItemCardState extends State<MenuItemCard>
                           ? Container(
                               padding: const EdgeInsets.all(4),
                               decoration: const BoxDecoration(
-                                color: Colors.yellow,
+                                color: Color.fromARGB(255, 240, 195, 47),
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(

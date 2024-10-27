@@ -556,30 +556,37 @@ class _OrderPageState extends State<_OrderPage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'ออเดอร์ ${order.orderID}',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
+                          Expanded(
+                            // Make the text expandable
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'ออเดอร์ ${order.orderID}',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  overflow:
+                                      TextOverflow.ellipsis, // Handle overflow
                                 ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'โต๊ะ: ${order.tableNumber}',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey[600],
+                                const SizedBox(height: 4),
+                                Text(
+                                  'โต๊ะ: ${order.tableNumber}',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[600],
+                                  ),
+                                  overflow:
+                                      TextOverflow.ellipsis, // Handle overflow
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                          //stauts button
+                          // Status button
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 6),
+                                horizontal: 7, vertical: 3),
                             decoration: BoxDecoration(
                               color: order.orderStatus == 'รอทำอาหาร'
                                   ? const Color(0xFFFFA629)
@@ -597,8 +604,10 @@ class _OrderPageState extends State<_OrderPage> {
                               style: const TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.w500,
-                                fontSize: 14,
+                                fontSize: 11,
                               ),
+                              overflow:
+                                  TextOverflow.ellipsis, // Handle overflow
                             ),
                           )
                         ],
