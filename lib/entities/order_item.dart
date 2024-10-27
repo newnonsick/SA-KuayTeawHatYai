@@ -3,20 +3,18 @@ import 'package:kuayteawhatyai/models/menu.dart';
 class OrderItem {
   String orderItemId;
   Menu menu;
-  String orderId;
   int quantity;
   double price;
-  List<String>? ingredients;
+  List<dynamic> ingredients;
   String? extraInfo;
   String? portion;
 
   OrderItem({
     required this.orderItemId,
     required this.menu,
-    required this.orderId,
     required this.quantity,
     required this.price,
-    this.ingredients,
+    required this.ingredients,
     this.extraInfo,
     required this.portion,
   });
@@ -25,7 +23,6 @@ class OrderItem {
     return {
       'orderItemId': orderItemId,
       'menu': menu.toJson(),
-      'orderId': orderId,
       'quantity': quantity,
       'price': price,
       'ingredients': ingredients,

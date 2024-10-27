@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:kuayteawhatyai/entities/order.dart';
-import 'package:kuayteawhatyai/models/menu.dart';
-import 'package:kuayteawhatyai/models/order.dart' as model;
+import 'package:kuayteawhatyai/entities/order_item.dart';
 import 'package:kuayteawhatyai/models/ingredient.dart';
-import 'package:kuayteawhatyai/provider/models/orderprovider.dart';
+import 'package:kuayteawhatyai/models/menu.dart';
+import 'package:kuayteawhatyai/provider/entities/orderitemprovider.dart';
+import 'package:kuayteawhatyai/provider/entities/orderlistprovider.dart';
+import 'package:kuayteawhatyai/provider/entities/orderprovider.dart';
 import 'package:kuayteawhatyai/services/apiservice.dart';
 import 'package:kuayteawhatyai/utils/responsive_layout.dart';
 import 'package:kuayteawhatyai/widgets/customnavigationrail.dart';
 import 'package:kuayteawhatyai/widgets/customnavigationrailitem.dart';
+import 'package:provider/provider.dart';
 
 class CookPageTabletLayout extends StatefulWidget {
   const CookPageTabletLayout({super.key});
@@ -158,7 +161,7 @@ class _MaterialManagementPage extends StatefulWidget {
 class _MaterialManagementPageState extends State<_MaterialManagementPage> {
   String? selectedCategory;
   List<Ingredient> _ingredientList = [];
-  bool _isLoading = true;
+  bool _isOrderLoading = true;
   String? _errorMessage;
 
   @override
@@ -235,18 +238,18 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
           _ingredientList = (data['ingredients'] as List)
               .map((ingredientJson) => Ingredient.fromJson(ingredientJson))
               .toList();
-          _isLoading = false;
+          _isOrderLoading = false;
         });
       } else {
         setState(() {
           _errorMessage = 'เกิดข้อผิดพลาด';
-          _isLoading = false;
+          _isOrderLoading = false;
         });
       }
     } catch (e) {
       setState(() {
         _errorMessage = 'เกิดข้อผิดพลาด';
-        _isLoading = false;
+        _isOrderLoading = false;
       });
     }
   }
@@ -319,7 +322,7 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
   }
 
   Widget _buildIngredientSection() {
-    if (_isLoading) {
+    if (_isOrderLoading) {
       return const Expanded(
         child: Center(child: CircularProgressIndicator()),
       );
@@ -416,8 +419,10 @@ class _OrderPage extends StatefulWidget {
 
 class _OrderPageState extends State<_OrderPage> {
   List<Order> _orderList = [];
-  bool _isLoading = true;
-  String? _errorMessage;
+  bool _isOrderLoading = true;
+  bool _isMenuLoading = false;
+  String? _errorOrderMessage;
+  String? _errorMenuMessage;
   Order? _selectedOrder;
   @override
   void initState() {
@@ -425,54 +430,62 @@ class _OrderPageState extends State<_OrderPage> {
     _fetchOrders();
   }
 
-  Future<void> _fetchOrders() async {
-    try{
-      var data = await ApiService().getData('orders');
-      bool isSuccess = data.data["code"] == "success";
-      
-
-      if (isSuccess) {
-        for (var item in data.data['orders']) {
-          OrderProvider orderProvider = OrderProvider();
-          var orderItemData =
-              await ApiService().getData('orders/${item['order_id']}');
-          if (orderItemData.data["code"] != "success") {
-            isSuccess = false;
-            break;
-          }
-          for (var menu in orderItemData.data['menus']) {
-            model.Order order = model.Order(
-              menu: Menu.fromJson(menu['menu']),
-              quantity: menu['quantity'],
-              ingredients: List<String>.from(menu['ingredients'] as List),
-              extraInfo: menu['extraInfo'],
-              portion: menu['portion'],
-            );
-            orderProvider.addOrder(order);
-          }
-          _orderList.add(Order(date: 
-          DateTime.parse(item['order_datetime']),
-          orderID: item['order_id'],
-          tableNumber: item['table_number'],
-          orderStatus: item['order_status'],
-          totalAmount: item['total_amount'],
-          orderProvider: orderProvider));
+  Future<void> _fetchMenus() async {
+    _isMenuLoading = true;
+    try {
+      var data =
+          await ApiService().getData('orders/${_selectedOrder!.orderID}');
+      if (data.data['code'] == 'success') {
+        _selectedOrder!.orderItemProvider = OrderItemProvider();
+        for (var item in data.data['menus']) {
+          OrderItem orderItem = OrderItem(
+              orderItemId: item['order_item_id'],
+              menu: Menu.fromJson(item['menu']),
+              quantity: item['quantity'],
+              price: item['order_price'],
+              ingredients: item['ingredients'],
+              portion: item['portion'],
+              extraInfo: item['extraInfo']);
+          _selectedOrder!.orderItemProvider!.addOrder(orderItem);
         }
-      }
-      if (isSuccess) {
         setState(() {
-          _isLoading = false;
+          _isMenuLoading = false;
         });
       } else {
         setState(() {
-          _errorMessage = 'เกิดข้อผิดพลาด';
-          _isLoading = false;
+          _errorMenuMessage = 'เกิดข้อผิดพลาด';
+          _isMenuLoading = false;
         });
       }
     } catch (e) {
       setState(() {
-        _errorMessage = 'เกิดข้อผิดพลาด';
-        _isLoading = false;
+        _errorMenuMessage = 'เกิดข้อผิดพลาด';
+        _isMenuLoading = false;
+      });
+    }
+  }
+
+  Future<void> _fetchOrders() async {
+    try {
+      print(_errorMenuMessage);
+      var data = await ApiService().getData('orders');
+      if (data.data['code'] == 'success') {
+        setState(() {
+          _orderList = (data.data['orders'] as List)
+              .map((orderJson) => Order.fromJson(orderJson))
+              .toList();
+          _isOrderLoading = false;
+        });
+      } else {
+        setState(() {
+          _errorOrderMessage = 'เกิดข้อผิดพลาด';
+          _isOrderLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorOrderMessage = 'เกิดข้อผิดพลาด';
+        _isOrderLoading = false;
       });
     }
   }
@@ -546,67 +559,80 @@ class _OrderPageState extends State<_OrderPage> {
   }
 
   Widget _buildPendingOrderItem() {
-    if (_isLoading) {
+    if (_isOrderLoading) {
       return const Expanded(
         child: Center(child: CircularProgressIndicator()),
       );
     }
 
-    if (_errorMessage != null) {
+    if (_errorOrderMessage != null) {
       return Expanded(
-        child: Center(child: Text(_errorMessage!)),
+        child: Center(child: Text(_errorOrderMessage!)),
       );
     }
 
-    return Expanded(
-      child: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: _orderList.length,
-        itemBuilder: (context, index) {
-          final order = _orderList[index];
-          return Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            decoration: BoxDecoration(
-              color: _selectedOrder == order ? Colors.amber : Colors.grey[100],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () {
-                  setState(() {
-                    _selectedOrder = order;
-                  });
+    return Consumer<OrderListProvider>(
+      builder: (context, orderListProvider, child) {
+        orderListProvider.orderList = _orderList;
+        return Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: orderListProvider.orderList.length,
+            itemBuilder: (context, index) {
+              return Consumer<OrderProvider>(
+                builder: (context, orderProvider, child) {
+                  orderProvider.order = orderListProvider.orderList[index];
+                  final order = orderProvider.order!;
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    decoration: BoxDecoration(
+                      color: _selectedOrder == order
+                          ? Colors.amber
+                          : Colors.grey[100],
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          setState(() {
+                            _selectedOrder = order;
+                            _fetchMenus();
+                          });
+                        },
+                        borderRadius: BorderRadius.circular(8),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'ออเดอร์${order.orderID}',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'โต๊ะ: ${order.tableNumber}',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
                 },
-                borderRadius: BorderRadius.circular(8),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'ออเดอร์${order.orderID}',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'โต๊ะ: ${order.tableNumber}',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
-      ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 
@@ -663,22 +689,65 @@ class _OrderPageState extends State<_OrderPage> {
                     ),
                   ),
                   // Order list
-                  Expanded(
-                    child: ListView.builder(
-                      padding: const EdgeInsets.all(10),
-                      itemCount: _selectedOrder == null
-                          ? 0
-                          : _selectedOrder!.orderProvider!.orders.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: _buildMenuItem(
-                              _selectedOrder!.orderProvider!.orders[index]
+                  if (_isMenuLoading)
+                    const Expanded(
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  else if (_errorMenuMessage != null)
+                    Expanded(
+                      child: Center(child: Text(_errorMenuMessage!)),
+                    )
+                  else if (_selectedOrder?.orderItemProvider?.orderItems !=
+                      null)
+                    Expanded(
+                        child: Column(
+                      children: [
+                        // รายการเมนู
+                        Expanded(
+                          child: ListView.builder(
+                            padding: const EdgeInsets.all(10),
+                            itemCount: _selectedOrder!
+                                .orderItemProvider!.orderItems.length,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: _buildMenuItem(_selectedOrder!
+                                    .orderItemProvider!.orderItems[index]),
+                              );
+                            },
                           ),
-                        );
-                      },
-                    ),
-                  ),
+                        ),
+                        // ปุ่มเริ่มทำอาหาร
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: SizedBox(
+                            width: double.infinity,
+                            height: 48,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.amber,
+                                foregroundColor: Colors.black,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              onPressed: () {},
+                              child: const Text(
+                                'เริ่มทำอาหาร',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ))
+                  else
+                    const Expanded(
+                      child: Center(child: Text('กรุณาเลือกออเดอร์')),
+                    )
                 ],
               ),
             ),
@@ -688,7 +757,7 @@ class _OrderPageState extends State<_OrderPage> {
     );
   }
 
-  Widget _buildMenuItem(model.Order order) {
+  Widget _buildMenuItem(OrderItem orderItem) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -700,12 +769,12 @@ class _OrderPageState extends State<_OrderPage> {
         children: [
           // Food image
           Container(
-            width: 60,
-            height: 60,
+            width: 80,
+            height: 80,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
               image: DecorationImage(
-                image: AssetImage(order.menu.imageURL),
+                image: NetworkImage(orderItem.menu.imageURL),
                 fit: BoxFit.cover,
               ),
             ),
@@ -718,26 +787,58 @@ class _OrderPageState extends State<_OrderPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  order.menu.name,
+                  '${orderItem.menu.name} x${orderItem.quantity} (฿${orderItem.menu.price * orderItem.quantity})',
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                if ( order.extraInfo != null)
-                  Text(
-                    order.extraInfo!,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
+                Text(
+                  orderItem.ingredients.join(', '),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
+                  ),
+                ),
+                if (orderItem.portion != null)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 2, 0, 6),
+                    child: Container(
+                      padding: const EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        orderItem.portion!,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                        ),
+                      ),
                     ),
                   ),
-                if (order.portion != null)
-                  Text(
-                    order.portion!,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
+                if (orderItem.extraInfo != null)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[50],
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: Colors.grey[300]!,
+                        width: 1,
+                      ),
+                    ),
+                    child: Text(
+                      orderItem.extraInfo!,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
                     ),
                   ),
               ],
