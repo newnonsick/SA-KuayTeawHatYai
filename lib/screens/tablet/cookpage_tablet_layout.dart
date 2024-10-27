@@ -587,54 +587,61 @@ class _OrderPageState extends State<_OrderPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'ออเดอร์ ${order.orderID}',
+                                  'ออเดอร์ #${order.orderID}',
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
                                   ),
-                                  overflow:
-                                      TextOverflow.ellipsis, // Handle overflow
                                 ),
                                 const SizedBox(height: 4),
-                                Text(
-                                  'โต๊ะ: ${order.tableNumber}',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey[600],
-                                  ),
-                                  overflow:
-                                      TextOverflow.ellipsis, // Handle overflow
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'โต๊ะ: ${order.tableNumber}',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey[600],
+                                      ),
+                                      overflow:
+                                          TextOverflow.ellipsis, // Handle overflow
+                                    ),
+                                    
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 7, vertical: 3),
+                                      decoration: BoxDecoration(
+                                        color: order.orderStatus == 'รอทำอาหาร'
+                                            ? const Color(0xFFFFA629)
+                                            : order.orderStatus ==
+                                                    'กำลังทำอาหาร'
+                                                ? const Color(0xFF5FDB6A)
+                                                : order.orderStatus ==
+                                                        'รอเสิร์ฟ'
+                                                    ? const Color(0xFF17A2B8)
+                                                    : order.orderStatus ==
+                                                            'เสร็จสิ้น'
+                                                        ? const Color(
+                                                            0xFFFFFFFF)
+                                                        : Colors.transparent,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Text(
+                                        order.orderStatus!,
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 11,
+                                        ),
+                                        overflow: TextOverflow
+                                            .ellipsis, // Handle overflow
+                                      ),
+                                    )
+                                  ],
                                 ),
                               ],
                             ),
                           ),
-                          // Status button
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 7, vertical: 3),
-                            decoration: BoxDecoration(
-                              color: order.orderStatus == 'รอทำอาหาร'
-                                  ? const Color(0xFFFFA629)
-                                  : order.orderStatus == 'กำลังทำอาหาร'
-                                      ? const Color(0xFF5FDB6A)
-                                      : order.orderStatus == 'รอเสิร์ฟ'
-                                          ? const Color(0xFF17A2B8)
-                                          : order.orderStatus == 'เสร็จสิ้น'
-                                              ? const Color(0xFFFFFFFF)
-                                              : Colors.transparent,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              order.orderStatus!,
-                              style: const TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.w500,
-                                fontSize: 11,
-                              ),
-                              overflow:
-                                  TextOverflow.ellipsis, // Handle overflow
-                            ),
-                          )
                         ],
                       ),
                     ),

@@ -37,7 +37,22 @@ class ManageOrderProvider with ChangeNotifier {
     } else {
       return false;
     }
-    
+  }
+
+
+  Future<bool> updateOrderTable(dynamic order, String tableNumber) async {
+    orders[orders
+            .indexWhere((element) => element['order_id'] == order['order_id'])]
+        ['table_number'] = tableNumber;
+    final response = await ApiService().putData("orders/update-table",
+        {"order_id": order['order_id'], "table_number": tableNumber});
+
+    if (response.data["code"] == "success") {
+      notifyListeners();
+      return true;
+    } else {
+      return false;
+    }
   }
 
   void clearOrders() {

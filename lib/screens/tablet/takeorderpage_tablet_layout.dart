@@ -9,6 +9,7 @@ import 'package:kuayteawhatyai/utils/responsive_layout.dart';
 import 'package:kuayteawhatyai/widgets/customnavigationrail.dart';
 import 'package:kuayteawhatyai/widgets/customnavigationrailitem.dart';
 import 'package:kuayteawhatyai/widgets/manageorder.dart';
+import 'package:kuayteawhatyai/widgets/menuchangeorder.dart';
 import 'package:kuayteawhatyai/widgets/menudialog.dart';
 import 'package:kuayteawhatyai/widgets/orderhistoryitem.dart';
 import 'package:provider/provider.dart';
@@ -504,9 +505,7 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
                       child: TabBarView(
                         children: [
                           ManageOrder(),
-                          Center(
-                            child: Text('Search'),
-                          ),
+                          MenuChangeOrder(),
                         ],
                       ),
                     ),

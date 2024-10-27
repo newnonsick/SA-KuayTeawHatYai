@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kuayteawhatyai/provider/entities/manageorderprovider.dart';
+import 'package:kuayteawhatyai/widgets/editorderdialog.dart';
+import 'package:kuayteawhatyai/widgets/vieworderdialog.dart';
 import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
 
@@ -91,9 +93,9 @@ class _ManageOrderItemState extends State<ManageOrderItem> {
               } else if (value == "ยกเลิก") {
                 await _handleCancelOrder();
               } else if (value == "แก้ไข") {
-                // _handleEditOrder();
+                _handleEditOrder();
               } else if (value == "ดูรายการอาหาร") {
-                // _handleViewOrderItems();
+                _handleViewOrderItems();
               }
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
@@ -331,5 +333,13 @@ class _ManageOrderItemState extends State<ManageOrderItem> {
         description: const Text("ไม่สามารถยกเลิก Order ได้"),
       );
     }
+  }
+
+  void _handleEditOrder() {
+    showDialog(context: context, builder: (context) => EditOrderDialog(order: widget.order));
+  }
+
+  void _handleViewOrderItems() {
+    showDialog(context: context, builder: (context) => ViewOrderDialog(order: widget.order));
   }
 }

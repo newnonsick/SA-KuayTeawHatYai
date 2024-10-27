@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kuayteawhatyai/provider/entities/manageorderprovider.dart';
+import 'package:kuayteawhatyai/provider/entities/menuchangeingredientprovider.dart';
 import 'package:kuayteawhatyai/provider/models/ingredientprovider.dart';
 import 'package:kuayteawhatyai/provider/models/orderprovider.dart';
 import 'package:kuayteawhatyai/screens/mobile/myhomepage_mobile_layout.dart';
@@ -11,7 +12,8 @@ import 'package:kuayteawhatyai/utils/responsive_layout.dart';
 import 'package:provider/provider.dart';
 import 'package:kuayteawhatyai/provider/entities/orderitemprovider.dart';
 import 'package:kuayteawhatyai/provider/entities/orderlistprovider.dart';
-import 'package:kuayteawhatyai/provider/entities/orderprovider.dart' as entities;
+import 'package:kuayteawhatyai/provider/entities/orderprovider.dart'
+    as entities;
 
 void main() {
   runApp(const MyApp());
@@ -42,7 +44,9 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(
           create: (context) => entities.OrderProvider(),
         ),
-        ChangeNotifierProvider(create: (context) => ManageOrderProvider())
+        ChangeNotifierProvider(create: (context) => ManageOrderProvider()),
+        ChangeNotifierProvider(
+            create: (context) => MenuChangeIngredientProvider())
       ],
       child: GetMaterialApp(
         getPages: [
