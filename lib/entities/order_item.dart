@@ -1,4 +1,5 @@
 import 'package:kuayteawhatyai/models/menu.dart';
+import 'package:kuayteawhatyai/services/apiservice.dart';
 
 class OrderItem {
   String orderItemId;
@@ -32,5 +33,12 @@ class OrderItem {
       'extraInfo': extraInfo,
       'orderItemStatus': orderItemStatus,
     };
+  }
+  Future<void> updateOrderItemStatus(String status) async{
+    orderItemStatus = status;
+    await ApiService().putData("/orders/update-item-status", {
+       "order_item_id": orderItemId,
+       "order_item_status": status,
+     });
   }
 }
