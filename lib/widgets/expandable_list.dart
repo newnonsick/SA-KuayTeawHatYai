@@ -168,9 +168,9 @@ class _MenuItemCardState extends State<MenuItemCard>
                 ),
                 Row(
                   children: [
-                    const Text(
-                      'ยังไม่เสร็จ',
-                      style: TextStyle(
+                    Text(
+                      orderItem.orderItemStatus!,
+                      style: const TextStyle(
                         color: Colors.grey,
                         fontSize: 20,
                         fontWeight: FontWeight.normal,
@@ -180,7 +180,20 @@ class _MenuItemCardState extends State<MenuItemCard>
                     AnimatedRotation(
                       turns: widget.isExpanded ? 0.5 : 0,
                       duration: const Duration(milliseconds: 300),
-                      child: Container(
+                      child: 
+                      orderItem.orderItemStatus == 'เสร็จสิ้น' ? Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.green,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.check,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                      ):
+                      Container(
                         padding: const EdgeInsets.all(4),
                         decoration: const BoxDecoration(
                           color: Colors.red,
@@ -222,7 +235,7 @@ class _MenuItemCardState extends State<MenuItemCard>
                             orderItem.extraInfo?.isNotEmpty == true
                                 ? orderItem.extraInfo!
                                 : 'ไม่มีข้อมูลเพิ่มเติม',
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.black,
                               fontSize: 14,
                             ),

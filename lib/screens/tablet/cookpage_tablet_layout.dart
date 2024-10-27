@@ -597,6 +597,7 @@ class _OrderPageState extends State<_OrderPage> {
                     onTap: () {
                       setState(() {
                         _selectedOrder = order;
+                        _selectedOrderItem = null;
                         _fetchMenus();
                       });
                     },
@@ -746,37 +747,83 @@ class _OrderPageState extends State<_OrderPage> {
                           ),
                         ),
                         // ปุ่มเริ่มทำอาหาร
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: SizedBox(
-                            width: double.infinity,
-                            height: 48,
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: _selectedOrder!.orderStatus !=
-                                        "กำลังทำอาหาร"
-                                    ? Colors.amber
-                                    : Colors.grey,
-                                foregroundColor: Colors.black,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
+                        if (_selectedOrderItem == null)
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: SizedBox(
+                              width: double.infinity,
+                              height: 48,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      _selectedOrder!.orderStatus !=
+                                              "กำลังทำอาหาร"
+                                          ? Colors.amber
+                                          : Colors.grey,
+                                  foregroundColor: Colors.black,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
                                 ),
-                              ),
-                              onPressed: () {
-                                _selectedOrder!
-                                    .updateOrderStatus('กำลังทำอาหาร');
-                                setState(() {});
-                              },
-                              child: const Text(
-                                'เริ่มทำอาหาร',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
+                                onPressed: () async {
+                                  await _selectedOrder!
+                                      .updateOrderStatus('กำลังทำอาหาร');
+                                  setState(() {});
+                                },
+                                child: const Text(
+                                  'เริ่มทำอาหาร',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ),
+                          )
+                        else
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: SizedBox(
+                              width: double.infinity,
+                              height: 48,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      _selectedOrderItem!.orderItemStatus !=
+                                              "เสร็จสิ้น"
+                                          ? Colors.green
+                                          : Colors.red,
+                                  foregroundColor: Colors.black,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                onPressed: () async {
+                                  if (_selectedOrderItem!.orderItemStatus ==
+                                      "เสร็จสิ้น") {
+                                    await _selectedOrderItem!
+                                        .updateOrderItemStatus("กำลังทำอาหาร");
+                                  } else if (_selectedOrderItem!
+                                          .orderItemStatus ==
+                                      "กำลังทำอาหาร") {
+                                    await _selectedOrderItem!
+                                        .updateOrderItemStatus("เสร็จสิ้น");
+                                  }
+                                  setState(() {});
+                                },
+                                child: Text(
+                                  _selectedOrderItem!.orderItemStatus ==
+                                          "เสร็จสิ้น"
+                                      ? 'ยกเลิกเมนูเสร็จสิ้น'
+                                      : 'เมนูเสร็จสิ้น',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          )
                       ],
                     ))
                   else
