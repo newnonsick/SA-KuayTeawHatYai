@@ -387,42 +387,19 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
               ],
             ),
           ),
-          ingredient.isAvailable
-              ? Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Expanded(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.asset(
-                        ingredient.imageURL,
-                        fit: BoxFit.cover,
-                        opacity: ingredient.isAvailable
-                            ? null
-                            : const AlwaysStoppedAnimation(.6),
-                      ),
-                    ),
-                  ),
-                )
-              : Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Stack(alignment: Alignment.center,
-                    children: [
-                      Image.asset(
-                        ingredient.imageURL,
-                        fit: BoxFit.cover,
-                        opacity: ingredient.isAvailable
-                            ? null
-                            : const AlwaysStoppedAnimation(.6),
-                      ),
-                      Image.asset(
-                        "assets/images/out_of_stock.png",
-                        fit: BoxFit.cover,
-                      )
-                    ]),
-                  ),
-                ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.asset(
+                ingredient.imageURL,
+                fit: BoxFit.cover,
+                opacity: ingredient.isAvailable
+                    ? null
+                    : const AlwaysStoppedAnimation(.5),
+              ),
+            ),
+          )
         ],
       ),
     );
