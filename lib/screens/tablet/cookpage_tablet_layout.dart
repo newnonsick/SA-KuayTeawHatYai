@@ -12,6 +12,7 @@ import 'package:kuayteawhatyai/services/apiservice.dart';
 import 'package:kuayteawhatyai/utils/responsive_layout.dart';
 import 'package:kuayteawhatyai/widgets/customnavigationrail.dart';
 import 'package:kuayteawhatyai/widgets/customnavigationrailitem.dart';
+import 'package:kuayteawhatyai/widgets/expandable_list.dart';
 import 'package:provider/provider.dart';
 
 class CookPageTabletLayout extends StatefulWidget {
@@ -424,6 +425,7 @@ class _OrderPageState extends State<_OrderPage> {
   String? _errorOrderMessage;
   String? _errorMenuMessage;
   Order? _selectedOrder;
+  OrderItem? _selectedOrderItem;
   @override
   void initState() {
     super.initState();
@@ -439,13 +441,15 @@ class _OrderPageState extends State<_OrderPage> {
         _selectedOrder!.orderItemProvider = OrderItemProvider();
         for (var item in data.data['menus']) {
           OrderItem orderItem = OrderItem(
-              orderItemId: item['order_item_id'],
-              menu: Menu.fromJson(item['menu']),
-              quantity: item['quantity'],
-              price: item['order_price'],
-              ingredients: item['ingredients'],
-              portion: item['portion'],
-              extraInfo: item['extraInfo']);
+            orderItemId: item['order_item_id'],
+            menu: Menu.fromJson(item['menu']),
+            quantity: item['quantity'],
+            price: item['order_price'],
+            ingredients: item['ingredients'],
+            portion: item['portion'],
+            extraInfo: item['extraInfo'],
+            orderItemStatus: item['orderitem_status'],
+          );
           _selectedOrder!.orderItemProvider!.addOrder(orderItem);
         }
         setState(() {
@@ -758,109 +762,18 @@ class _OrderPageState extends State<_OrderPage> {
   }
 
   Widget _buildMenuItem(OrderItem orderItem) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: Colors.grey[300]!),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      padding: const EdgeInsets.all(12),
-      child: Row(
-        children: [
-          // Food image
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              image: DecorationImage(
-                image: NetworkImage(orderItem.menu.imageURL),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-
-          // Menu details
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${orderItem.menu.name} x${orderItem.quantity} (฿${orderItem.menu.price * orderItem.quantity})',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Text(
-                  orderItem.ingredients.join(', '),
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
-                ),
-                if (orderItem.portion != null)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 2, 0, 6),
-                    child: Container(
-                      padding: const EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        orderItem.portion!,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ),
-                  ),
-                if (orderItem.extraInfo != null)
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[50],
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: Colors.grey[300]!,
-                        width: 1,
-                      ),
-                    ),
-                    child: Text(
-                      orderItem.extraInfo!,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-
-          // Completed checkmark
-          if (true)
-            Container(
-              padding: const EdgeInsets.all(4),
-              decoration: const BoxDecoration(
-                color: Colors.green,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.check,
-                color: Colors.white,
-                size: 16,
-              ),
-            ),
-        ],
-      ),
+    return MenuItemCard(
+      orderItem: orderItem,
+      isExpanded: _selectedOrderItem == orderItem,
+      onToggle: () {
+        setState(() {
+          if (_selectedOrderItem == orderItem) {
+            _selectedOrderItem = null;
+          } else {
+            _selectedOrderItem = orderItem;
+          }
+        });
+      },
     );
   }
 }

@@ -8,6 +8,7 @@ class OrderItem {
   List<dynamic> ingredients;
   String? extraInfo;
   String? portion;
+  String? orderItemStatus;
 
   OrderItem({
     required this.orderItemId,
@@ -17,6 +18,7 @@ class OrderItem {
     required this.ingredients,
     this.extraInfo,
     required this.portion,
+    required this.orderItemStatus,
   });
 
   Map<String, dynamic> toJson() {
@@ -28,6 +30,7 @@ class OrderItem {
       'ingredients': ingredients,
       'portion': portion,
       'extraInfo': extraInfo,
+      'orderItemStatus': orderItemStatus,
     };
   }
 }
