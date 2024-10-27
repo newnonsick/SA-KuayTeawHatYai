@@ -22,7 +22,7 @@ class TakeOrderPageTabletLayout extends StatefulWidget {
 }
 
 class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
-  int _selectedIndex = 5;
+  int _selectedIndex = 4;
   DateTime? _selectedDate;
   bool _haveNotification = false;
 
@@ -456,25 +456,69 @@ class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
 
   Widget _buildOrderManagerSection() {
     return Expanded(
-        child: Container(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-            child: const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("KuayTeawHatYai",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 30,
-                      color: Color(0xFFF8C324),
-                    )),
-                Text("จัดการออร์เดอร์",
-                    style: TextStyle(
-                      fontWeight: FontWeight.normal,
-                      fontSize: 30,
-                      color: Color(0xFF000000),
-                    )),
-              ],
-            )));
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+        child: const Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("KuayTeawHatYai",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 30,
+                  color: Color(0xFFF8C324),
+                )),
+            Text("จัดการออร์เดอร์",
+                style: TextStyle(
+                  fontWeight: FontWeight.normal,
+                  fontSize: 30,
+                  color: Color(0xFF000000),
+                )),
+            Expanded(
+              child: DefaultTabController(
+                length: 4,
+                child: Column(
+                  children: [
+                    TabBar(
+                      indicatorColor: Color(0xFFF8C324),
+                      tabs: [
+                        Tab(
+                          child: Text(
+                            'ออร์เดอร์ทั้งหมด',
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Tab(
+                          child: Text(
+                            'เมนูในออร์เดอร์',
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Expanded(
+                      child: TabBarView(
+                        children: [
+                          Center(
+                            child: Text('Clubs'),
+                          ),
+                          Center(
+                            child: Text('Search'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildMenuSection() {

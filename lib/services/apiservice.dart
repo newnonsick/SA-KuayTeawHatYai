@@ -81,10 +81,11 @@ class ApiService {
 
   // DELETE Request with Headers
   Future<dynamic> deleteData(String endpoint,
-      {Map<String, dynamic>? headers}) async {
+      {Map<String, dynamic>? headers, Map<String, dynamic>? data}) async {
     try {
       Response response = await _dio.delete(
         endpoint,
+        data: data ?? {},
         options: Options(headers: headers),
       );
       return response;
