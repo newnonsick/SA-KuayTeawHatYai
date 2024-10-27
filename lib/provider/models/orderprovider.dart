@@ -14,10 +14,12 @@ class OrderProvider with ChangeNotifier {
           o.extraInfo == order.extraInfo) {
         bool sameIngredients = true;
 
-        for (String ingredient in order.ingredients!) {
-          if (!o.ingredients!.contains(ingredient)) {
-            sameIngredients = false;
-            break;
+        if (order.ingredients != null) {
+          for (String ingredient in order.ingredients!) {
+            if (!o.ingredients!.contains(ingredient)) {
+              sameIngredients = false;
+              break;
+            }
           }
         }
 

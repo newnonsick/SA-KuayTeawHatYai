@@ -583,35 +583,33 @@ class _OrderPageState extends State<_OrderPage> {
             padding: const EdgeInsets.all(16),
             itemCount: orderListProvider.orderList.length,
             itemBuilder: (context, index) {
-              return Consumer<OrderProvider>(
-                builder: (context, orderProvider, child) {
-                  orderProvider.order = orderListProvider.orderList[index];
-                  final order = orderProvider.order!;
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    decoration: BoxDecoration(
-                      color: _selectedOrder == order
-                          ? Colors.amber
-                          : Colors.grey[100],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () {
-                          setState(() {
-                            _selectedOrder = order;
-                            _fetchMenus();
-                          });
-                        },
-                        borderRadius: BorderRadius.circular(8),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
+              final order = orderListProvider.orderList[index];
+              return Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                decoration: BoxDecoration(
+                  color:
+                      _selectedOrder == order ? Colors.amber : Colors.grey[100],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () {
+                      setState(() {
+                        _selectedOrder = order;
+                        _fetchMenus();
+                      });
+                    },
+                    borderRadius: BorderRadius.circular(8),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'ออเดอร์${order.orderID}',
+                                'ออเดอร์${order.totalAmount}',
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
@@ -627,11 +625,27 @@ class _OrderPageState extends State<_OrderPage> {
                               ),
                             ],
                           ),
-                        ),
+                          //stauts button
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.orange,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              order.orderStatus!,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                              ),
+                            ),
+                          )
+                        ],
                       ),
                     ),
-                  );
-                },
+                  ),
+                ),
               );
             },
           ),
@@ -729,13 +743,19 @@ class _OrderPageState extends State<_OrderPage> {
                             height: 48,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.amber,
+                                backgroundColor:_selectedOrder!.orderStatus != "กำลังทำอาหาร" ? Colors.amber : Colors.grey,
                                 foregroundColor: Colors.black,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
-                              onPressed: () {},
+                              onPressed: () {
+                                _selectedOrder!
+                                    .updateOrderStatus('กำลังทำอาหาร');
+                                  setState(() {
+                                    
+                                  });
+                              },
                               child: const Text(
                                 'เริ่มทำอาหาร',
                                 style: TextStyle(
