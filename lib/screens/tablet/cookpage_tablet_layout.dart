@@ -457,7 +457,7 @@ class _OrderPageState extends State<_OrderPage> {
                 setState(() {
                   _dividerPosition += details.delta.dx / constraints.maxWidth;
                   _dividerPosition = _dividerPosition.clamp(
-                      0.1, 0.9); // Clamp the value between 0.1 and 0.9
+                      0.3, 0.5); // Clamp the value between 0.1 and 0.9
                 });
               },
               child: Center(
