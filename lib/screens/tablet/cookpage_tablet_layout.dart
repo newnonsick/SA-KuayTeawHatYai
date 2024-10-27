@@ -604,12 +604,13 @@ class _OrderPageState extends State<_OrderPage> {
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'ออเดอร์${order.totalAmount}',
+                                'ออเดอร์ ${order.totalAmount}',
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
@@ -628,15 +629,24 @@ class _OrderPageState extends State<_OrderPage> {
                           //stauts button
                           Container(
                             padding: EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
+                                horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
-                              color: Colors.orange,
+                              color: order.orderStatus == 'รอทำอาหาร'
+                                  ? Color(0xFFFFA629)
+                                  : order.orderStatus == 'กำลังทำอาหาร'
+                                      ? Color(0xFF5FDB6A)
+                                      : order.orderStatus == 'รอเสิร์ฟ'
+                                          ? Color(0xFF17A2B8)
+                                          : order.orderStatus == 'เสร็จสิ้น'
+                                              ? Color(0xFFFFFFFF)
+                                              : Colors.transparent,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
                               order.orderStatus!,
                               style: TextStyle(
-                                color: Colors.white,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w500,
                                 fontSize: 14,
                               ),
                             ),
@@ -743,7 +753,10 @@ class _OrderPageState extends State<_OrderPage> {
                             height: 48,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor:_selectedOrder!.orderStatus != "กำลังทำอาหาร" ? Colors.amber : Colors.grey,
+                                backgroundColor: _selectedOrder!.orderStatus !=
+                                        "กำลังทำอาหาร"
+                                    ? Colors.amber
+                                    : Colors.grey,
                                 foregroundColor: Colors.black,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
@@ -752,9 +765,7 @@ class _OrderPageState extends State<_OrderPage> {
                               onPressed: () {
                                 _selectedOrder!
                                     .updateOrderStatus('กำลังทำอาหาร');
-                                  setState(() {
-                                    
-                                  });
+                                setState(() {});
                               },
                               child: const Text(
                                 'เริ่มทำอาหาร',
