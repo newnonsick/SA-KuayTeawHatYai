@@ -17,6 +17,8 @@ class Menu {
         price = json['price'],
         category = json['category'];
 
+  get ingredients => null;
+
   // Map<String, dynamic> toJson() => {
   //       'name': name,
   //       'imageURL': imageURL,

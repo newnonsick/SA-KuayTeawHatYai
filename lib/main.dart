@@ -8,6 +8,9 @@ import 'package:kuayteawhatyai/screens/tablet/myhomepage_tablet_layout.dart';
 import 'package:kuayteawhatyai/screens/tablet/takeorderpage_tablet_layout.dart';
 import 'package:kuayteawhatyai/utils/responsive_layout.dart';
 import 'package:provider/provider.dart';
+import 'package:kuayteawhatyai/provider/entities/orderitemprovider.dart';
+import 'package:kuayteawhatyai/provider/entities/orderlistprovider.dart';
+import 'package:kuayteawhatyai/provider/entities/orderprovider.dart' as entities;
 
 void main() {
   runApp(const MyApp());
@@ -26,7 +29,18 @@ class _MyAppState extends State<MyApp> {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => OrderProvider()),
-        ChangeNotifierProvider(create: (context) => Ingredientprovider()),
+        ChangeNotifierProvider(
+          create: (context) => OrderListProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => Ingredientprovider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => OrderItemProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => entities.OrderProvider(),
+        ),
       ],
       child: GetMaterialApp(
         getPages: [
