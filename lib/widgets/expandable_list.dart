@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:kuayteawhatyai/entities/order_item.dart';
 
 class MenuList extends StatefulWidget {
@@ -98,18 +99,29 @@ class _MenuItemCardState extends State<MenuItemCard>
     return GestureDetector(
       onTap: widget.onToggle,
       child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: Colors.grey[300]!),
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              blurRadius: 4.0,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
+        decoration: orderItem.orderItemStatus == "เปลี่ยนวัตถุดิบ"
+            ? BoxDecoration(
+                    color: Color.fromARGB(96, 248, 195, 36),
+                    border: Border.all(color: Color(0xFFF8C324)),
+                    borderRadius: BorderRadius.circular(8),
+                  )
+            : orderItem.orderItemStatus == "เสร็จสิ้น"
+                ? BoxDecoration(
+                    color: Color.fromARGB(50, 30, 158, 43),
+                    border: Border.all(color: Color(0xFF1E9E2A)),
+                    borderRadius: BorderRadius.circular(8),
+                  )
+                : orderItem.orderItemStatus == "กำลังทำอาหาร"
+                    ? BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(color: Colors.grey[300]!),
+                        borderRadius: BorderRadius.circular(8),
+                      )
+                    : BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(color: Colors.grey[300]!),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
         padding: const EdgeInsets.all(12),
         child: Column(
           children: [
@@ -170,41 +182,73 @@ class _MenuItemCardState extends State<MenuItemCard>
                   children: [
                     Text(
                       orderItem.orderItemStatus!,
-                      style: const TextStyle(
-                        color: Colors.grey,
+                      style: TextStyle(
+                        color: orderItem.orderItemStatus == 'เปลี่ยนวัตถุดิบ'
+                            ? Color.fromARGB(255, 255, 115, 0)
+                            : orderItem.orderItemStatus == 'เสร็จสิ้น'
+                                ? Colors.green
+                                : orderItem.orderItemStatus == 'กำลังทำอาหาร'
+                                    ? Colors.black87
+                                    : Colors.grey,
                         fontSize: 20,
                         fontWeight: FontWeight.normal,
                       ),
                     ),
                     const SizedBox(width: 8),
                     AnimatedRotation(
-                      turns: widget.isExpanded ? 0.5 : 0,
+                      turns: widget.isExpanded ? 1 : 0,
                       duration: const Duration(milliseconds: 300),
-                      child: 
-                      orderItem.orderItemStatus == 'เสร็จสิ้น' ? Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          color: Colors.green,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.check,
-                          color: Colors.white,
-                          size: 16,
-                        ),
-                      ):
-                      Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.close,
-                          color: Colors.white,
-                          size: 16,
-                        ),
-                      ),
+                      child: orderItem.orderItemStatus == 'เปลี่ยนวัตถุดิบ'
+                          ? Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: const BoxDecoration(
+                                color: Colors.yellow,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                FontAwesomeIcons.exclamation,
+                                color: Color.fromARGB(255, 255, 115, 0),
+                                size: 16,
+                              ),
+                            )
+                          : orderItem.orderItemStatus == 'เสร็จสิ้น'
+                              ? Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.green,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.check,
+                                    color: Colors.white,
+                                    size: 16,
+                                  ),
+                                )
+                              : orderItem.orderItemStatus == 'กำลังทำอาหาร'
+                                  ? Container(
+                                      padding: const EdgeInsets.all(4),
+                                      decoration: const BoxDecoration(
+                                        color: Colors.red,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.close,
+                                        color: Colors.white,
+                                        size: 16,
+                                      ),
+                                    )
+                                  : Container(
+                                      padding: const EdgeInsets.all(4),
+                                      decoration: const BoxDecoration(
+                                        color: Colors.grey,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.access_time_outlined,
+                                        color: Colors.white,
+                                        size: 16,
+                                      ),
+                                    ),
                     )
                   ],
                 ),
