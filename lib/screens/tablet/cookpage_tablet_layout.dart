@@ -373,6 +373,7 @@ class _OrderPageState extends State<_OrderPage> {
   String? _errorMenuMessage;
   Order? _selectedOrder;
   OrderItem? _selectedOrderItem;
+  double _dividerPosition = 0.35;
   @override
   void initState() {
     super.initState();
@@ -443,69 +444,93 @@ class _OrderPageState extends State<_OrderPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        _buildPendingOrderSection(),
-        _buildOrderManagerSection(),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Row(
+          children: [
+            Expanded(
+              flex: (_dividerPosition * 100).toInt(),
+              child: _buildPendingOrderSection(),
+            ),
+            GestureDetector(
+              onPanUpdate: (details) {
+                setState(() {
+                  _dividerPosition += details.delta.dx / constraints.maxWidth;
+                  _dividerPosition = _dividerPosition.clamp(
+                      0.1, 0.9); // Clamp the value between 0.1 and 0.9
+                });
+              },
+              child: Center(
+                child: Container(
+                  width: 5,
+                  height: 150,
+                  color: Colors.grey,
+                ),
+              ),
+            ),
+            Expanded(
+              flex: ((1 - _dividerPosition) * 100).toInt(),
+              child: _buildOrderManagerSection(),
+            ),
+          ],
+        );
+      },
     );
   }
 
   Widget _buildPendingOrderSection() {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(16, 20, 16, 0),
-            child: Text(
-              'ออเดอร์คงเหลือ',
-              style: TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
-              ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.fromLTRB(16, 20, 16, 0),
+          child: Text(
+            'ออเดอร์คงเหลือ',
+            style: TextStyle(
+              fontSize: 30,
+              fontWeight: FontWeight.bold,
             ),
           ),
-          Expanded(
-              child: Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.grey[300]!),
-              ),
-              child: Column(
-                children: [
-                  // Header
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(color: Colors.grey[300]!),
-                      ),
-                    ),
-                    child: const Row(
-                      children: [
-                        Text(
-                          'All orders',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
+        ),
+        Expanded(
+            child: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey[300]!),
+            ),
+            child: Column(
+              children: [
+                // Header
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(color: Colors.grey[300]!),
                     ),
                   ),
-                  // Order list
-                  _buildPendingOrderItem()
-                ],
-              ),
+                  child: const Row(
+                    children: [
+                      Text(
+                        'All orders',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Order list
+                _buildPendingOrderItem()
+              ],
             ),
-          )),
-        ],
-      ),
+          ),
+        )),
+      ],
     );
   }
 
@@ -624,248 +649,238 @@ class _OrderPageState extends State<_OrderPage> {
   }
 
   Widget _buildOrderManagerSection() {
-    return Expanded(
-      flex: 2,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
-            child: _selectedOrder == null
-                ? const Text(" ",
-                    style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                    ))
-                : Text("โต๊ะ ${_selectedOrder!.tableNumber}",
-                    style: const TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                    )),
-          ),
-          Expanded(
-              child: Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.grey[300]!),
-              ),
-              child: Column(
-                children: [
-                  // Header
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(color: Colors.grey[300]!),
-                      ),
-                    ),
-                    child: const Row(
-                      children: [
-                        Text(
-                          'รายละเอียดเมนู',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+          child: _selectedOrder == null
+              ? const Text(" ",
+                  style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                  ))
+              : Text("โต๊ะ ${_selectedOrder!.tableNumber}",
+                  style: const TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                  )),
+        ),
+        Expanded(
+            child: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey[300]!),
+            ),
+            child: Column(
+              children: [
+                // Header
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(color: Colors.grey[300]!),
                     ),
                   ),
-                  // Order list
-                  if (_isMenuLoading)
-                    const Expanded(
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                  else if (_errorMenuMessage != null)
-                    Expanded(
-                      child: Center(child: Text(_errorMenuMessage!)),
-                    )
-                  else if (_selectedOrder?.orderItemProvider?.orderItems !=
-                      null)
-                    Expanded(
-                        child: Column(
-                      children: [
-                        // รายการเมนู
-                        Expanded(
-                          child: ListView.builder(
-                            padding: const EdgeInsets.all(10),
-                            itemCount: _selectedOrder!
-                                .orderItemProvider!.orderItems.length,
-                            itemBuilder: (context, index) {
-                              return Padding(
-                                padding: const EdgeInsets.all(5.0),
-                                child: _buildMenuItem(_selectedOrder!
-                                    .orderItemProvider!.orderItems[index]),
-                              );
-                            },
-                          ),
+                  child: const Row(
+                    children: [
+                      Text(
+                        'รายละเอียดเมนู',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
                         ),
-                        // ปุ่มเริ่มทำอาหาร
-                        if (_selectedOrder!.orderStatus == "รอทำอาหาร")
-                          Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: SizedBox(
-                              width: double.infinity,
-                              height: 48,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      _selectedOrder!.orderStatus !=
-                                              "กำลังทำอาหาร"
-                                          ? Colors.amber
-                                          : Colors.grey,
-                                  foregroundColor: Colors.black,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                                onPressed: _selectedOrder!.orderStatus ==
+                      ),
+                    ],
+                  ),
+                ),
+                // Order list
+                if (_isMenuLoading)
+                  const Expanded(
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                else if (_errorMenuMessage != null)
+                  Expanded(
+                    child: Center(child: Text(_errorMenuMessage!)),
+                  )
+                else if (_selectedOrder?.orderItemProvider?.orderItems != null)
+                  Expanded(
+                      child: Column(
+                    children: [
+                      // รายการเมนู
+                      Expanded(
+                        child: ListView.builder(
+                          padding: const EdgeInsets.all(10),
+                          itemCount: _selectedOrder!
+                              .orderItemProvider!.orderItems.length,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: const EdgeInsets.all(5.0),
+                              child: _buildMenuItem(_selectedOrder!
+                                  .orderItemProvider!.orderItems[index]),
+                            );
+                          },
+                        ),
+                      ),
+                      // ปุ่มเริ่มทำอาหาร
+                      if (_selectedOrder!.orderStatus == "รอทำอาหาร")
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: SizedBox(
+                            width: double.infinity,
+                            height: 48,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: _selectedOrder!.orderStatus !=
                                         "กำลังทำอาหาร"
-                                    ? null
-                                    : () async {
-                                        await _selectedOrder!
-                                            .updateOrderStatus('กำลังทำอาหาร');
-                                        _selectedOrder!
-                                            .orderItemProvider!.orderItems
-                                            .forEach((element) {
-                                          element.updateOrderItemStatus(
-                                              "กำลังทำอาหาร");
-                                        });
-                                        setState(() {});
-                                      },
-                                child: const Text(
-                                  'เริ่มทำอาหาร',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                                    ? Colors.amber
+                                    : Colors.grey,
+                                foregroundColor: Colors.black,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              onPressed: _selectedOrder!.orderStatus ==
+                                      "กำลังทำอาหาร"
+                                  ? null
+                                  : () async {
+                                      await _selectedOrder!
+                                          .updateOrderStatus('กำลังทำอาหาร');
+                                      _selectedOrder!
+                                          .orderItemProvider!.orderItems
+                                          .forEach((element) {
+                                        element.updateOrderItemStatus(
+                                            "กำลังทำอาหาร");
+                                      });
+                                      setState(() {});
+                                    },
+                              child: const Text(
+                                'เริ่มทำอาหาร',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ),
-                          )
-                        else
-                          Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                // ปุ่มแรก: ใช้ logic เดิม
-                                Expanded(
-                                  child: SizedBox(
-                                    height: 48,
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                            _selectedOrderItem == null
-                                                ? Colors.grey
-                                                : _selectedOrderItem!
-                                                            .orderItemStatus !=
-                                                        "เสร็จสิ้น"
-                                                    ? Colors.green
-                                                    : Colors.red,
-                                        foregroundColor: Colors.black,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                        ),
+                          ),
+                        )
+                      else
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              // ปุ่มแรก: ใช้ logic เดิม
+                              Expanded(
+                                child: SizedBox(
+                                  height: 48,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          _selectedOrderItem == null
+                                              ? Colors.grey
+                                              : _selectedOrderItem!
+                                                          .orderItemStatus !=
+                                                      "เสร็จสิ้น"
+                                                  ? Colors.green
+                                                  : Colors.red,
+                                      foregroundColor: Colors.black,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
                                       ),
-                                      onPressed: _selectedOrderItem == null
-                                          ? null
-                                          : () async {
-                                              if (_selectedOrderItem!
+                                    ),
+                                    onPressed: _selectedOrderItem == null
+                                        ? null
+                                        : () async {
+                                            if (_selectedOrderItem!
+                                                    .orderItemStatus ==
+                                                "เสร็จสิ้น") {
+                                              await _selectedOrderItem!
+                                                  .updateOrderItemStatus(
+                                                      "กำลังทำอาหาร");
+                                            } else if (_selectedOrderItem!
+                                                    .orderItemStatus ==
+                                                "กำลังทำอาหาร") {
+                                              await _selectedOrderItem!
+                                                  .updateOrderItemStatus(
+                                                      "เสร็จสิ้น");
+                                            }
+                                            setState(() {});
+                                          },
+                                    child: Text(
+                                      _selectedOrderItem == null
+                                          ? "เมนูเสร็จสิ้น"
+                                          : _selectedOrderItem!
                                                       .orderItemStatus ==
-                                                  "เสร็จสิ้น") {
-                                                await _selectedOrderItem!
-                                                    .updateOrderItemStatus(
-                                                        "กำลังทำอาหาร");
-                                              } else if (_selectedOrderItem!
-                                                      .orderItemStatus ==
-                                                  "กำลังทำอาหาร") {
-                                                await _selectedOrderItem!
-                                                    .updateOrderItemStatus(
-                                                        "เสร็จสิ้น");
-                                              }
-                                              setState(() {});
-                                            },
-                                      child: Text(
-                                        _selectedOrderItem == null
-                                            ? "เมนูเสร็จสิ้น"
-                                            : _selectedOrderItem!
-                                                        .orderItemStatus ==
-                                                    "เสร็จสิ้น"
-                                                ? 'ยกเลิกเมนูเสร็จสิ้น'
-                                                : 'เมนูเสร็จสิ้น',
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
-                                        ),
+                                                  "เสร็จสิ้น"
+                                              ? 'ยกเลิกเมนูเสร็จสิ้น'
+                                              : 'เมนูเสร็จสิ้น',
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
                                       ),
                                     ),
                                   ),
                                 ),
-                                const SizedBox(
-                                    width: 16), // ระยะห่างระหว่างปุ่ม
+                              ),
+                              const SizedBox(width: 16), // ระยะห่างระหว่างปุ่ม
 
-                                // ปุ่มที่สอง: เพิ่มตามต้องการ
-                                Expanded(
-                                  flex: 2,
-                                  child: SizedBox(
-                                    height: 48,
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                            !_selectedOrder!.canCompleteOrder()
-                                                ? Colors.grey
-                                                : Colors.amber,
-                                        foregroundColor: Colors.black,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                        ),
-                                      ),
-                                      onPressed:
+                              // ปุ่มที่สอง: เพิ่มตามต้องการ
+                              Expanded(
+                                flex: 2,
+                                child: SizedBox(
+                                  height: 48,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
                                           !_selectedOrder!.canCompleteOrder()
-                                              ? null
-                                              : () async {
-                                                  await _selectedOrder!
-                                                      .updateOrderStatus(
-                                                          'รอเสิร์ฟ');
-                                                  setState(() {
-                                                    _orderList
-                                                        .remove(_selectedOrder);
-                                                    _selectedOrder = null;
-                                                    _selectedOrderItem = null;
-                                                  });
-                                                },
-                                      child: const Text(
-                                        'ออเดอร์เสร็จสิ้น',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
-                                        ),
+                                              ? Colors.grey
+                                              : Colors.amber,
+                                      foregroundColor: Colors.black,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    onPressed: !_selectedOrder!
+                                            .canCompleteOrder()
+                                        ? null
+                                        : () async {
+                                            await _selectedOrder!
+                                                .updateOrderStatus('รอเสิร์ฟ');
+                                            setState(() {
+                                              _orderList.remove(_selectedOrder);
+                                              _selectedOrder = null;
+                                              _selectedOrderItem = null;
+                                            });
+                                          },
+                                    child: const Text(
+                                      'ออเดอร์เสร็จสิ้น',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
                                       ),
                                     ),
                                   ),
                                 ),
-                              ],
-                            ),
-                          )
-                      ],
-                    ))
-                  else
-                    const Expanded(
-                      child: Center(child: Text('กรุณาเลือกออเดอร์')),
-                    )
-                ],
-              ),
+                              ),
+                            ],
+                          ),
+                        )
+                    ],
+                  ))
+                else
+                  const Expanded(
+                    child: Center(child: Text('กรุณาเลือกออเดอร์')),
+                  )
+              ],
             ),
-          )),
-        ],
-      ),
+          ),
+        )),
+      ],
     );
   }
 
