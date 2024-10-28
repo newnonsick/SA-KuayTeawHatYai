@@ -1422,21 +1422,28 @@ class _OwnerPageTabletLayoutState extends State<OwnerPageTabletLayout> {
                   "image_url": imageURLController.text,
                   "category": categoryController.text,
                 });
-                final response2 = await ApiService()
-                    .deleteData('/menu/remove-ingredient', data: {
-                  "menu_name": nameController.text,
-                  "ingredients": _selectedIngredientStatic
-                });
+                var response2;
+                var response3;
 
-                final response3 = await ApiService().postData(
-                    '/menu/add-ingredient', {
-                  "menu_name": nameController.text,
-                  "ingredients": _selectedIngredientInMenu
-                });
+                if (!areEqual(
+                    _selectedIngredientInMenu, _selectedIngredientStatic)) {
+                  response2 = await ApiService()
+                      .deleteData('/menu/remove-ingredient', data: {
+                    "menu_name": nameController.text,
+                    "ingredients": _selectedIngredientStatic
+                  });
+
+                  response3 = await ApiService().postData(
+                      '/menu/add-ingredient', {
+                    "menu_name": nameController.text,
+                    "ingredients": _selectedIngredientInMenu
+                  });
+                }
 
                 if (response.data['code'] == 'success' &&
-                    response2.data['code'] == 'success' &&
-                    response3.data['code'] == 'success') {
+                    ((response3 == null && response2 == null) ||
+                        (response2.data['code'] == 'success' &&
+                            response3.data['code'] == 'success'))) {
                   if (mounted) {
                     toastification.show(
                       context: context,
@@ -1916,5 +1923,13 @@ class _OwnerPageTabletLayoutState extends State<OwnerPageTabletLayout> {
         },
       ),
     ]);
+  }
+
+  bool areEqual(List<String> a, List<String> b) {
+    if (a.length != b.length) return false;
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
   }
 }
