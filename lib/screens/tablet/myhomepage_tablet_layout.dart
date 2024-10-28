@@ -51,7 +51,7 @@ class MyHomePageTabletLayout extends StatelessWidget {
                   children: [
                     _buildRoleCard(
                       context,
-                      title: 'จดออร์เดอร์',
+                      title: 'พนักงาน',
                       onTap: () => Get.toNamed('/takeorder'),
                       icon: Icons.assignment_outlined,
                       width: width * 0.35,
