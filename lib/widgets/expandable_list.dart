@@ -178,79 +178,83 @@ class _MenuItemCardState extends State<MenuItemCard>
                     ],
                   ),
                 ),
-                Row(
-                  children: [
-                    Text(
-                      orderItem.orderItemStatus!,
-                      style: TextStyle(
-                        color: orderItem.orderItemStatus == 'เปลี่ยนวัตถุดิบ'
-                            ? Color.fromARGB(255, 255, 115, 0)
-                            : orderItem.orderItemStatus == 'เสร็จสิ้น'
-                                ? Colors.green
-                                : orderItem.orderItemStatus == 'กำลังทำอาหาร'
-                                    ? Colors.black87
-                                    : Colors.grey,
-                        fontSize: 20,
-                        fontWeight: FontWeight.normal,
+                Expanded(
+                  child: Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          orderItem.orderItemStatus!,
+                          style: TextStyle(
+                            color: orderItem.orderItemStatus == 'เปลี่ยนวัตถุดิบ'
+                                ? Color.fromARGB(255, 255, 115, 0)
+                                : orderItem.orderItemStatus == 'เสร็จสิ้น'
+                                    ? Colors.green
+                                    : orderItem.orderItemStatus == 'กำลังทำอาหาร'
+                                        ? Colors.black87
+                                        : Colors.grey,
+                            fontSize: 20,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    AnimatedRotation(
-                      turns: widget.isExpanded ? 1 : 0,
-                      duration: const Duration(milliseconds: 300),
-                      child: orderItem.orderItemStatus == 'เปลี่ยนวัตถุดิบ'
-                          ? Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: const BoxDecoration(
-                                color: Color.fromARGB(255, 223, 172, 4),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                FontAwesomeIcons.exclamation,
-                                color: Color.fromARGB(255, 255, 115, 0),
-                                size: 16,
-                              ),
-                            )
-                          : orderItem.orderItemStatus == 'เสร็จสิ้น'
-                              ? Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: const BoxDecoration(
-                                    color: Colors.green,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.check,
-                                    color: Colors.white,
-                                    size: 16,
-                                  ),
-                                )
-                              : orderItem.orderItemStatus == 'กำลังทำอาหาร'
-                                  ? Container(
-                                      padding: const EdgeInsets.all(4),
-                                      decoration: const BoxDecoration(
-                                        color: Colors.red,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(
-                                        Icons.close,
-                                        color: Colors.white,
-                                        size: 16,
-                                      ),
-                                    )
-                                  : Container(
-                                      padding: const EdgeInsets.all(4),
-                                      decoration: const BoxDecoration(
-                                        color: Colors.grey,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(
-                                        Icons.access_time_outlined,
-                                        color: Colors.white,
-                                        size: 16,
-                                      ),
+                      const SizedBox(width: 8),
+                      AnimatedRotation(
+                        turns: widget.isExpanded ? 1 : 0,
+                        duration: const Duration(milliseconds: 300),
+                        child: orderItem.orderItemStatus == 'เปลี่ยนวัตถุดิบ'
+                            ? Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: const BoxDecoration(
+                                  color: Color.fromARGB(255, 223, 172, 4),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  FontAwesomeIcons.exclamation,
+                                  color: Color.fromARGB(255, 255, 115, 0),
+                                  size: 16,
+                                ),
+                              )
+                            : orderItem.orderItemStatus == 'เสร็จสิ้น'
+                                ? Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: const BoxDecoration(
+                                      color: Colors.green,
+                                      shape: BoxShape.circle,
                                     ),
-                    )
-                  ],
+                                    child: const Icon(
+                                      Icons.check,
+                                      color: Colors.white,
+                                      size: 16,
+                                    ),
+                                  )
+                                : orderItem.orderItemStatus == 'กำลังทำอาหาร'
+                                    ? Container(
+                                        padding: const EdgeInsets.all(4),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.red,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(
+                                          Icons.close,
+                                          color: Colors.white,
+                                          size: 16,
+                                        ),
+                                      )
+                                    : Container(
+                                        padding: const EdgeInsets.all(4),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.grey,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(
+                                          Icons.access_time_outlined,
+                                          color: Colors.white,
+                                          size: 16,
+                                        ),
+                                      ),
+                      )
+                    ],
+                  ),
                 ),
               ],
             ),

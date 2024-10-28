@@ -556,93 +556,88 @@ class _OrderPageState extends State<_OrderPage> {
             itemCount: orderListProvider.orderList.length,
             itemBuilder: (context, index) {
               final order = orderListProvider.orderList[index];
-              return Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                decoration: BoxDecoration(
-                  color:
-                      _selectedOrder == order ? Colors.amber : Colors.grey[100],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: _isMenuLoading
-                        ? null
-                        : () {
-                            setState(() {
-                              _selectedOrder = order;
-                              _selectedOrderItem = null;
-                              _fetchMenus();
-                            });
-                          },
+              return Expanded(
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color:
+                        _selectedOrder == order ? Colors.amber : Colors.grey[100],
                     borderRadius: BorderRadius.circular(8),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            // Make the text expandable
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'ออเดอร์ #${order.orderID}',
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'โต๊ะ: ${order.tableNumber}',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.grey[600],
-                                      ),
-                                      overflow:
-                                          TextOverflow.ellipsis, // Handle overflow
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: _isMenuLoading
+                          ? null
+                          : () {
+                              setState(() {
+                                _selectedOrder = order;
+                                _selectedOrderItem = null;
+                                _fetchMenus();
+                              });
+                            },
+                      borderRadius: BorderRadius.circular(8),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              // Make the text expandable
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'ออเดอร์ ${order.orderID}',
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
                                     ),
-                                    
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 7, vertical: 3),
-                                      decoration: BoxDecoration(
-                                        color: order.orderStatus == 'รอทำอาหาร'
-                                            ? const Color(0xFFFFA629)
-                                            : order.orderStatus ==
-                                                    'กำลังทำอาหาร'
-                                                ? const Color(0xFF5FDB6A)
-                                                : order.orderStatus ==
-                                                        'รอเสิร์ฟ'
-                                                    ? const Color(0xFF17A2B8)
-                                                    : order.orderStatus ==
-                                                            'เสร็จสิ้น'
-                                                        ? const Color(
-                                                            0xFFFFFFFF)
-                                                        : Colors.transparent,
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Text(
-                                        order.orderStatus!,
-                                        style: const TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 11,
-                                        ),
-                                        overflow: TextOverflow
-                                            .ellipsis, // Handle overflow
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ],
+                                    // overflow:
+                                    //     TextOverflow.ellipsis, // Handle overflow
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'โต๊ะ: ${order.tableNumber}',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey[600],
+                                    ),
+                                    overflow:
+                                        TextOverflow.ellipsis, // Handle overflow
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                            // Status button
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 7, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: order.orderStatus == 'รอทำอาหาร'
+                                    ? const Color(0xFFFFA629)
+                                    : order.orderStatus == 'กำลังทำอาหาร'
+                                        ? const Color(0xFF5FDB6A)
+                                        : order.orderStatus == 'รอเสิร์ฟ'
+                                            ? const Color(0xFF17A2B8)
+                                            : order.orderStatus == 'เสร็จสิ้น'
+                                                ? const Color(0xFFFFFFFF)
+                                                : Colors.transparent,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                order.orderStatus!,
+                                style: const TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 11,
+                                ),
+                                overflow:
+                                    TextOverflow.ellipsis, // Handle overflow
+                              ),
+                            )
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -705,7 +700,7 @@ class _OrderPageState extends State<_OrderPage> {
                     ],
                   ),
                 ),
-                // Order list
+                // OrderItem list
                 if (_isMenuLoading)
                   const Expanded(
                     child: Center(child: CircularProgressIndicator()),
@@ -892,18 +887,20 @@ class _OrderPageState extends State<_OrderPage> {
   }
 
   Widget _buildMenuItem(OrderItem orderItem) {
-    return MenuItemCard(
-      orderItem: orderItem,
-      isExpanded: _selectedOrderItem == orderItem,
-      onToggle: () {
-        setState(() {
-          if (_selectedOrderItem == orderItem) {
-            _selectedOrderItem = null;
-          } else {
-            _selectedOrderItem = orderItem;
-          }
-        });
-      },
+    return Expanded(
+      child: MenuItemCard(
+        orderItem: orderItem,
+        isExpanded: _selectedOrderItem == orderItem,
+        onToggle: () {
+          setState(() {
+            if (_selectedOrderItem == orderItem) {
+              _selectedOrderItem = null;
+            } else {
+              _selectedOrderItem = orderItem;
+            }
+          });
+        },
+      ),
     );
   }
 }
