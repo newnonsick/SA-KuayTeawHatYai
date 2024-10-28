@@ -802,7 +802,7 @@ class _OrderPageState extends State<_OrderPage> {
                                     ),
                                     onPressed: _selectedOrderItem == null
                                         ? null
-                                        : () async {
+                                        : _selectedOrderItem!.orderItemStatus == "เปลี่ยนวัตถุดิบ" ? null :() async {
                                             if (_selectedOrderItem!
                                                     .orderItemStatus ==
                                                 "เสร็จสิ้น") {
