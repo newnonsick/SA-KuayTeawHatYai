@@ -46,22 +46,33 @@ class MyHomePageTabletLayout extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 60),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                Column(
                   children: [
-                    _buildRoleCard(
-                      context,
-                      title: 'พนักงาน',
-                      onTap: () => Get.toNamed('/takeorder'),
-                      icon: Icons.assignment_outlined,
-                      width: width * 0.35,
-                    ),
-                    _buildRoleCard(
-                      context,
-                      title: 'กุ๊ก',
-                      onTap: () => Get.toNamed('/cook'),
-                      icon: Icons.restaurant_menu,
-                      width: width * 0.35,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildRoleCard(
+                          context,
+                          title: 'เจ้าของร้าน',
+                          onTap: () => Get.toNamed('/owner'),
+                          icon: Icons.storefront,
+                          width: width * 0.25,
+                        ),
+                        _buildRoleCard(
+                          context,
+                          title: 'พนักงาน',
+                          onTap: () => Get.toNamed('/takeorder'),
+                          icon: Icons.assignment_outlined,
+                          width: width * 0.25,
+                        ),
+                        _buildRoleCard(
+                          context,
+                          title: 'กุ๊ก',
+                          onTap: () => Get.toNamed('/cook'),
+                          icon: Icons.restaurant_menu,
+                          width: width * 0.25,
+                        ),
+                      ],
                     ),
                   ],
                 ),

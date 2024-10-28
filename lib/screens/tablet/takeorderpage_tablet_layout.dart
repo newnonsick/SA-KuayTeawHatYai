@@ -24,7 +24,7 @@ class TakeOrderPageTabletLayout extends StatefulWidget {
 }
 
 class _TakeOrderPageTabletLayoutState extends State<TakeOrderPageTabletLayout> {
-  int _selectedIndex = 4;
+  int _selectedIndex = 0;
   DateTime? _selectedDate;
   bool _haveNotification = false;
 

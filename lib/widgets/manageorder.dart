@@ -77,9 +77,11 @@ class _ManageOrderState extends State<ManageOrder> {
               ),
               const SizedBox(height: 10),
               Consumer(builder: (context, ManageOrderProvider provider, child) {
-                if (provider.orders.isEmpty) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
+                if (provider.getOrdersByStatus(status).isEmpty) {
+                  return const Expanded(
+                    child: Center(
+                      child: Text('ไม่มีรายการอาหาร'),
+                    ),
                   );
                 }
 

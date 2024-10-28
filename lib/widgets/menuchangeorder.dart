@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:kuayteawhatyai/provider/entities/menuchangeingredientprovider.dart';
 import 'package:kuayteawhatyai/widgets/editmenudialog.dart';
 import 'package:provider/provider.dart';
@@ -32,6 +33,12 @@ class _MenuChangeOrderState extends State<MenuChangeOrder> {
           }
           return Consumer(
               builder: (context, MenuChangeIngredientProvider provider, child) {
+            if (provider.getMenus().isEmpty) {
+              return const Center(
+                child: Text('ไม่มีรายการอาหาร'),
+              );
+            }
+
             return ListView.builder(
               itemCount: provider.getMenus().length,
               itemBuilder: (context, index) {
@@ -152,9 +159,115 @@ class _MenuChangeOrderState extends State<MenuChangeOrder> {
                 onPressed: () {
                   showDialog(
                       context: context,
-                      builder: (context) => EditMenuDialog(menu: menu, onApply: (order) {
-                        Provider.of<MenuChangeIngredientProvider>(context, listen: false).updateMenu(order);
-                      },));
+                      builder: (context) => EditMenuDialog(
+                            menu: menu,
+                            onApply: (order) {
+                              Provider.of<MenuChangeIngredientProvider>(context,
+                                      listen: false)
+                                  .updateMenu(order);
+                            },
+                          ));
+                },
+              ),
+            ),
+            const SizedBox(width: 15),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.grey,
+                    blurRadius: 5,
+                    offset: Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.delete_forever, color: Colors.red),
+                onPressed: () {
+                  showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            title: const Center(
+                              child: Text(
+                                'ยืนยันการลบเมนู',
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFFF8C324),
+                                ),
+                              ),
+                            ),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    bool isSuccess = await Provider.of<
+                                                MenuChangeIngredientProvider>(
+                                            context,
+                                            listen: false)
+                                        .deleteMenu(menu["order_item_id"]);
+                                    if (isSuccess) {
+                                      Get.back();
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFFF8C324),
+                                    foregroundColor: Colors.black,
+                                    padding: const EdgeInsets.all(15),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  child: const Center(
+                                    child: FittedBox(
+                                      child: Text(
+                                        'ตกลง',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Get.back();
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.grey,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.all(15),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  child: const Center(
+                                    child: FittedBox(
+                                      child: Text(
+                                        'ยกเลิก',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ));
+                      });
                 },
               ),
             ),

@@ -31,6 +31,22 @@ class MenuChangeIngredientProvider with ChangeNotifier {
     }
   }
 
+  Future<bool> deleteMenu(String orderItemId) async {
+    final response = await ApiService().deleteData('orders/delete-item', data: {
+      "order_item_id": orderItemId,
+    });
+
+    if (response.data['code'] == 'success') {
+      menus.remove(menus[menus.indexWhere(
+          (element) => element['order_item_id'] == orderItemId)]);
+
+      notifyListeners();
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   Future<Map<String, dynamic>> fetchMenus() async {
     final response =
         await ApiService().getData("orders/items?status=เปลี่ยนวัตถุดิบ");

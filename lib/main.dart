@@ -7,6 +7,7 @@ import 'package:kuayteawhatyai/provider/models/orderprovider.dart';
 import 'package:kuayteawhatyai/screens/mobile/myhomepage_mobile_layout.dart';
 import 'package:kuayteawhatyai/screens/tablet/cookpage_tablet_layout.dart';
 import 'package:kuayteawhatyai/screens/tablet/myhomepage_tablet_layout.dart';
+import 'package:kuayteawhatyai/screens/tablet/ownerpage_tablet_layout.dart';
 import 'package:kuayteawhatyai/screens/tablet/takeorderpage_tablet_layout.dart';
 import 'package:kuayteawhatyai/utils/responsive_layout.dart';
 import 'package:provider/provider.dart';
@@ -68,6 +69,13 @@ class _MyAppState extends State<MyApp> {
               page: () => const ResponsiveLayout(
                     mobile: MyHomePageMobileLayout(),
                     tablet: CookPageTabletLayout(),
+                  ),
+              transition: Transition.topLevel),
+          GetPage(
+              name: '/owner',
+              page: () => const ResponsiveLayout(
+                    mobile: MyHomePageMobileLayout(),
+                    tablet: OwnerPageTabletLayout(),
                   ),
               transition: Transition.topLevel),
         ],
