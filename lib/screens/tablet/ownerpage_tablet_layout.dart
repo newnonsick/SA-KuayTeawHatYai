@@ -16,9 +16,11 @@ class OwnerPageTabletLayout extends StatefulWidget {
 }
 
 class _OwnerPageTabletLayoutState extends State<OwnerPageTabletLayout> {
-  int _selectedIndex = 2;
+  int _selectedIndex = -2;
   Menu? _selectedMenu;
   Ingredient? _selectedIngredient;
+  List<String> _selectedIngredientInMenu = [];
+  List<String> _selectedIngredientStatic = [];
 
   @override
   Widget build(BuildContext context) {
@@ -1128,6 +1130,7 @@ class _OwnerPageTabletLayoutState extends State<OwnerPageTabletLayout> {
                             setState(() {
                               _selectedMenu = null;
                               _selectedIndex = 0;
+                              _selectedIngredientInMenu = [];
                             });
                           },
                           style: ElevatedButton.styleFrom(
@@ -1179,6 +1182,7 @@ class _OwnerPageTabletLayoutState extends State<OwnerPageTabletLayout> {
       imageURLController.text = menu.imageURL;
       categoryController.text = menu.category;
     }
+
     return Column(
       children: [
         TextField(
@@ -1243,6 +1247,80 @@ class _OwnerPageTabletLayoutState extends State<OwnerPageTabletLayout> {
           ),
         ),
         const SizedBox(height: 20),
+        if (menu != null && menu.category == "อาหาร")
+          FutureBuilder(
+              future: _fetchIngredientsAndIngredientInMenu(menu: menu),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                      child: CircularProgressIndicator(
+                    color: Color(0xFFF8C324),
+                  ));
+                } else if (snapshot.hasError ||
+                    (snapshot.hasData &&
+                        (snapshot.data!["code"] != "success"))) {
+                  return const Center(child: Text('Error'));
+                }
+
+                final data = snapshot.data as Map<String, dynamic>;
+
+                List ingredientList = data['ingredients'] as List;
+                List<Ingredient> ingredients = ingredientList
+                    .map((ingredient) =>
+                        Ingredient.fromJson(ingredient as Map<String, dynamic>))
+                    .toList();
+
+                return DataTable(columns: const [
+                  DataColumn(
+                    label: Text('เลือกวัตถุดิบ',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                  DataColumn(
+                    label: Text('รูปวัตถดิบ',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                  DataColumn(
+                    label: Text('ชื่อวัตุดิบ',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                  DataColumn(
+                    label: Text('ประเภทวัตถุดิบ',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                  DataColumn(
+                    label: Text('สถานะวัตถุดิบ',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                ], rows: [
+                  for (Ingredient ingredient in ingredients)
+                    DataRow(cells: [
+                      DataCell(Checkbox(
+                        value:
+                            _selectedIngredientInMenu.contains(ingredient.name),
+                        onChanged: (value) {
+                          setState(() {
+                            if (value!) {
+                              _selectedIngredientInMenu.add(ingredient.name);
+                            } else {
+                              _selectedIngredientInMenu.remove(ingredient.name);
+                            }
+                          });
+                        },
+                        activeColor: const Color(0xFFF8C324),
+                      )),
+                      DataCell(
+                        Image.network(ingredient.imageURL,
+                            width: 50, height: 50, fit: BoxFit.cover),
+                      ),
+                      DataCell(Text(ingredient.name)),
+                      DataCell(Text(ingredient.type)),
+                      DataCell(Text(ingredient.isAvailable
+                          ? 'พร้อมใช้งาน'
+                          : 'ไม่พร้อมใช้งาน')),
+                    ]),
+                ]);
+              }),
+        const SizedBox(height: 20),
         ElevatedButton(
           onPressed: () async {
             if (nameController.text.isEmpty ||
@@ -1304,36 +1382,86 @@ class _OwnerPageTabletLayoutState extends State<OwnerPageTabletLayout> {
                 }
               }
             } else {
-              final response = await ApiService().putData("menus/update", {
-                "name": nameController.text,
-                "price": double.parse(priceController.text),
-                "image_url": imageURLController.text,
-                "category": categoryController.text,
-              });
-              if (response.data['code'] == 'success') {
-                if (mounted) {
-                  toastification.show(
-                    context: context,
-                    type: ToastificationType.success,
-                    style: ToastificationStyle.flat,
-                    title: const Text("แก้ไขเมนูสำเร็จ"),
-                    description: const Text("แก้ไขเมนูสำเร็จแล้ว"),
-                  );
-                }
-                setState(() {
-                  _selectedMenu = null;
-                  _selectedIndex = 0;
+              if (menu.category != "อาหาร") {
+                final response = await ApiService().putData("menus/update", {
+                  "name": nameController.text,
+                  "price": double.parse(priceController.text),
+                  "image_url": imageURLController.text,
+                  "category": categoryController.text,
                 });
+                if (response.data['code'] == 'success') {
+                  if (mounted) {
+                    toastification.show(
+                      context: context,
+                      type: ToastificationType.success,
+                      style: ToastificationStyle.flat,
+                      title: const Text("แก้ไขเมนูสำเร็จ"),
+                      description: const Text("แก้ไขเมนูสำเร็จแล้ว"),
+                    );
+                  }
+                  setState(() {
+                    _selectedMenu = null;
+                    _selectedIndex = 0;
+                  });
+                } else {
+                  if (mounted) {
+                    toastification.show(
+                      context: context,
+                      type: ToastificationType.error,
+                      style: ToastificationStyle.flat,
+                      title: const Text("แก้ไขเมนูไม่สำเร็จ"),
+                      description:
+                          const Text("แก้ไขเมนูไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"),
+                    );
+                  }
+                }
               } else {
-                if (mounted) {
-                  toastification.show(
-                    context: context,
-                    type: ToastificationType.error,
-                    style: ToastificationStyle.flat,
-                    title: const Text("แก้ไขเมนูไม่สำเร็จ"),
-                    description:
-                        const Text("แก้ไขเมนูไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"),
-                  );
+                final response = await ApiService().putData("menus/update", {
+                  "name": nameController.text,
+                  "price": double.parse(priceController.text),
+                  "image_url": imageURLController.text,
+                  "category": categoryController.text,
+                });
+                final response2 = await ApiService()
+                    .deleteData('/menu/remove-ingredient', data: {
+                  "menu_name": nameController.text,
+                  "ingredients": _selectedIngredientStatic
+                });
+
+                final response3 = await ApiService().postData(
+                    '/menu/add-ingredient', {
+                  "menu_name": nameController.text,
+                  "ingredients": _selectedIngredientInMenu
+                });
+
+                if (response.data['code'] == 'success' &&
+                    response2.data['code'] == 'success' &&
+                    response3.data['code'] == 'success') {
+                  if (mounted) {
+                    toastification.show(
+                      context: context,
+                      type: ToastificationType.success,
+                      style: ToastificationStyle.flat,
+                      title: const Text("แก้ไขเมนูสำเร็จ"),
+                      description: const Text("แก้ไขเมนูสำเร็จแล้ว"),
+                    );
+                  }
+                  setState(() {
+                    _selectedMenu = null;
+                    _selectedIndex = 0;
+                    _selectedIngredientInMenu = [];
+                  });
+                } else {
+                  if (mounted) {
+                    toastification.show(
+                      context: context,
+                      type: ToastificationType.error,
+                      style: ToastificationStyle.flat,
+                      title: const Text("แก้ไขเมนูไม่สำเร็จ"),
+                      description:
+                          const Text("แก้ไขเมนูไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"),
+                    );
+                  }
                 }
               }
             }
@@ -1708,6 +1836,38 @@ class _OwnerPageTabletLayoutState extends State<OwnerPageTabletLayout> {
 
   Future<Map<String, dynamic>> _fetchTables() async {
     final response = await ApiService().getData("tables");
+    return response.data;
+  }
+
+  Future<Map<String, dynamic>> _fetchIngredientsAndIngredientInMenu(
+      {Menu? menu}) async {
+    final response = await ApiService().getData("ingredients");
+
+    var response2;
+    if (menu != null && _selectedIngredientInMenu.isEmpty) {
+      response2 =
+          await ApiService().getData("/menus/ingredients?name=${menu.name}");
+    } else {
+      response2 = null;
+    }
+
+    List<String> allIngredientsInMenu = [];
+
+    if (response2 != null) {
+      List ingredients = response2.data['ingredients'] as List;
+
+      // Extract options from each ingredient type and flatten them into a list.
+      for (var ingredient in ingredients) {
+        List options = ingredient['options'] as List;
+        for (var option in options) {
+          allIngredientsInMenu.add(option['name']);
+        }
+      }
+
+      _selectedIngredientInMenu = [...allIngredientsInMenu];
+      _selectedIngredientStatic = [...allIngredientsInMenu];
+    }
+
     return response.data;
   }
 
