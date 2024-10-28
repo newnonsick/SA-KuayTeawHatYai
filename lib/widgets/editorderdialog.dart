@@ -153,7 +153,7 @@ class _EditOrderDialogState extends State<EditOrderDialog> {
                                                   .updateOrderTable(
                                                       widget.order, table);
                                               if (success) {
-                                                if (mounted){
+                                                if (mounted) {
                                                   toastification.show(
                                                     context: context,
                                                     type: ToastificationType
@@ -272,6 +272,14 @@ class _EditOrderDialogState extends State<EditOrderDialog> {
                     );
                   } else if (snapshot.hasError) {
                     return const Center(child: Text('เกิดข้อผิดพลาด'));
+                  } else if (snapshot.hasData &&
+                      (snapshot.data!["code"] != "success")) {
+                    if (snapshot.data!["message"] == "Order does not exist.") {
+                      Provider.of<ManageOrderProvider>(context, listen: false)
+                          .removeOrder(order);
+                    }
+                    Get.back();
+                    return const SizedBox.shrink();
                   }
 
                   final menuInOrder = snapshot.data as Map<String, dynamic>;
@@ -387,6 +395,32 @@ class _EditOrderDialogState extends State<EditOrderDialog> {
               ),
             ),
             const SizedBox(width: 15),
+            if (menu["menu"]["category"] == "อาหาร")
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.grey,
+                      blurRadius: 5,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.edit, color: Color(0xFFF8C324)),
+                  onPressed: () {
+                    showDialog(
+                            context: context,
+                            builder: (context) => EditMenuDialog(menu: menu))
+                        .then((value) {
+                      setState(() {});
+                    });
+                  },
+                ),
+              ),
+            const SizedBox(width: 15),
             Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -400,14 +434,113 @@ class _EditOrderDialogState extends State<EditOrderDialog> {
                 ],
               ),
               child: IconButton(
-                icon: const Icon(Icons.edit, color: Color(0xFFF8C324)),
+                icon: const Icon(Icons.delete_forever, color: Colors.red),
                 onPressed: () {
                   showDialog(
-                          context: context,
-                          builder: (context) => EditMenuDialog(menu: menu))
-                      .then((value) {
-                    setState(() {});
-                  });
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            title: const Center(
+                              child: Text(
+                                'ยืนยันการลบเมนู',
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFFF8C324),
+                                ),
+                              ),
+                            ),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    final response = await ApiService()
+                                        .deleteData("orders/delete-item",
+                                            data: {
+                                          "order_item_id": menu["order_item_id"]
+                                        });
+
+                                    if (response.data["code"] == "success") {
+                                      if (mounted) {
+                                        toastification.show(
+                                          context: context,
+                                          type: ToastificationType.success,
+                                          style: ToastificationStyle.flat,
+                                          title: const Text("ลบเมนูสำเร็จ"),
+                                          description: const Text(
+                                              "ลบเมนูอาหารออกจากออร์เดอร์สำเร็จ"),
+                                        );
+                                      }
+                                      setState(() {});
+                                      Get.back();
+                                    } else {
+                                      if (mounted) {
+                                        toastification.show(
+                                          context: context,
+                                          type: ToastificationType.error,
+                                          style: ToastificationStyle.flat,
+                                          title: const Text("เกิดข้อผิดพลาด"),
+                                          description: const Text(
+                                              "ไม่สามารถลบเมนูอาหารออกจากออร์เดอร์ได้"),
+                                        );
+                                      }
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFFF8C324),
+                                    foregroundColor: Colors.black,
+                                    padding: const EdgeInsets.all(15),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  child: const Center(
+                                    child: FittedBox(
+                                      child: Text(
+                                        'ตกลง',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Get.back();
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.grey,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.all(15),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  child: const Center(
+                                    child: FittedBox(
+                                      child: Text(
+                                        'ยกเลิก',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ));
+                      });
                 },
               ),
             ),

@@ -16,7 +16,7 @@ class OwnerPageTabletLayout extends StatefulWidget {
 }
 
 class _OwnerPageTabletLayoutState extends State<OwnerPageTabletLayout> {
-  int _selectedIndex = -2;
+  int _selectedIndex = 0;
   Menu? _selectedMenu;
   Ingredient? _selectedIngredient;
   List<String> _selectedIngredientInMenu = [];

@@ -7,7 +7,7 @@ class ApiService {
   ApiService() {
     BaseOptions options = BaseOptions(
         // baseUrl: dotenv.env['APIURL']!,
-        baseUrl: 'http://localhost:5000/',
+        baseUrl: 'https://kuayteawhatyai-backend.onrender.com/',
         connectTimeout: const Duration(seconds: 5),
         receiveTimeout: const Duration(seconds: 3),
         headers: {

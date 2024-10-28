@@ -301,7 +301,21 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
   }
 
   Widget _buildIngredientItem(Ingredient ingredient) {
-    return Card(
+    return Container(
+      decoration: BoxDecoration(
+        color: ingredient.isAvailable ? Colors.white : Colors.grey[300],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: ingredient.isAvailable ? Colors.grey[300]! : Colors.red,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -339,16 +353,18 @@ class _MaterialManagementPageState extends State<_MaterialManagementPage> {
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                ingredient.imageURL,
-                fit: BoxFit.cover,
-                opacity: ingredient.isAvailable
-                    ? null
-                    : const AlwaysStoppedAnimation(.5),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  ingredient.imageURL,
+                  fit: BoxFit.cover,
+                  opacity: ingredient.isAvailable
+                      ? null
+                      : const AlwaysStoppedAnimation(.5),
+                ),
               ),
             ),
           )
@@ -556,88 +572,86 @@ class _OrderPageState extends State<_OrderPage> {
             itemCount: orderListProvider.orderList.length,
             itemBuilder: (context, index) {
               final order = orderListProvider.orderList[index];
-              return Expanded(
-                child: Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  decoration: BoxDecoration(
-                    color:
-                        _selectedOrder == order ? Colors.amber : Colors.grey[100],
+              return Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                decoration: BoxDecoration(
+                  color:
+                      _selectedOrder == order ? Colors.amber : Colors.grey[100],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: _isMenuLoading
+                        ? null
+                        : () {
+                            setState(() {
+                              _selectedOrder = order;
+                              _selectedOrderItem = null;
+                              _fetchMenus();
+                            });
+                          },
                     borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: _isMenuLoading
-                          ? null
-                          : () {
-                              setState(() {
-                                _selectedOrder = order;
-                                _selectedOrderItem = null;
-                                _fetchMenus();
-                              });
-                            },
-                      borderRadius: BorderRadius.circular(8),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              // Make the text expandable
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'ออเดอร์ ${order.orderID}',
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                    // overflow:
-                                    //     TextOverflow.ellipsis, // Handle overflow
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            // Make the text expandable
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'ออเดอร์ ${order.orderID}',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
                                   ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'โต๊ะ: ${order.tableNumber}',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey[600],
-                                    ),
-                                    overflow:
-                                        TextOverflow.ellipsis, // Handle overflow
-                                  ),
-                                ],
-                              ),
-                            ),
-                            // Status button
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 7, vertical: 3),
-                              decoration: BoxDecoration(
-                                color: order.orderStatus == 'รอทำอาหาร'
-                                    ? const Color(0xFFFFA629)
-                                    : order.orderStatus == 'กำลังทำอาหาร'
-                                        ? const Color(0xFF5FDB6A)
-                                        : order.orderStatus == 'รอเสิร์ฟ'
-                                            ? const Color(0xFF17A2B8)
-                                            : order.orderStatus == 'เสร็จสิ้น'
-                                                ? const Color(0xFFFFFFFF)
-                                                : Colors.transparent,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                order.orderStatus!,
-                                style: const TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 11,
+                                  // overflow:
+                                  //     TextOverflow.ellipsis, // Handle overflow
                                 ),
-                                overflow:
-                                    TextOverflow.ellipsis, // Handle overflow
+                                const SizedBox(height: 4),
+                                Text(
+                                  'โต๊ะ: ${order.tableNumber}',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[600],
+                                  ),
+                                  overflow:
+                                      TextOverflow.ellipsis, // Handle overflow
+                                ),
+                              ],
+                            ),
+                          ),
+                          // Status button
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 7, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: order.orderStatus == 'รอทำอาหาร'
+                                  ? const Color(0xFFFFA629)
+                                  : order.orderStatus == 'กำลังทำอาหาร'
+                                      ? const Color(0xFF5FDB6A)
+                                      : order.orderStatus == 'รอเสิร์ฟ'
+                                          ? const Color(0xFF17A2B8)
+                                          : order.orderStatus == 'เสร็จสิ้น'
+                                              ? const Color(0xFFFFFFFF)
+                                              : Colors.transparent,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              order.orderStatus!,
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 11,
                               ),
-                            )
-                          ],
-                        ),
+                              overflow:
+                                  TextOverflow.ellipsis, // Handle overflow
+                            ),
+                          )
+                        ],
                       ),
                     ),
                   ),
@@ -797,22 +811,25 @@ class _OrderPageState extends State<_OrderPage> {
                                     ),
                                     onPressed: _selectedOrderItem == null
                                         ? null
-                                        : _selectedOrderItem!.orderItemStatus == "เปลี่ยนวัตถุดิบ" ? null :() async {
-                                            if (_selectedOrderItem!
-                                                    .orderItemStatus ==
-                                                "เสร็จสิ้น") {
-                                              await _selectedOrderItem!
-                                                  .updateOrderItemStatus(
-                                                      "กำลังทำอาหาร");
-                                            } else if (_selectedOrderItem!
-                                                    .orderItemStatus ==
-                                                "กำลังทำอาหาร") {
-                                              await _selectedOrderItem!
-                                                  .updateOrderItemStatus(
-                                                      "เสร็จสิ้น");
-                                            }
-                                            setState(() {});
-                                          },
+                                        : _selectedOrderItem!.orderItemStatus ==
+                                                "เปลี่ยนวัตถุดิบ"
+                                            ? null
+                                            : () async {
+                                                if (_selectedOrderItem!
+                                                        .orderItemStatus ==
+                                                    "เสร็จสิ้น") {
+                                                  await _selectedOrderItem!
+                                                      .updateOrderItemStatus(
+                                                          "กำลังทำอาหาร");
+                                                } else if (_selectedOrderItem!
+                                                        .orderItemStatus ==
+                                                    "กำลังทำอาหาร") {
+                                                  await _selectedOrderItem!
+                                                      .updateOrderItemStatus(
+                                                          "เสร็จสิ้น");
+                                                }
+                                                setState(() {});
+                                              },
                                     child: Text(
                                       _selectedOrderItem == null
                                           ? "เมนูเสร็จสิ้น"

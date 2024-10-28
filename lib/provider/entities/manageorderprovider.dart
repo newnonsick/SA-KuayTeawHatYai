@@ -16,7 +16,7 @@ class ManageOrderProvider with ChangeNotifier {
     final response = await ApiService()
         .deleteData("orders/delete", data: {"order_id": order['order_id']});
 
-    if (response.data["code"] == "success") {
+    if (response.data["code"] == "success" || (response.data["code"] != "success" && response.data["message"] == "Order does not exist.")) {
       notifyListeners();
       return true;
     } else {
