@@ -18,12 +18,12 @@ class Ingredient {
         imageURL = json['image_url'],
         isAvailable = json['is_available'],
         type = json['ingredient_type'];
+
   Future<void> updateIngredientAvailability() async {
-    
     isAvailable = !isAvailable;
     await ApiService().putData("/ingredients/update-status", {
-    "name": name,
-    "is_available": isAvailable,
-});
+      "name": name,
+      "is_available": isAvailable,
+    });
   }
 }

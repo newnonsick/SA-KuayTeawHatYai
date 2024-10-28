@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:kuayteawhatyai/models/ingredient.dart';
 import 'package:kuayteawhatyai/models/menu.dart';
 import 'package:kuayteawhatyai/services/apiservice.dart';
 import 'package:kuayteawhatyai/utils/responsive_layout.dart';
@@ -15,8 +16,9 @@ class OwnerPageTabletLayout extends StatefulWidget {
 }
 
 class _OwnerPageTabletLayoutState extends State<OwnerPageTabletLayout> {
-  int _selectedIndex = -2;
+  int _selectedIndex = 0;
   Menu? _selectedMenu;
+  Ingredient? _selectedIngredient;
 
   @override
   Widget build(BuildContext context) {
@@ -27,23 +29,646 @@ class _OwnerPageTabletLayoutState extends State<OwnerPageTabletLayout> {
         child: Row(
           children: [
             _buildCustomNavigationRail(),
-            // if (_selectedIndex < 4)
-            //   Expanded(
-            //     child: Row(
-            //       children: [_buildMenuSection(), _buildOrderListSection()],
-            //     ),
-            //   )
-            // else if (_selectedIndex == 4)
-            //   _buildOrderManagerSection()
-            // else if (_selectedIndex == 5)
-            //   _buildOverviewSection(),
             if (_selectedIndex == 0)
               _buildMangeMenuSection()
+            else if (_selectedIndex == 1)
+              _buildMangeIngredientSection()
             else if (_selectedIndex == -2)
               _buildAddOrEditMenuSection(menu: _selectedMenu)
+            else if (_selectedIndex == -3)
+              _buildAddOrEditIngredientSection(ingredient: _selectedIngredient),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildAddOrEditIngredientSection({required Ingredient? ingredient}) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text("KuayTeawHatYai",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 30,
+                    color: Color(0xFFF8C324),
+                  )),
+            ),
+            const SizedBox(height: 20),
+            Align(
+              alignment: Alignment.centerLeft,
+              child:
+                  Text(ingredient == null ? "เพิ่มวัตถุดิบ" : "แก้ไขวัตถุดิบ",
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 25,
+                        color: Colors.black,
+                      )),
+            ),
+            const SizedBox(height: 20),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        const Spacer(),
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              _selectedIngredient = null;
+                              _selectedIndex = 1;
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFF8C324),
+                            foregroundColor: Colors.black,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 15, vertical: 20),
+                            textStyle: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          child: const Row(
+                            children: [
+                              Icon(
+                                Icons.arrow_back_ios_new,
+                                size: 20,
+                              ),
+                              SizedBox(width: 10),
+                              Text('กลับ'),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    _buildIngredientForm(ingredient: ingredient),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildIngredientForm({required Ingredient? ingredient}) {
+    final TextEditingController nameController = TextEditingController();
+    final TextEditingController typeController = TextEditingController();
+    final TextEditingController imageURLController = TextEditingController();
+    bool isAvailable = true;
+    if (ingredient != null) {
+      nameController.text = ingredient.name;
+      typeController.text = ingredient.type;
+      imageURLController.text = ingredient.imageURL;
+      isAvailable = ingredient.isAvailable;
+    }
+    return Column(
+      children: [
+        TextField(
+          enabled: ingredient == null,
+          controller: nameController,
+          cursorColor: Colors.black,
+          decoration: const InputDecoration(
+            labelText: 'ชื่อวัตถุดิบ',
+            labelStyle: TextStyle(
+              color: Color(0xFFF8C324),
+              fontWeight: FontWeight.bold,
+            ),
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Color(0xFFF8C324)),
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+        TextField(
+          controller: typeController,
+          cursorColor: Colors.black,
+          decoration: const InputDecoration(
+            labelText: 'ประเภท',
+            labelStyle: TextStyle(
+              color: Color(0xFFF8C324),
+              fontWeight: FontWeight.bold,
+            ),
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Color(0xFFF8C324)),
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+        TextField(
+          controller: imageURLController,
+          cursorColor: Colors.black,
+          decoration: const InputDecoration(
+            labelText: 'URL รูปภาพ',
+            labelStyle: TextStyle(
+              color: Color(0xFFF8C324),
+              fontWeight: FontWeight.bold,
+            ),
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Color(0xFFF8C324)),
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+        Row(
+          children: [
+            Checkbox(
+              value: isAvailable,
+              onChanged: (value) {
+                setState(() {
+                  if (ingredient != null) {
+                    ingredient.isAvailable = value!;
+                  }
+                });
+              },
+              activeColor: const Color(0xFFF8C324),
+            ),
+            const Text(
+              'วัตถุดิบพร้อมใช้งาน',
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
+        ElevatedButton(
+          onPressed: () async {
+            if (nameController.text.isEmpty ||
+                typeController.text.isEmpty ||
+                imageURLController.text.isEmpty) {
+              toastification.show(
+                context: context,
+                type: ToastificationType.error,
+                style: ToastificationStyle.flat,
+                title: const Text("กรุณากรอกข้อมูลให้ครบถ้วน"),
+                description: const Text("กรุณากรอกข้อมูลให้ครบถ้วน"),
+              );
+              return;
+            }
+            if (ingredient == null) {
+              final response = await ApiService().postData("ingredients/add", {
+                "name": nameController.text,
+                "ingredient_type": typeController.text,
+                "image_url": imageURLController.text,
+                "is_available": isAvailable,
+              });
+              if (response.data['code'] == 'success') {
+                if (mounted) {
+                  toastification.show(
+                    context: context,
+                    type: ToastificationType.success,
+                    style: ToastificationStyle.flat,
+                    title: const Text("เพิ่มวัตถุดิบสำเร็จ"),
+                    description: const Text("เพิ่มวัตถุดิบสำเร็จแล้ว"),
+                  );
+                }
+                setState(() {
+                  _selectedIngredient = null;
+                  _selectedIndex = 1;
+                });
+              } else {
+                if (mounted) {
+                  toastification.show(
+                    context: context,
+                    type: ToastificationType.error,
+                    style: ToastificationStyle.flat,
+                    title: const Text("เพิ่มวัตถุดิบไม่สำเร็จ"),
+                    description: const Text(
+                        "เพิ่มวัตถุดิบไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"),
+                  );
+                }
+              }
+            } else {
+              final response =
+                  await ApiService().putData("ingredients/update", {
+                "name": nameController.text,
+                "ingredient_type": typeController.text,
+                "image_url": imageURLController.text,
+                "is_available": isAvailable,
+              });
+              if (response.data['code'] == 'success') {
+                if (mounted) {
+                  toastification.show(
+                    context: context,
+                    type: ToastificationType.success,
+                    style: ToastificationStyle.flat,
+                    title: const Text("แก้ไขวัตถุดิบสำเร็จ"),
+                    description: const Text("แก้ไขวัตถุดิบสำเร็จแล้ว"),
+                  );
+                }
+                setState(() {
+                  _selectedIngredient = null;
+                  _selectedIndex = 1;
+                });
+              } else {
+                if (mounted) {
+                  toastification.show(
+                    context: context,
+                    type: ToastificationType.error,
+                    style: ToastificationStyle.flat,
+                    title: const Text("แก้ไขวัตถุดิบไม่สำเร็จ"),
+                    description: const Text(
+                        "แก้ไขวัตถุดิบไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"),
+                  );
+                }
+              }
+            }
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFFF8C324),
+            foregroundColor: Colors.black,
+            padding: const EdgeInsets.all(15),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          child: const Center(
+            child: FittedBox(
+              child: Text(
+                'ยืนยัน',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMangeIngredientSection() {
+    return Expanded(
+        child: Container(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+      child: Column(
+        children: [
+          const Align(
+            alignment: Alignment.centerLeft,
+            child: Text("KuayTeawHatYai",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 30,
+                  color: Color(0xFFF8C324),
+                )),
+          ),
+          const SizedBox(height: 20),
+          const Align(
+            alignment: Alignment.centerLeft,
+            child: Text("จัดการวัตถุดิบ",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 25,
+                  color: Colors.black,
+                )),
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              const Spacer(),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _selectedIngredient = null;
+                    _selectedIndex = -3;
+                  });
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFF8C324),
+                  foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+                  textStyle: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(
+                      Icons.add,
+                      size: 20,
+                    ),
+                    SizedBox(width: 10),
+                    Text('เพิ่มวัตถุดิบ'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          FutureBuilder(
+              future: _fetchIngredients(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Expanded(
+                    child: Center(
+                        child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Color(0xFFF8C324),
+                      ),
+                    )),
+                  );
+                } else if (snapshot.hasError ||
+                    (snapshot.hasData &&
+                        (snapshot.data!["code"] != "success"))) {
+                  return const Expanded(child: Center(child: Text('Error')));
+                }
+                final data = snapshot.data as Map<String, dynamic>;
+                List ingredientList = data['ingredients'] as List;
+                List<Ingredient> ingredients = ingredientList
+                    .map((ingredient) =>
+                        Ingredient.fromJson(ingredient as Map<String, dynamic>))
+                    .toList();
+                return Expanded(
+                  child: SingleChildScrollView(
+                    child: GridView.builder(
+                      shrinkWrap: true,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount:
+                            ResponsiveLayout.isPortrait(context) ? 4 : 5,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10,
+                        childAspectRatio: 0.8,
+                      ),
+                      itemCount: ingredients.length,
+                      itemBuilder: (context, index) {
+                        final ingredient = ingredients[index];
+                        return _buildIngredientItem(ingredient: ingredient);
+                      },
+                    ),
+                  ),
+                );
+              })
+        ],
+      ),
+    ));
+  }
+
+  Widget _buildIngredientItem({required Ingredient ingredient}) {
+    return Stack(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: Colors.grey, width: 1),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(
+                flex: 3,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child:
+                      Image.network(ingredient.imageURL, fit: BoxFit.fitHeight),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Expanded(
+                  child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: FittedBox(
+                      fit: BoxFit.cover,
+                      child: Text(
+                        ingredient.name,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.inventory,
+                          color: Color(0xFFF8C324),
+                          size: 15,
+                        ),
+                        const SizedBox(width: 5),
+                        FittedBox(
+                          child: Text(
+                            ingredient.type,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                                color: Color(0xFFF8C324)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              )),
+            ],
+          ),
+        ),
+        if (!ingredient.isAvailable)
+          Positioned(
+            top: 5,
+            right: 5,
+            child: Container(
+              padding: const EdgeInsets.all(5),
+              decoration: BoxDecoration(
+                color: Colors.red,
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: const Text(
+                'ไม่พร้อมใช้งาน',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        Positioned(
+          bottom: 5,
+          right: 0,
+          child: PopupMenuButton<String>(
+            icon: const Icon(
+              Icons.more_vert,
+              color: Color(0xFFEDC00F),
+            ),
+            color: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            onSelected: (String value) async {
+              if (value == "แก้ไข") {
+                setState(() {
+                  _selectedIngredient = ingredient;
+                  _selectedIndex = -3;
+                });
+              } else if (value == "ลบ") {
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                          backgroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          title: const Center(
+                            child: Text(
+                              'ยืนยันการลบเมนู',
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFFF8C324),
+                              ),
+                            ),
+                          ),
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () async {
+                                  final response = await ApiService()
+                                      .deleteData("ingredients/delete", data: {
+                                    "name": ingredient.name,
+                                  });
+                                  if (response.data['code'] == 'success') {
+                                    if (mounted) {
+                                      toastification.show(
+                                        context: context,
+                                        type: ToastificationType.success,
+                                        style: ToastificationStyle.flat,
+                                        title: const Text("ลบเมนูสำเร็จ"),
+                                        description:
+                                            const Text("ลบเมนูสำเร็จแล้ว"),
+                                      );
+                                    }
+                                    Get.back();
+                                    setState(() {});
+                                  } else {
+                                    if (mounted) {
+                                      toastification.show(
+                                        context: context,
+                                        type: ToastificationType.error,
+                                        style: ToastificationStyle.flat,
+                                        title: const Text("ลบเมนูไม่สำเร็จ"),
+                                        description: const Text(
+                                            "ลบเมนูไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"),
+                                      );
+                                    }
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFF8C324),
+                                  foregroundColor: Colors.black,
+                                  padding: const EdgeInsets.all(15),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                child: const Center(
+                                  child: FittedBox(
+                                    child: Text(
+                                      'ตกลง',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              ElevatedButton(
+                                onPressed: () {
+                                  Get.back();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.grey,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.all(15),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                child: const Center(
+                                  child: FittedBox(
+                                    child: Text(
+                                      'ยกเลิก',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ));
+                    });
+              }
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              const PopupMenuItem<String>(
+                value: 'แก้ไข',
+                child: Row(
+                  children: [
+                    Icon(Icons.edit, color: Color(0xFFEDC00F)),
+                    SizedBox(width: 10),
+                    Text(
+                      'แก้ไข',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const PopupMenuItem<String>(
+                value: 'ลบ',
+                child: Row(
+                  children: [
+                    Icon(Icons.delete, color: Color(0xFFEDC00F)),
+                    SizedBox(width: 10),
+                    Text(
+                      'ลบ',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -503,15 +1128,6 @@ class _OwnerPageTabletLayoutState extends State<OwnerPageTabletLayout> {
               borderRadius: BorderRadius.circular(12),
             ),
             onSelected: (String value) async {
-              // if (value == "เสิร์ฟอาหาร") {
-              //   await _handleServeOrder(widget.order);
-              // } else if (value == "ยกเลิก") {
-              //   await _handleCancelOrder();
-              // } else if (value == "แก้ไข") {
-              //   _handleEditOrder();
-              // } else if (value == "ดูรายการอาหาร") {
-              //   _handleViewOrderItems();
-              // }
               if (value == "แก้ไข") {
                 setState(() {
                   _selectedMenu = menu;
@@ -665,6 +1281,11 @@ class _OwnerPageTabletLayoutState extends State<OwnerPageTabletLayout> {
 
   Future<Map<String, dynamic>> _fetchMenus() async {
     final response = await ApiService().getData("menus");
+    return response.data;
+  }
+
+  Future<Map<String, dynamic>> _fetchIngredients() async {
+    final response = await ApiService().getData("ingredients");
     return response.data;
   }
 
