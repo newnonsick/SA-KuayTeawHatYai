@@ -16,7 +16,7 @@ class OwnerPageTabletLayout extends StatefulWidget {
 }
 
 class _OwnerPageTabletLayoutState extends State<OwnerPageTabletLayout> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 2;
   Menu? _selectedMenu;
   Ingredient? _selectedIngredient;
 
@@ -30,9 +30,11 @@ class _OwnerPageTabletLayoutState extends State<OwnerPageTabletLayout> {
           children: [
             _buildCustomNavigationRail(),
             if (_selectedIndex == 0)
-              _buildMangeMenuSection()
+              _buildManageMenuSection()
             else if (_selectedIndex == 1)
-              _buildMangeIngredientSection()
+              _buildManageIngredientSection()
+            else if (_selectedIndex == 2)
+              _buildMangeTableSection()
             else if (_selectedIndex == -2)
               _buildAddOrEditMenuSection(menu: _selectedMenu)
             else if (_selectedIndex == -3)
@@ -40,6 +42,421 @@ class _OwnerPageTabletLayoutState extends State<OwnerPageTabletLayout> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildMangeTableSection() {
+    return Expanded(
+        child: Container(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+      child: Column(
+        children: [
+          const Align(
+            alignment: Alignment.centerLeft,
+            child: Text("KuayTeawHatYai",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 30,
+                  color: Color(0xFFF8C324),
+                )),
+          ),
+          const SizedBox(height: 20),
+          const Align(
+            alignment: Alignment.centerLeft,
+            child: Text("จัดการโต๊ะ",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 25,
+                  color: Colors.black,
+                )),
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              const Spacer(),
+              ElevatedButton(
+                onPressed: () {
+                  // put only table number in dialog
+                  showDialog(
+                      context: context,
+                      builder: (context) {
+                        TextEditingController tableNumberController =
+                            TextEditingController();
+                        return AlertDialog(
+                          backgroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          title: const Center(
+                            child: Text(
+                              'เพิ่มโต๊ะ',
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFFF8C324),
+                              ),
+                            ),
+                          ),
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              TextField(
+                                controller: tableNumberController,
+                                cursorColor: Colors.black,
+                                decoration: const InputDecoration(
+                                  labelText: 'เลขโต๊ะ',
+                                  labelStyle: TextStyle(
+                                    color: Color(0xFFF8C324),
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  focusedBorder: UnderlineInputBorder(
+                                    borderSide:
+                                        BorderSide(color: Color(0xFFF8C324)),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              ElevatedButton(
+                                onPressed: () async {
+                                  final response = await ApiService().postData(
+                                      "tables/add", {
+                                    "table_number": tableNumberController.text
+                                  });
+
+                                  if (response.data['code'] == 'success') {
+                                    if (mounted) {
+                                      toastification.show(
+                                        context: context,
+                                        type: ToastificationType.success,
+                                        style: ToastificationStyle.flat,
+                                        title: const Text("เพิ่มโต๊ะสำเร็จ"),
+                                        description:
+                                            const Text("เพิ่มโต๊ะสำเร็จแล้ว"),
+                                      );
+                                    }
+                                    Get.back();
+                                    setState(() {});
+                                  } else {
+                                    if (mounted) {
+                                      toastification.show(
+                                        context: context,
+                                        type: ToastificationType.error,
+                                        style: ToastificationStyle.flat,
+                                        title: const Text("เพิ่มโต๊ะไม่สำเร็จ"),
+                                        description: const Text(
+                                            "เพิ่มโต๊ะไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"),
+                                      );
+                                    }
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFF8C324),
+                                  foregroundColor: Colors.black,
+                                  padding: const EdgeInsets.all(15),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                child: const Center(
+                                  child: FittedBox(
+                                    child: Text(
+                                      'ยืนยัน',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      });
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFF8C324),
+                  foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+                  textStyle: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(
+                      Icons.add,
+                      size: 20,
+                    ),
+                    SizedBox(width: 10),
+                    Text('เพิ่มโต๊ะ'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          FutureBuilder(
+              future: _fetchTables(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Expanded(
+                    child: Center(
+                        child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Color(0xFFF8C324),
+                      ),
+                    )),
+                  );
+                } else if (snapshot.hasError ||
+                    (snapshot.hasData &&
+                        (snapshot.data!["code"] != "success"))) {
+                  return const Expanded(child: Center(child: Text('Error')));
+                }
+                final data = snapshot.data as Map<String, dynamic>;
+                List tableList = data['tables'] as List;
+                // tableList = [
+                //         {
+                //             "table_number": "A01"
+                //         },
+                //         {
+                //             "table_number": "A02"
+                //         },
+                //         {
+                //             "table_number": "A03"
+                //         },
+                //         {
+                //             "table_number": "A04"
+                //         }
+                //     ]
+                return Expanded(
+                  child: SingleChildScrollView(
+                    child: GridView.builder(
+                      shrinkWrap: true,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount:
+                            ResponsiveLayout.isPortrait(context) ? 4 : 5,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10,
+                        childAspectRatio: 0.8,
+                      ),
+                      itemCount: tableList.length,
+                      itemBuilder: (context, index) {
+                        final table = tableList[index];
+                        return _buildTableItem(table: table);
+                      },
+                    ),
+                  ),
+                );
+              })
+        ],
+      ),
+    ));
+  }
+
+  Widget _buildTableItem({required Map<String, dynamic> table}) {
+    return Stack(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: Colors.grey, width: 1),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(
+                flex: 3,
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8C324),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.table_bar,
+                    color: Colors.white,
+                    size: 80,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Expanded(
+                  child: Row(
+                children: [
+                  const Icon(
+                    Icons.table_chart,
+                    color: Color(0xFFF8C324),
+                    size: 20,
+                  ),
+                  const SizedBox(width: 10),
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.cover,
+                      child: Align(
+                        child: Text(
+                          table['table_number'],
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              )),
+            ],
+          ),
+        ),
+        Positioned(
+          bottom: 13,
+          right: 0,
+          child: PopupMenuButton<String>(
+            icon: const Icon(
+              Icons.more_vert,
+              color: Color(0xFFEDC00F),
+            ),
+            color: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            onSelected: (String value) async {
+              if (value == "ลบ") {
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                          backgroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          title: const Center(
+                            child: Text(
+                              'ยืนยันการลบโต๊ะ',
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFFF8C324),
+                              ),
+                            ),
+                          ),
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () async {
+                                  final response = await ApiService()
+                                      .deleteData("tables/delete", data: {
+                                    "table_number": table['table_number'],
+                                  });
+                                  if (response.data['code'] == 'success') {
+                                    if (mounted) {
+                                      toastification.show(
+                                        context: context,
+                                        type: ToastificationType.success,
+                                        style: ToastificationStyle.flat,
+                                        title: const Text("ลบโต๊ะสำเร็จ"),
+                                        description:
+                                            const Text("ลบโต๊ะสำเร็จแล้ว"),
+                                      );
+                                    }
+                                    Get.back();
+                                    setState(() {});
+                                  } else {
+                                    if (mounted) {
+                                      toastification.show(
+                                        context: context,
+                                        type: ToastificationType.error,
+                                        style: ToastificationStyle.flat,
+                                        title: const Text("ลบโต๊ะไม่สำเร็จ"),
+                                        description: const Text(
+                                            "ลบโต๊ะไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"),
+                                      );
+                                    }
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFF8C324),
+                                  foregroundColor: Colors.black,
+                                  padding: const EdgeInsets.all(15),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                child: const Center(
+                                  child: FittedBox(
+                                    child: Text(
+                                      'ตกลง',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              ElevatedButton(
+                                onPressed: () {
+                                  Get.back();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.grey,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.all(15),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                child: const Center(
+                                  child: FittedBox(
+                                    child: Text(
+                                      'ยกเลิก',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ));
+                    });
+              }
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              const PopupMenuItem<String>(
+                value: 'ลบ',
+                child: Row(
+                  children: [
+                    Icon(Icons.delete, color: Color(0xFFEDC00F)),
+                    SizedBox(width: 10),
+                    Text(
+                      'ลบ',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -314,7 +731,7 @@ class _OwnerPageTabletLayoutState extends State<OwnerPageTabletLayout> {
     );
   }
 
-  Widget _buildMangeIngredientSection() {
+  Widget _buildManageIngredientSection() {
     return Expanded(
         child: Container(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
@@ -537,7 +954,7 @@ class _OwnerPageTabletLayoutState extends State<OwnerPageTabletLayout> {
                           ),
                           title: const Center(
                             child: Text(
-                              'ยืนยันการลบเมนู',
+                              'ยืนยันการลบวัตถุดิบ',
                               style: TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
@@ -946,7 +1363,7 @@ class _OwnerPageTabletLayoutState extends State<OwnerPageTabletLayout> {
     );
   }
 
-  Widget _buildMangeMenuSection() {
+  Widget _buildManageMenuSection() {
     return Expanded(
         child: Container(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
@@ -1289,6 +1706,11 @@ class _OwnerPageTabletLayoutState extends State<OwnerPageTabletLayout> {
     return response.data;
   }
 
+  Future<Map<String, dynamic>> _fetchTables() async {
+    final response = await ApiService().getData("tables");
+    return response.data;
+  }
+
   Widget _buildCustomNavigationRail() {
     return CustomNavigationRail(children: [
       CustomNavigationRailItem(
@@ -1306,6 +1728,17 @@ class _OwnerPageTabletLayoutState extends State<OwnerPageTabletLayout> {
         icon: Icons.inventory,
         label: 'จัดการวัตถุดิบ',
         index: 1,
+        selectedIndex: _selectedIndex,
+        onItemTapped: (int value) {
+          setState(() {
+            _selectedIndex = value;
+          });
+        },
+      ),
+      CustomNavigationRailItem(
+        icon: Icons.table_bar,
+        label: 'จัดการโต๊ะ',
+        index: 2,
         selectedIndex: _selectedIndex,
         onItemTapped: (int value) {
           setState(() {
