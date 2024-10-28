@@ -7,7 +7,8 @@ class ApiService {
   ApiService() {
     BaseOptions options = BaseOptions(
         // baseUrl: dotenv.env['APIURL']!,
-        baseUrl: 'http://localhost:5000/',
+        baseUrl:
+            'https://sa-kuayteawhatyai-kuayteawhatyai-backend.zmf8tp.easypanel.host/',
         connectTimeout: const Duration(seconds: 5),
         receiveTimeout: const Duration(seconds: 3),
         headers: {
