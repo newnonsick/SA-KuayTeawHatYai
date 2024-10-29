@@ -1927,9 +1927,8 @@ class _OwnerPageTabletLayoutState extends State<OwnerPageTabletLayout> {
 
   bool areEqual(List<String> a, List<String> b) {
     if (a.length != b.length) return false;
-    for (int i = 0; i < a.length; i++) {
-      if (a[i] != b[i]) return false;
-    }
-    return true;
+    List<String> sortedA = List.from(a)..sort();
+    List<String> sortedB = List.from(b)..sort();
+    return sortedA.toString() == sortedB.toString();
   }
 }
