@@ -904,20 +904,18 @@ class _OrderPageState extends State<_OrderPage> {
   }
 
   Widget _buildMenuItem(OrderItem orderItem) {
-    return Expanded(
-      child: MenuItemCard(
-        orderItem: orderItem,
-        isExpanded: _selectedOrderItem == orderItem,
-        onToggle: () {
-          setState(() {
-            if (_selectedOrderItem == orderItem) {
-              _selectedOrderItem = null;
-            } else {
-              _selectedOrderItem = orderItem;
-            }
-          });
-        },
-      ),
+    return MenuItemCard(
+      orderItem: orderItem,
+      isExpanded: _selectedOrderItem == orderItem,
+      onToggle: () {
+        setState(() {
+          if (_selectedOrderItem == orderItem) {
+            _selectedOrderItem = null;
+          } else {
+            _selectedOrderItem = orderItem;
+          }
+        });
+      },
     );
   }
 }
