@@ -11,8 +11,8 @@ class OrderItemProvider with ChangeNotifier {
           o.extraInfo == orderItem.extraInfo) {
         bool sameIngredients = true;
 
-        for (String ingredient in orderItem.ingredients!) {
-          if (!o.ingredients!.contains(ingredient)) {
+        for (String ingredient in orderItem.ingredients) {
+          if (!o.ingredients.contains(ingredient)) {
             sameIngredients = false;
             break;
           }

@@ -7,7 +7,6 @@ import 'package:kuayteawhatyai/models/ingredient.dart';
 import 'package:kuayteawhatyai/models/menu.dart';
 import 'package:kuayteawhatyai/provider/entities/orderitemprovider.dart';
 import 'package:kuayteawhatyai/provider/entities/orderlistprovider.dart';
-import 'package:kuayteawhatyai/provider/entities/orderprovider.dart';
 import 'package:kuayteawhatyai/services/apiservice.dart';
 import 'package:kuayteawhatyai/utils/responsive_layout.dart';
 import 'package:kuayteawhatyai/widgets/customnavigationrail.dart';
