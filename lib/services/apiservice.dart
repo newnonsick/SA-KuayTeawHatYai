@@ -1,17 +1,21 @@
 import 'package:dio/dio.dart';
 // import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 
 class ApiService {
   late Dio _dio;
+  String secretKey = "[r,7?~XPYRZ>~t:weYk}=OY=lY+%q?GL";
 
   ApiService() {
     BaseOptions options = BaseOptions(
         // baseUrl: dotenv.env['APIURL']!,
-        baseUrl: 'https://kuayteawhatyai-backend.onrender.com/',
+        baseUrl: 'http://localhost:5000/',
         connectTimeout: const Duration(seconds: 5),
         receiveTimeout: const Duration(seconds: 3),
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': generateToken(),
         });
 
     _dio = Dio(options);
@@ -30,6 +34,19 @@ class ApiService {
         return handler.next(e);
       },
     ));
+  }
+
+  /// Generates a token using timestamp + secret key
+  String generateToken({int? timePrevious}) {
+    int timestamp =
+        timePrevious ?? DateTime.now().millisecondsSinceEpoch ~/ 2000;
+    String rawToken = '$timestamp$secretKey';
+
+    // Generate the SHA-256 hash of the token
+    var bytes = utf8.encode(rawToken);
+    var tokenHash = sha256.convert(bytes).toString();
+
+    return tokenHash;
   }
 
   // GET Request with Headers

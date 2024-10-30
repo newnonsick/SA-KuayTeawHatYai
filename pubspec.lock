@@ -42,7 +42,7 @@ packages:
     source: hosted
     version: "1.18.0"
   crypto:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: crypto
       sha256: "1e445881f28f22d6140f181e07737b22f1e099a5e1ff94b0af2f9e4a463f4855"
@@ -251,14 +251,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.0+3"
-  popover:
-    dependency: "direct main"
-    description:
-      name: popover
-      sha256: "0606f3e10f92fc0459f5c52fd917738c29e7552323b28694d50c2d3312d0e1a2"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.3.1"
   provider:
     dependency: "direct main"
     description:
@@ -378,4 +370,4 @@ packages:
     version: "1.1.0"
 sdks:
   dart: ">=3.5.3 <4.0.0"
-  flutter: ">=3.24.0"
+  flutter: ">=3.18.0-18.0.pre.54"
