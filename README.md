@@ -1,16 +1,50 @@
-# kuayteawhatyai
+# SA-KuayTeawHatYai
 
-A new Flutter project.
+SA-KuayTeawHatYai is a Flutter web application designed to provide users with an engaging and user-friendly experience. The app showcases the rich culinary culture of Hat Yai, focusing on the delicious local dish, Kuay Teaw.
+
+## Features
+
+- **Responsive Design**: The application is optimized for tablet layout, providing an intuitive and visually appealing interface.
+- **User-Friendly Navigation**: Easily browse through various sections of the app, including recipes, local restaurants, and cultural insights.
+- **Interactive Elements**: Users can interact with content through various features, enhancing their experience.
+
+## Installation
+
+To run the app locally, follow these steps:
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/newnonsick/SA-KuayTeawHatYai.git
+   ```
+2. Navigate to the project directory:
+   ```bash
+   cd SA-KuayTeawHatYai
+   ```
+3. Install the dependencies:
+   ```bash
+   flutter pub get
+   ```
+4. Run the app:
+   ```bash
+   flutter run -d chrome
+   ```
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+1. Ensure you have Flutter installed on your machine.
+2. Set up your preferred editor (e.g., Visual Studio Code, Android Studio).
+3. Open the project and explore the files to understand the structure.
+4. Customize the application as per your needs.
 
-A few resources to get you started if this is your first Flutter project:
+## Screenshots
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+![Screenshot](KuayTeawHatYai.png)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Live Demo
+
+You can access the live version of the app at: [SA-KuayTeawHatYai Live](https://kuayteawhatyai.vercel.app/)
