@@ -40,6 +40,9 @@ To run the app locally, follow these steps:
 
 ![Screenshot](KuayTeawHatYai.png)
 
+## Backend
+
+The backend for this application provides the necessary data handling and API endpoints, enhancing the app’s functionality. You can find the backend repository here: [SA-KuayTeawHatYai Backend](https://github.com/newnonsick/SA-KuayTeawHatYai-Backend/)
 
 ## License
 
