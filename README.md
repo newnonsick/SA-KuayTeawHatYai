@@ -1,12 +1,14 @@
 # SA-KuayTeawHatYai
 
-SA-KuayTeawHatYai is a Flutter web application designed to provide users with an engaging and user-friendly experience. The app showcases the rich culinary culture of Hat Yai, focusing on the delicious local dish, Kuay Teaw.
+**SA-KuayTeawHatYai** is a Flutter web application designed for a noodle restaurant to streamline its operations. This application provides a simple yet powerful interface for staff to manage orders, view the menu, and track daily revenue.
 
 ## Features
 
-- **Responsive Design**: The application is optimized for tablet layout, providing an intuitive and visually appealing interface.
-- **User-Friendly Navigation**: Easily browse through various sections of the app, including recipes, local restaurants, and cultural insights.
-- **Interactive Elements**: Users can interact with content through various features, enhancing their experience.
+- **Responsive Design**: Optimized for tablet layout, ensuring ease of use for restaurant staff.
+- **Order Management**: Staff can easily take and manage customer orders.
+- **Menu Display**: View an organized and up-to-date menu for seamless browsing.
+- **Revenue Tracking**: Get a clear overview of daily revenue to monitor sales performance.
+- **User-Friendly Interface**: Simple navigation and interactive elements tailored for restaurant operations.
 
 ## Installation
 
@@ -16,14 +18,17 @@ To run the app locally, follow these steps:
    ```bash
    git clone https://github.com/newnonsick/SA-KuayTeawHatYai.git
    ```
+
 2. Navigate to the project directory:
    ```bash
    cd SA-KuayTeawHatYai
    ```
+
 3. Install the dependencies:
    ```bash
    flutter pub get
    ```
+
 4. Run the app:
    ```bash
    flutter run -d chrome
@@ -33,21 +38,21 @@ To run the app locally, follow these steps:
 
 1. Ensure you have Flutter installed on your machine.
 2. Set up your preferred editor (e.g., Visual Studio Code, Android Studio).
-3. Open the project and explore the files to understand the structure.
-4. Customize the application as per your needs.
+3. Explore the project structure to understand the files and functionality.
+4. Customize the application to fit your restaurant's needs.
 
 ## Screenshots
 
-![Screenshot](KuayTeawHatYai.png)
+![App Screenshot](KuayTeawHatYai.png)
 
 ## Backend
 
-The backend for this application provides the necessary data handling and API endpoints, enhancing the app’s functionality. You can find the backend repository here: [SA-KuayTeawHatYai Backend](https://github.com/newnonsick/SA-KuayTeawHatYai-Backend/)
+This application works seamlessly with its backend to handle data processing and provide API endpoints. You can find the backend repository here: [SA-KuayTeawHatYai Backend](https://github.com/newnonsick/SA-KuayTeawHatYai-Backend/)
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ## Live Demo
 
-You can access the live version of the app at: [SA-KuayTeawHatYai Live](https://kuayteawhatyai.vercel.app/)
+You can access the live version of the app here: [SA-KuayTeawHatYai Live](https://kuayteawhatyai.vercel.app/)
