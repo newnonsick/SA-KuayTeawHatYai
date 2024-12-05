@@ -39,7 +39,7 @@ class ApiService {
   /// Generates a token using timestamp + secret key
   String generateToken({int? timePrevious}) {
     int timestamp =
-        timePrevious ?? DateTime.now().millisecondsSinceEpoch ~/ 2000;
+        timePrevious ?? DateTime.now().millisecondsSinceEpoch ~/ 5000;
     String rawToken = '$timestamp$secretKey';
 
     // Generate the SHA-256 hash of the token
